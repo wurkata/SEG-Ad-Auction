@@ -6,11 +6,15 @@ import java.util.ArrayList;
  */
 public class Model {
 
-    private ArrayList<Record> records;
+    private ArrayList<ImpressionLog> impressions;
+    private ArrayList<ClickLog> clicks;
+    private ArrayList<ServerLog> server;
 
     public Model(File impressions, File clicks, File server){
         try {
-            records = Parser.readFiles(impressions,clicks,server);
+            this.impressions=Parser.readImpressionLog(impressions);
+            this.clicks=Parser.readClickLog(clicks);
+            this.server=Parser.readServerLog(server);
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Error reading input files");
@@ -18,16 +22,55 @@ public class Model {
     }
 
     //Cost per click
+    //assuming cost is sum of impression costs (need to confirm as this does not take into account click cost)
     public double getClickCost(){
-        long numOfRecords = records.stream()
-                .filter(e->e.hasServerLog())
-                .count();
+        long numOfClicks = clicks.size();
 
-        double totalCost = records.parallelStream()
-                .filter(e->e.hasServerLog())
-                .mapToDouble(Record::getClickCost)
+        double totalCost = impressions.parallelStream()
+                .mapToDouble(e->e.getImpressionCost())
                 .sum();
 
-        return (totalCost/numOfRecords);
+        return (totalCost/numOfClicks);
     }
+
+    //Cost per 1000 impressions
+    public double getCPM(){
+        long numOfRecords = impressions.size();
+
+        double totalCost = impressions.parallelStream()
+                .mapToDouble(ImpressionLog::getImpressionCost)
+                .sum();
+
+        return (totalCost/numOfRecords)*1000.0;
+    }
+
+    //Click through rate
+    public double getCTR(){
+        long numOfImpressions = impressions.size();
+
+        long numOfClicks = clicks.size();
+
+        return ((double) numOfClicks/numOfImpressions);
+    }
+
+    //Number of impressions
+    public long getNumOfImpressions(){
+        return impressions.size();
+    }
+
+    //Number of clicks
+    public double getNumOfClicks(){
+
+        return clicks.size();
+    }
+
+    //Number of unique clicks
+    public double getNumOfUniqueClicks(){
+
+        return clicks.stream()
+                .mapToLong(e->e.getSubjectID())
+                .distinct()
+                .count();
+    }
+
 }

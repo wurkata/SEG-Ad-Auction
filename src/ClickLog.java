@@ -8,7 +8,7 @@ public class ClickLog {
     private Date clickDate;
     private double clickCost;
 
-    public ClickLog(long subjectID, Date clickDate, double clickCost){
+    public ClickLog( Date clickDate, long subjectID, double clickCost){
         this.subjectID=subjectID;
         this.clickDate=clickDate;
         this.clickCost=clickCost;

@@ -10,14 +10,14 @@ public class ServerLog {
     private int pagesViewed;
     private boolean conversion;
 
-    public ServerLog(long subjectID, Date entryDate, int pagesViewed, boolean conversion){
+    public ServerLog(Date entryDate, long subjectID, int pagesViewed, boolean conversion){
         this.subjectID=subjectID;
         this.entryDate=entryDate;
         this.pagesViewed=pagesViewed;
         this.conversion=conversion;
     }
 
-    public ServerLog(long subjectID, Date entryDate, Date exitDate, int pagesViewed, boolean conversion){
+    public ServerLog(Date entryDate, long subjectID, Date exitDate, int pagesViewed, boolean conversion){
         this.subjectID=subjectID;
         this.entryDate=entryDate;
         this.exitDate=exitDate;

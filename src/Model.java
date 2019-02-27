@@ -27,7 +27,7 @@ public class Model {
         long numOfClicks = clicks.size();
 
         double totalCost = impressions.parallelStream()
-                .mapToDouble(e->e.getImpressionCost())
+                .mapToDouble(ImpressionLog::getImpressionCost)
                 .sum();
 
         return (totalCost/numOfClicks);
@@ -68,7 +68,7 @@ public class Model {
     public double getNumOfUniqueClicks(){
 
         return clicks.stream()
-                .mapToLong(e->e.getSubjectID())
+                .mapToLong(ClickLog::getSubjectID)
                 .distinct()
                 .count();
     }

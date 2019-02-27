@@ -1,0 +1,32 @@
+Web Solution member part of advertising agency
+    - Need to develop a tool for clients to evaluate the metrics of campaigns
+    - Be user friendly
+
+    Dashboard:
+        - Quick summary
+        - Performance metrics over time
+        - Give options to:
+            1. Times of the day the customers respond better;
+            2. When or where the sudden changes of the performance
+            3. // missed this
+
+        Requirements:
+            1. Read CSV files;
+            2. Ability to create charts of the metrics
+            3. Control over time ranges
+            4. Agency to see Histogram
+            5. Client to be able to filter graphs by date range or context (where the click was)
+            6. Client to be able to compare different audience behaviour
+                - be able to overlap or put together on the screen (next to each other)
+            7. User should be able to define the settings
+            8. System to be able to create graphs in seconds as files are big and a lot
+            9. UI to be customizable
+            10. Save summary in PDFs;
+
+Personas:
+    Ioan:
+        - Be able to compare multiple campaigns;
+        - Attach own data and visualize it;
+
+        - Wants to create
+

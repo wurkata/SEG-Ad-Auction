@@ -64,5 +64,4 @@ nb-configuration.xml
 #########################
 ## SEG Specific
 #########################
-files/*
-src/main.java
+docs/*

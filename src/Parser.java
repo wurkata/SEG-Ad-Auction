@@ -27,8 +27,8 @@ public class Parser {
         if(!ids.containsAll(clickLog.keySet())){
             throw new Exception("Mismatch between IDs in click log and impression log");
         }else{
-            if(!ids.containsAll(serverLog.keySet())){
-                throw new Exception("Server log contains IDs not found in other log files");
+            if(!serverLog.keySet().equals(clickLog.keySet())){
+                throw new Exception("Server log contains IDs not found in click log");
             }
         }
 
@@ -43,9 +43,7 @@ public class Parser {
                 String[] cLog = clickLog.get(l).split(",");
                 ClickLog clickLog = new ClickLog(parseDate(cLog[0]),Double.parseDouble(cLog[1]));
                 record.setClickLog(clickLog);
-            }
 
-            if(serverLog.containsKey(l)){
                 String[] sLog = serverLog.get(l).split(",");
                 ServerLog serverLog;
                 if(sLog[1].equals("n/a")) {
@@ -55,6 +53,7 @@ public class Parser {
                 }
                 record.setServerLog(serverLog);
             }
+
             records.add(record);
         }
         return records;

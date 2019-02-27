@@ -105,6 +105,10 @@ public class Record {
         }
     }
 
+    public boolean hasServerLog(){
+        return serverLog!=null;
+    }
+
     public void printRecord() {
         if (serverLog == null) {
             System.out.println("ID:" + subjectID + "\tImpDate:" + impressionDate.toString() + "\tGender:" + gender + "\tAge:" + ageRange + "\tIncome:" + income + "\tContext:" + context + "\tImpCost:" + impressionCost + "\tClickLog:n/a\tServer:n/a");

@@ -17,8 +17,8 @@ public class Model {
         }
     }
 
-    //Cost per 1000 impressions
-    public double getCPM(){
+    //Cost per click
+    public double getClickCost(){
         long numOfRecords = records.stream()
                 .filter(e->e.hasServerLog())
                 .count();
@@ -28,6 +28,6 @@ public class Model {
                 .mapToDouble(Record::getClickCost)
                 .sum();
 
-        return (totalCost/numOfRecords)*1000.0;
+        return (totalCost/numOfRecords);
     }
 }

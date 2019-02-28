@@ -1,14 +1,19 @@
+package model;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by furqan on 27/02/2019.
  */
 public class Model {
+    private List<ImpressionLog> impressions;
+    private List<ClickLog> clicks;
+    private List<ServerLog> server;
 
-    private ArrayList<ImpressionLog> impressions;
-    private ArrayList<ClickLog> clicks;
-    private ArrayList<ServerLog> server;
+    public Model() {
+    }
 
     public Model(File impressions, File clicks, File server){
         try {
@@ -19,6 +24,10 @@ public class Model {
             e.printStackTrace();
             System.err.println("Error reading input files");
         }
+    }
+
+    public void loadFile(File inputFile) {
+
     }
 
     //Cost per click

@@ -64,3 +64,4 @@ nb-configuration.xml
 #########################
 ## SEG Specific
 #########################
+docs/*

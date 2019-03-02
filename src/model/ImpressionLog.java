@@ -2,21 +2,21 @@ package model;
 
 import java.util.Date;
 
+import static model.Parser.parseAge;
+
 /**
  * Created by furqan on 26/02/2019.
  */
 public class ImpressionLog {
-    private long subjectID;
+    private String subjectID;
     private String gender;
-    private String ageRange;
+    private int ageRange;
     private String income;
     private String context;
     private Date impressionDate;
     private double impressionCost;
 
-
-
-    public ImpressionLog(Date impressionDate, long subjectID, String gender, String ageRange, String income, String context, double impressionCost){
+    public ImpressionLog(Date impressionDate, String subjectID, String gender, int ageRange, String income, String context, double impressionCost){
         this.impressionDate=impressionDate;
         this.subjectID=subjectID;
         this.gender=gender;
@@ -26,7 +26,7 @@ public class ImpressionLog {
         this.impressionCost=impressionCost;
     }
 
-    public long getSubjectID() {
+    public String getSubjectID() {
         return subjectID;
     }
 
@@ -34,7 +34,7 @@ public class ImpressionLog {
         return gender;
     }
 
-    public String getAgeRange() {
+    public int getAgeRange() {
         return ageRange;
     }
 

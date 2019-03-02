@@ -17,6 +17,7 @@ public class Model {
     private List<ImpressionLog> impressionLog;
     private List<ClickLog> clickLog;
     private List<ServerLog> serverLog;
+    private boolean impressionCost = true;
 
     private Connection con;
 
@@ -123,27 +124,36 @@ public class Model {
         }
     }
 
+    //True sets class to calculate costs based om impression costs, whereas false uses click costs
+    public void setCostMode(boolean impressionCostMode){
+        this.impressionCost=impressionCostMode;
+    }
+
+    //calculates cost based on either impression cost or click cost depending on value of impressionCost field
+    private double calculateCost(){
+        if(impressionCost) {
+            return impressionLog.parallelStream()
+                    .mapToDouble(ImpressionLog::getImpressionCost)
+                    .sum();
+        }else{
+            return clickLog.parallelStream()
+                    .mapToDouble(ClickLog::getClickCost)
+                    .sum();
+        }
+    }
+
     //Cost per click
-    //assuming cost is sum of impression costs (need to confirm as this does not take into account click cost)
-    public double getClickCost() {
+    public double getClickCost(){
         long numOfClicks = clickLog.size();
 
-        double totalCost = impressionLog.parallelStream()
-                .mapToDouble(ImpressionLog::getImpressionCost)
-                .sum();
-
-        return (totalCost / numOfClicks);
+        return (calculateCost()/numOfClicks);
     }
 
     //Cost per 1000 impressionLog
     public double getCPM() {
         long numOfRecords = impressionLog.size();
 
-        double totalCost = impressionLog.parallelStream()
-                .mapToDouble(ImpressionLog::getImpressionCost)
-                .sum();
-
-        return (totalCost / numOfRecords) * 1000.0;
+        return (calculateCost()/numOfRecords)*1000.0;
     }
 
     //Click through rate
@@ -155,8 +165,17 @@ public class Model {
         return ((double) numOfClicks / numOfImpressions);
     }
 
-    //Number of impressionLog
-    public long getNumOfImpressions() {
+    //Cost per acquisition
+    public double getCPA(){
+        long numOfAcquisitions = serverLog.stream()
+                .filter(s -> s.getConversion() > 0)
+                .count();
+
+        return (calculateCost()/numOfAcquisitions);
+    }
+
+    //Number of impressions
+    public long getNumOfImpressions(){
         return impressionLog.size();
     }
 

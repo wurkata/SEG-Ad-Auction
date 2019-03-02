@@ -6,20 +6,20 @@ import java.util.Date;
  * Created by furqan on 26/02/2019.
  */
 public class ServerLog {
-    private long subjectID;
+    private String subjectID;
     private Date entryDate;
     private Date exitDate;
     private int pagesViewed;
-    private boolean conversion;
+    private int conversion;
 
-    public ServerLog(Date entryDate, long subjectID, int pagesViewed, boolean conversion){
+    public ServerLog(Date entryDate, String subjectID, int pagesViewed, int conversion){
         this.subjectID=subjectID;
         this.entryDate=entryDate;
         this.pagesViewed=pagesViewed;
         this.conversion=conversion;
     }
 
-    public ServerLog(Date entryDate, long subjectID, Date exitDate, int pagesViewed, boolean conversion){
+    public ServerLog(Date entryDate, String subjectID, Date exitDate, int pagesViewed, int conversion){
         this.subjectID=subjectID;
         this.entryDate=entryDate;
         this.exitDate=exitDate;
@@ -27,14 +27,13 @@ public class ServerLog {
         this.conversion=conversion;
     }
 
-    public long getSubjectID() {
+    public String getSubjectID() {
         return subjectID;
     }
 
     public Date getEntryDate() {
         return entryDate;
     }
-
 
     public Date getExitDate() {
         return exitDate;
@@ -45,8 +44,7 @@ public class ServerLog {
         return pagesViewed;
     }
 
-
-    public boolean getConversion() {
+    public int getConversion() {
         return conversion;
     }
 

@@ -1,5 +1,6 @@
 package controller;
 
+import common.FileType;
 import model.*;
 
 import java.io.File;
@@ -10,21 +11,21 @@ public class AuctionController {
 
     public AuctionController() {
         auctionModel = new Model();
-    }
+        auctionModel.connectToDatabase();
 
-    public AuctionController(File... inputFiles) {
-        auctionModel = new Model();
+        File clickLogFile = new File("input/click_log.csv");
+        auctionModel.loadFile(clickLogFile, FileType.CLICK_LOG);
 
-        for(int i = 0; i < 3; i++) {
-            auctionModel.loadFile(inputFiles[i]);
-        }
+        auctionModel.uploadData(FileType.CLICK_LOG);
     }
 
     public static void main(String[] args) {
         // Load Model
         // Load UI
         // Manage Interaction
+        new AuctionController();
 
+        /*
         try {
             File clickLogFile = new File("input/click_log.csv");
             Parser parser = new Parser();
@@ -33,8 +34,9 @@ public class AuctionController {
             for (ClickLog cl : clickLogList) {
                 System.out.println(cl.getSubjectID());
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }

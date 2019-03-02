@@ -12,6 +12,7 @@ import java.util.stream.Stream;
  * Created by furqan on 26/02/2019.
  */
 public class Parser {
+
     public static ArrayList<ClickLog> readClickLog(File file) throws Exception {
         ArrayList<ClickLog> clickLog = new ArrayList<>();
         try {
@@ -20,7 +21,7 @@ public class Parser {
             Stream<String> lines = reader.lines();
             lines.skip(1)
                     .map(e -> e.split(","))
-                    .forEach(s -> clickLog.add(new ClickLog(parseDate(s[0]), Long.parseLong(s[1]), Double.parseDouble(s[2]))));
+                    .forEach(s -> clickLog.add(new ClickLog(parseDate(s[0]), s[1], Double.parseDouble(s[2]))));
             return clickLog;
         } catch (Exception e) {
             e.printStackTrace();
@@ -35,7 +36,7 @@ public class Parser {
             reader.lines()
                     .skip(1)
                     .map(e -> e.split(","))
-                    .forEach(s -> impressionLog.add(new ImpressionLog(parseDate(s[0]), Long.parseLong(s[1]), s[2], s[3], s[4], s[5], Double.parseDouble(s[6]))));
+                    .forEach(s -> impressionLog.add(new ImpressionLog(parseDate(s[0]), s[1], s[2], parseAge(s[3]), s[4], s[5], Double.parseDouble(s[6]))));
             return impressionLog;
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,9 +54,9 @@ public class Parser {
                     .map(e -> e.split(","))
                     .forEach(s -> {
                         if (s[2].equals("n/a")) {
-                            serverLog.add(new ServerLog(parseDate(s[0]), Long.parseLong(s[1]), Integer.parseInt(s[3]), parseBool(s[4])));
+                            serverLog.add(new ServerLog(parseDate(s[0]), s[1], Integer.parseInt(s[3]), parseBool(s[4])));
                         } else {
-                            serverLog.add(new ServerLog(parseDate(s[0]), Long.parseLong(s[1]), parseDate(s[2]), Integer.parseInt(s[3]), parseBool(s[4])));
+                            serverLog.add(new ServerLog(parseDate(s[0]), s[1], parseDate(s[2]), Integer.parseInt(s[3]), parseBool(s[4])));
                         }
                     });
             return serverLog;
@@ -78,7 +79,40 @@ public class Parser {
         return parsedDate;
     }
 
-    private static boolean parseBool(String s) {
-        return s.equals("Yes");
+    private static int parseBool(String s) {
+        return s.equals("Yes") ? 1 : 0;
+    }
+
+    public static int parseAge(String age) {
+        switch (age) {
+            case "<25":
+                return 1;
+            case "25-34":
+                return 2;
+            case "35-44":
+                return 3;
+            case "45-54":
+                return 4;
+            case ">54":
+                return 5;
+            default:
+                return 0;
+        }
+    }
+    public static String parseAge(int age) {
+        switch (age) {
+            case 1:
+                return "<25";
+            case 2:
+                return "25-34";
+            case 3:
+                return "35-44";
+            case 4:
+                return "45-54";
+            case 5:
+                return ">54";
+            default:
+                return "<25";
+        }
     }
 }

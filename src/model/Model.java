@@ -20,6 +20,7 @@ public class Model {
     private String campaignTitle;
 
     private Connection con;
+    private Date bounceTime = null;
 
     public Model() {
     }
@@ -207,4 +208,36 @@ public class Model {
                 .count();
     }
 
+    // Get number of bounces
+    public int getNumOfBounces() {
+        // if no bounce time is use conversion
+        if (bounceTime != null) {
+            return serverLog.size() - getNumOfConversions();
+        } else {
+            return serverLog.stream()
+                    .filter(entry ->
+                                    entry.exitTime != null &&
+                                    bounceTime < (entry.exitTime.getTime() - entry.entryTime.getTime())
+                    )
+                    .count();
+        }
+    }
+
+    // Sets Bounce Time
+    public void setBounceTime(Date time) {
+        this.bounceTime = time;
+    }
+
+    // Get bounce rate
+    public float getBounceRate() {
+        float bounceNum = (float) getNumOfBounces();
+        return bounceNum / serverLog.size();
+    }
+
+    // Get number of conversions
+    public int getNumOfConversions() {
+        return serverLog.stream()
+                .filter(ServerLog::getConversion)
+                .count();
+    }
 }

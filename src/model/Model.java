@@ -2,9 +2,7 @@ package model;
 
 import common.FileType;
 
-import javax.swing.plaf.nimbus.State;
 import java.io.File;
-import java.security.spec.ECField;
 import java.sql.Statement;
 import java.util.List;
 import java.sql.Connection;
@@ -17,7 +15,9 @@ public class Model {
     private List<ImpressionLog> impressionLog;
     private List<ClickLog> clickLog;
     private List<ServerLog> serverLog;
+
     private boolean impressionCost = true;
+    private String campaignTitle;
 
     private Connection con;
 
@@ -79,10 +79,17 @@ public class Model {
             Statement stmt = uploadCon.createStatement();
             String query;
 
+            // Insert table name
+            query = "INSERT INTO campaigns (CampaignTitle) " +
+                    "SELECT * FROM (SELECT \"" + this.campaignTitle + "\") AS tmp " +
+                    "WHERE NOT EXISTS (SELECT CampaignTitle FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\") LIMIT 1;";
+            stmt.executeUpdate(query);
+
             switch (type) {
                 case IMPRESSION_LOG:
                     for (ImpressionLog il : this.impressionLog) {
-                        query = "INSERT INTO impression_log (Date, UserID, Gender, AgeID, Income, Context, ImpressionCost) VALUES(\"" +
+                        query = "INSERT INTO impression_log (CampaignID, Date, UserID, Gender, AgeID, Income, Context, ImpressionCost) VALUES(" +
+                                "(SELECT ID FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\"), \"" +
                                 il.getImpressionDate() + "\", \"" +
                                 il.getSubjectID() + "\",\"" +
                                 il.getGender() + "\"," +
@@ -96,7 +103,8 @@ public class Model {
                     break;
                 case CLICK_LOG:
                     for (ClickLog cl : this.clickLog) {
-                        query = "INSERT INTO click_log (Date, UserID, ClickCost) VALUES(\"" +
+                        query = "INSERT INTO click_log (CampaignID, Date, UserID, ClickCost) VALUES(" +
+                                "(SELECT ID FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\"), \"" +
                                 cl.getClickDate() + "\", \"" +
                                 cl.getSubjectID() + "\"," +
                                 cl.getClickCost() + ");";
@@ -106,7 +114,8 @@ public class Model {
                     break;
                 case SERVER_LOG:
                     for (ServerLog sl : this.serverLog) {
-                        query = "INSERT INTO server_log (EntryDate, UserID, ExitDate, NoPagesViewed, isConversion) VALUES(\"" +
+                        query = "INSERT INTO server_log (CampaignID, EntryDate, UserID, ExitDate, NoPagesViewed, isConversion) VALUES(" +
+                                "(SELECT ID FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\"), \"" +
                                 sl.getEntryDate() + "\", \"" +
                                 sl.getSubjectID() + "\",\"" +
                                 sl.getExitDate() + "\"," +
@@ -124,18 +133,22 @@ public class Model {
         }
     }
 
+    public void setCampaignTitle(String title) {
+        this.campaignTitle = title;
+    }
+
     //True sets class to calculate costs based om impression costs, whereas false uses click costs
-    public void setCostMode(boolean impressionCostMode){
-        this.impressionCost=impressionCostMode;
+    public void setCostMode(boolean impressionCostMode) {
+        this.impressionCost = impressionCostMode;
     }
 
     //calculates cost based on either impression cost or click cost depending on value of impressionCost field
-    private double calculateCost(){
-        if(impressionCost) {
+    private double calculateCost() {
+        if (impressionCost) {
             return impressionLog.parallelStream()
                     .mapToDouble(ImpressionLog::getImpressionCost)
                     .sum();
-        }else{
+        } else {
             return clickLog.parallelStream()
                     .mapToDouble(ClickLog::getClickCost)
                     .sum();
@@ -143,17 +156,17 @@ public class Model {
     }
 
     //Cost per click
-    public double getClickCost(){
+    public double getClickCost() {
         long numOfClicks = clickLog.size();
 
-        return (calculateCost()/numOfClicks);
+        return (calculateCost() / numOfClicks);
     }
 
     //Cost per 1000 impressionLog
     public double getCPM() {
         long numOfRecords = impressionLog.size();
 
-        return (calculateCost()/numOfRecords)*1000.0;
+        return (calculateCost() / numOfRecords) * 1000.0;
     }
 
     //Click through rate
@@ -166,16 +179,16 @@ public class Model {
     }
 
     //Cost per acquisition
-    public double getCPA(){
+    public double getCPA() {
         long numOfAcquisitions = serverLog.stream()
                 .filter(s -> s.getConversion() > 0)
                 .count();
 
-        return (calculateCost()/numOfAcquisitions);
+        return (calculateCost() / numOfAcquisitions);
     }
 
     //Number of impressions
-    public long getNumOfImpressions(){
+    public long getNumOfImpressions() {
         return impressionLog.size();
     }
 

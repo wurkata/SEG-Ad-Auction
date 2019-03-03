@@ -4,7 +4,6 @@ import common.FileType;
 import model.*;
 
 import java.io.File;
-import java.util.List;
 
 public class AuctionController {
     private Model auctionModel;
@@ -12,11 +11,9 @@ public class AuctionController {
     public AuctionController() {
         auctionModel = new Model();
         auctionModel.connectToDatabase();
-
-        File clickLogFile = new File("input/click_log.csv");
-        auctionModel.loadFile(clickLogFile, FileType.CLICK_LOG);
-
-        auctionModel.uploadData(FileType.CLICK_LOG);
+        loadFile("input/click_log.csv", FileType.CLICK_LOG);
+        setCampaignTitle("Tester 1");
+        uploadData(FileType.CLICK_LOG);
     }
 
     public static void main(String[] args) {
@@ -24,19 +21,18 @@ public class AuctionController {
         // Load UI
         // Manage Interaction
         new AuctionController();
+    }
 
-        /*
-        try {
-            File clickLogFile = new File("input/click_log.csv");
-            Parser parser = new Parser();
-            List<ClickLog> clickLogList = parser.readClickLog(clickLogFile);
+    public void loadFile(String filename, FileType fileType) {
+        File inputFile = new File(filename);
+        auctionModel.loadFile(inputFile, fileType);
+    }
 
-            for (ClickLog cl : clickLogList) {
-                System.out.println(cl.getSubjectID());
-            }
+    public void uploadData(FileType fileType) {
+        auctionModel.uploadData(fileType);
+    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
+    public void setCampaignTitle(String title) {
+        auctionModel.setCampaignTitle(title);
     }
 }

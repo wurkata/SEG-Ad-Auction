@@ -1,5 +1,6 @@
 package controller;
 
+import view.BaseFrame;
 import common.FileType;
 import model.*;
 
@@ -9,11 +10,11 @@ public class AuctionController {
     private Model auctionModel;
 
     public AuctionController() {
-        auctionModel = new Model();
-        auctionModel.connectToDatabase();
-        loadFile("input/click_log.csv", FileType.CLICK_LOG);
-        setCampaignTitle("Tester 1");
-        uploadData(FileType.CLICK_LOG);
+        // auctionModel = new Model();
+
+        BaseFrame bs = new BaseFrame();
+
+        bs.initUI();
     }
 
     public static void main(String[] args) {

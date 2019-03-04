@@ -23,7 +23,7 @@ public class BaseFrame extends JFrame {
         setLayout(new BorderLayout());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
-        setSize(1600, 1200);
+        setSize(1600, 900);
 
     }
 

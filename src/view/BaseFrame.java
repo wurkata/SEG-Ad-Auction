@@ -1,6 +1,8 @@
 package view;
 
+import controller.AuctionController;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 
 import java.awt.BorderLayout;
 
@@ -13,11 +15,13 @@ import javax.swing.*;
  */
 public class BaseFrame extends JFrame {
 
-    private KeyMetrics km = new KeyMetrics();
+    private KeyMetrics km;
     private Header header = new Header();
     private ChartControl chart = new ChartControl();
+    private AuctionController controller;
 
-    public BaseFrame() {
+    public BaseFrame(AuctionController controller) {
+        this.controller=controller;
 
         setTitle("Ad-Auction-Dashboard");
         setLayout(new BorderLayout());
@@ -28,11 +32,12 @@ public class BaseFrame extends JFrame {
     }
 
     public void initUI() {
-        add(header.displayHeader(), BorderLayout.NORTH);
-        add(km.displayKeyMetrics(), BorderLayout.WEST);
-        add(chart.displayChartControls(), BorderLayout.SOUTH);
+        add(header.displayHeader(controller), BorderLayout.NORTH);
+        ChartPanel cp = new ChartPanel(null);
 
-        ChartPanel cp = new ChartPanel((new ChartDisplay()).getChart());
+        km=new KeyMetrics(controller, cp);
+        add(km, BorderLayout.WEST);
+        add(chart.displayChartControls(controller), BorderLayout.SOUTH);
 
         add(cp, BorderLayout.CENTER);
         setVisible(true);

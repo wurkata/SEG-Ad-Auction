@@ -1,58 +1,118 @@
 package view;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
+
+import common.Metric;
+import controller.AuctionController;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
+import org.jfree.data.time.Hour;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 
 import java.awt.*;
 
+import java.text.SimpleDateFormat;
+
 public class ChartDisplay {
-    private JFreeChart chart;
-    private XYSeries series;
+    private AuctionController controller;
 
-    public ChartDisplay() {
-        series = getSeries("Testing");
-        XYSeries wtfSeries = new XYSeries("WTF");
-        wtfSeries.add(0, 1);
-        wtfSeries.add(2, 1.5);
-        wtfSeries.add(3,4);
-        wtfSeries.add(5,6);
+    public ChartDisplay(AuctionController controller) {
+        this.controller=controller;
+    }
 
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(series);
-        dataset.addSeries(wtfSeries);
+    public JFreeChart getChart(Metric metric) {
+        TimeSeriesCollection dataset = new TimeSeriesCollection();
+        String title="";
+        String val="";
+        switch(metric){
+            case CPA:
+                TimeSeries cpa = new TimeSeries("CPA");
+                controller.getCPAPair().stream().forEach(e->cpa.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Cost per Acquisition";
+                val="Cost /pence";
+                dataset.addSeries(cpa);
+                break;
+            case CPC:
+                TimeSeries clickCost = new TimeSeries("CPC");
+                controller.getClickCostPair().stream().forEach(e->clickCost.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Cost per Click";
+                val="Cost /pence";
+                dataset.addSeries(clickCost);
+                break;
+            case CPM:
+                TimeSeries cpm = new TimeSeries("CPM");
+                controller.getCPMPair().stream().forEach(e->cpm.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Cost per 1000 Impressions";
+                val="Cost /pence";
+                dataset.addSeries(cpm);
+                break;
+            case CTR:
+                TimeSeries ctr = new TimeSeries("CTR");
+                controller.getCTRPair().stream().forEach(e->ctr.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Click-Through Rate";
+                val="Click-Through Rate";
+                dataset.addSeries(ctr);
+                break;
+            case TOTAL_COST:
+                TimeSeries totalCost = new TimeSeries("Total Cost");
+                controller.getTotalCostPair().stream().forEach(e->totalCost.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Total Cost";
+                val="Cost /pence";
+                dataset.addSeries(totalCost);
+                break;
+            case BOUNCE_RATE:
+                TimeSeries bounceRate = new TimeSeries("Bounce Rate");
+                controller.getBounceRatePair().stream().forEach(e->bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Bounce Rate";
+                val="Bounce Rate";
+                dataset.addSeries(bounceRate);
+                break;
+            case NUM_OF_CLICKS:
+                TimeSeries numOfClicks = new TimeSeries("Number Of Clicks");
+                controller.getNumOfClicksPair().stream().forEach(e->numOfClicks.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Number of Clicks";
+                val="Number of Clicks";
+                dataset.addSeries(numOfClicks);
+                break;
+            case NUM_OF_BOUNCES:
+                TimeSeries bp = new TimeSeries("Number Of Bounces");
+                controller.getNumOfBouncesPair().stream().forEach(e->bp.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Number of Bounces";
+                val="Bounces";
+                dataset.addSeries(bp);
+                break;
+            case NUM_OF_CONVERSIONS:
+                TimeSeries conversion = new TimeSeries("Number Of Conversions");
+                controller.getNumOfConversionsPair().stream().forEach(e->conversion.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Number of Conversions";
+                val="Conversions";
+                dataset.addSeries(conversion);
+                break;
+            case NUM_OF_IMPRESSIONS:
+                TimeSeries imp = new TimeSeries("Number Of Impressions");
+                controller.getNumOfImpressionsPair().stream().forEach(e->imp.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Number of Impressions";
+                val="Impressions";
+                dataset.addSeries(imp);
+                break;
+            case NUM_OF_UNIQUE_CLICKS:
+                TimeSeries uclick = new TimeSeries("Number Of Unique Clicks");
+                controller.getNumOfUniqueClicksPair().stream().forEach(e->uclick.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                title="Number of Unique Clicks";
+                val="Unique Clicks";
+                dataset.addSeries(uclick);
+                break;
+        }
 
-        chart = ChartFactory.createXYLineChart(
-                "Test Chart",
-                "X-axis",
-                "y-axis",
-                dataset,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
-
-        XYPlot plot = chart.getXYPlot();
+        DateAxis x = new DateAxis("Date");
+        x.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd HHHH"));
+        XYPlot plot = new XYPlot(dataset, x, new NumberAxis(val),new XYLineAndShapeRenderer());
         plot.getRenderer().setSeriesStroke(0,new BasicStroke(4.0f));
+        return new JFreeChart(title, plot);
     }
 
-    public JFreeChart getChart() {
-        return chart;
-    }
 
-    private XYSeries getSeries(String title) {
-        XYSeries xySeries = new XYSeries(title);
-        xySeries.add(0.5, 2.3);
-        xySeries.add(1, 3);
-        xySeries.add(2, 4);
-        return xySeries;
-    }
 }

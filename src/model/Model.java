@@ -1,12 +1,15 @@
 package model;
 
 import common.FileType;
+import common.Granularity;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.sql.Statement;
-import java.util.List;
+import java.util.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.stream.Stream;
 
 /**
  * Created by furqan on 27/02/2019.
@@ -15,12 +18,14 @@ public class Model {
     private List<ImpressionLog> impressionLog;
     private List<ClickLog> clickLog;
     private List<ServerLog> serverLog;
-
+    private HashMap<String, SubjectLog> subjects;
     private boolean impressionCost = true;
     private String campaignTitle;
 
     private Connection con;
-    private Date bounceTime = null;
+    private long bounceTime=-1;
+
+    private Granularity granularity = Granularity.DAY;
 
     public Model() {
     }
@@ -35,13 +40,18 @@ public class Model {
         try {
             switch (fileType) {
                 case IMPRESSION_LOG:
-                    this.impressionLog = Parser.readImpressionLog(inputFile);
+                    Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
+                    impressionLog = p.getKey();
+                    subjects = p.getValue();
+                    //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
                     return true;
                 case CLICK_LOG:
                     this.clickLog = Parser.readClickLog(inputFile);
+                    //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
                     return true;
                 case SERVER_LOG:
                     this.serverLog = Parser.readServerLog(inputFile);
+                    //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
                     return true;
                 default:
                     System.out.println("Wrong file type!");
@@ -53,6 +63,7 @@ public class Model {
 
         return false;
     }
+
 
     public void connectToDatabase() {
         try {
@@ -93,9 +104,9 @@ public class Model {
                                 "(SELECT ID FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\"), \"" +
                                 il.getImpressionDate() + "\", \"" +
                                 il.getSubjectID() + "\",\"" +
-                                il.getGender() + "\"," +
-                                il.getAgeRange() + ",\"" +
-                                il.getIncome() + "\",\"" +
+                                subjects.get(il.getSubjectID()).getGender() + "\"," +
+                                subjects.get(il.getSubjectID()).getAgeRange() + ",\"" +
+                                subjects.get(il.getSubjectID()).getIncome() + "\",\"" +
                                 il.getContext() + "\"," +
                                 il.getImpressionCost() + ");";
 
@@ -209,35 +220,53 @@ public class Model {
     }
 
     // Get number of bounces
-    public int getNumOfBounces() {
+    public long getNumOfBounces() {
         // if no bounce time is use conversion
-        if (bounceTime != null) {
+        if (bounceTime < 0) {
             return serverLog.size() - getNumOfConversions();
         } else {
             return serverLog.stream()
                     .filter(entry ->
-                                    entry.exitTime != null &&
-                                    bounceTime < (entry.exitTime.getTime() - entry.entryTime.getTime())
+                                    entry.getExitDate() != null &&
+                                    bounceTime < (entry.getExitDate().getTime() - entry.getExitDate().getTime())
                     )
                     .count();
         }
     }
 
     // Sets Bounce Time
-    public void setBounceTime(Date time) {
-        this.bounceTime = time;
+    public void setBounceTime(long ms) {
+        this.bounceTime = ms;
     }
 
     // Get bounce rate
-    public float getBounceRate() {
-        float bounceNum = (float) getNumOfBounces();
+    public double getBounceRate() {
+        double bounceNum = (double) getNumOfBounces();
         return bounceNum / serverLog.size();
     }
 
     // Get number of conversions
-    public int getNumOfConversions() {
+    public long getNumOfConversions() {
         return serverLog.stream()
-                .filter(ServerLog::getConversion)
+                .filter(e->e.getConversion()==1)
                 .count();
     }
+
+    //sets granularity for output data.
+    //0=hour, 1=day, 2=month, 3=year
+    public void setGranularity(Granularity g){
+        this.granularity=g;
+    }
+
+//    public Stream<ImpressionLog> getImpressionLogs(){
+//
+//    }
+//
+//    public Stream<ClickLog> getClickLogs(){
+//
+//    }
+//
+//    public Stream<ServerLog> getServerLogs(){
+//
+//    }
 }

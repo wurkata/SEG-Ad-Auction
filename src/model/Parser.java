@@ -1,5 +1,7 @@
 package model;
 
+import javafx.util.Pair;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -29,15 +31,19 @@ public class Parser {
         }
     }
 
-    public static ArrayList<ImpressionLog> readImpressionLog(File file) throws Exception {
+    public static Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> readImpressionLog(File file) throws Exception {
         ArrayList<ImpressionLog> impressionLog = new ArrayList<>();
+        HashMap<String, SubjectLog> subjects = new HashMap<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             reader.lines()
                     .skip(1)
                     .map(e -> e.split(","))
-                    .forEach(s -> impressionLog.add(new ImpressionLog(parseDate(s[0]), s[1], s[2], parseAge(s[3]), s[4], s[5], Double.parseDouble(s[6]))));
-            return impressionLog;
+                    .forEach(s -> {
+                        impressionLog.add(new ImpressionLog(parseDate(s[0]), s[1], s[5], Double.parseDouble(s[6])));
+                        subjects.put(s[1], new SubjectLog(s[2], parseAge(s[3]), s[4]));
+                    });
+            return new Pair<>(impressionLog, subjects);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("Exception thrown trying to read impression log");

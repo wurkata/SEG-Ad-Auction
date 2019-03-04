@@ -1,5 +1,5 @@
 package common;
 
 public enum FileType {
-    IMPRESSION_LOG, CLICK_LOG, SERVER_LOG;
+    IMPRESSION_LOG, CLICK_LOG, SERVER_LOG
 }

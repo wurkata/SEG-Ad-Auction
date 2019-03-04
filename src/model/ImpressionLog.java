@@ -19,6 +19,10 @@ public class ImpressionLog {
         this.impressionCost=impressionCost;
     }
 
+    private ImpressionLog(double impressionCost){
+        this.impressionCost=impressionCost;
+    }
+
     public String getSubjectID(){
         return subjectID;
     }
@@ -33,5 +37,9 @@ public class ImpressionLog {
 
     public String getContext() {
         return context;
+    }
+
+    public static ImpressionLog addImpressionLogs(ImpressionLog i1, ImpressionLog i2){
+        return new ImpressionLog(i1.getImpressionCost()+i2.getImpressionCost());
     }
 }

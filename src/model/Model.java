@@ -157,7 +157,7 @@ public class Model {
 //----------------------------------------------------------------------------------------------------------------------
 
     //calculates cost based on either impression cost or click cost depending on value of impressionCost field
-    private double getTotalCost() {
+    public double getTotalCost() {
         if (impressionCost) {
             return impressionLog.parallelStream()
                     .mapToDouble(ImpressionLog::getImpressionCost)
@@ -720,7 +720,7 @@ public class Model {
     private long getNumOfBounces(FilterDate d){
         switch(granularity) {
             case HOUR:
-                if (bounceTime < 0 && bouncePages<=0) {
+                if (bounceTime <= 0 && bouncePages<=0) {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
                             .filter(e->e.getConversion()==0)
@@ -728,11 +728,11 @@ public class Model {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getExitDate().getTime())) || e.getPagesViewed()<bouncePages)
+                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed()<bouncePages)
                             .count();
                 }
             case DAY:
-                if (bounceTime < 0 && bouncePages<=0) {
+                if (bounceTime <= 0 && bouncePages<=0) {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
                             .filter(e->e.getConversion()==0)
@@ -740,11 +740,11 @@ public class Model {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getExitDate().getTime())) || e.getPagesViewed()<bouncePages)
+                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed()<bouncePages)
                             .count();
                 }
             case MONTH:
-                if (bounceTime < 0 && bouncePages<=0) {
+                if (bounceTime <= 0 && bouncePages<=0) {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
                             .filter(e->e.getConversion()==0)
@@ -752,11 +752,11 @@ public class Model {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getExitDate().getTime())) || e.getPagesViewed()<bouncePages)
+                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed()<bouncePages)
                             .count();
                 }
             case YEAR:
-                if (bounceTime < 0 && bouncePages<=0) {
+                if (bounceTime <= 0 && bouncePages<=0) {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getYear() == d.year)
                             .filter(e->e.getConversion()==0)
@@ -764,7 +764,7 @@ public class Model {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getExitDate().getTime())) || e.getPagesViewed()<bouncePages)
+                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed()<bouncePages)
                             .count();
                 }
         }
@@ -774,13 +774,13 @@ public class Model {
     // Get number of bounces
     public long getNumOfBounces() {
         // if no bounce time is use conversion
-        if (bounceTime < 0 && bouncePages<=0) {
+        if (bounceTime <= 0 && bouncePages<=0) {
             return serverLog.size() - getNumOfConversions();
         } else {
             return serverLog.stream()
                     .filter(entry ->
                             (entry.getExitDate() != null &&
-                                    bounceTime < (entry.getExitDate().getTime() - entry.getExitDate().getTime()))
+                                    bounceTime < (entry.getExitDate().getTime() - entry.getEntryDate().getTime()))
                             || entry.getPagesViewed()<bouncePages
                     )
                     .count();

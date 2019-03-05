@@ -66,4 +66,9 @@ nb-configuration.xml
 #########################
 docs/*
 input/*
-.gitignore
+
+#########################
+## Custom
+#########################
+Optiverr.java
+

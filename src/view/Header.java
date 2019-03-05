@@ -7,17 +7,23 @@ import javax.swing.*;
 
 public class Header extends Component {
 
-    private JButton settings = new JButton("Preferences");
-    private JButton imp = new JButton("Import");
-    private JButton sav = new JButton("Save");
-    private JButton histogram = new JButton("View Histogram");
-    private JButton print = new JButton("Print");
+
 
     private AuctionController controller;
 
     public JPanel displayHeader(AuctionController controller) {
         this.controller=controller;
         JPanel header = new JPanel(new GridLayout(1, 5));
+        JButton settings = new JButton("Preferences");
+        settings.setEnabled(false);
+        JButton imp = new JButton("Import");
+        JButton sav = new JButton("Save");
+        sav.setEnabled(false);
+        JButton histogram = new JButton("View Histogram");
+        histogram.setEnabled(false);
+        JButton print = new JButton("Print");
+        print.setEnabled(false);
+
         header.add(settings);
         header.add(imp);
         imp.addActionListener(e->{

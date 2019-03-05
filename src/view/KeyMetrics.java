@@ -27,101 +27,127 @@ public class KeyMetrics extends JPanel implements Observer {
     }
 
 
-
-    private JLabel numOfImpressionLabel = new JLabel();
-    private JLabel numOfClickLabel = new JLabel();
-    private JLabel numOfUniqueLabel = new JLabel();
-    private JLabel numOfBounceLabel = new JLabel();
-    private JLabel numOfConversionLabel = new JLabel();
-    private JLabel totalCostLabel = new JLabel();
-    private JLabel ctrLabel = new JLabel();
-    private JLabel cpcLabel = new JLabel();
-    private JLabel cpmLabel = new JLabel();
-    private JLabel cpaLabel = new JLabel();
-    private JLabel bounceRateLabel = new JLabel();
+    private JRadioButton numOfImpression, numOfClick, numOfBounce, numOfUnique, numOfConversion, totalCost, ctr, cpc, cpm, cpa, bounceRate;
+    private JLabel numOfImpressionLabel = new JLabel("n/a");
+    private JLabel numOfClickLabel = new JLabel("n/a");
+    private JLabel numOfUniqueLabel = new JLabel("n/a");
+    private JLabel numOfBounceLabel = new JLabel("n/a");
+    private JLabel numOfConversionLabel = new JLabel("n/a");
+    private JLabel totalCostLabel = new JLabel("n/a");
+    private JLabel ctrLabel = new JLabel("n/a");
+    private JLabel cpcLabel = new JLabel("n/a");
+    private JLabel cpmLabel = new JLabel("n/a");
+    private JLabel cpaLabel = new JLabel("n/a");
+    private JLabel bounceRateLabel = new JLabel("n/a");
     private ButtonGroup bg = new ButtonGroup();
 
 
     public void init() {
+        this.setLayout(new GridLayout(12, 2, 0, 0));
 
 
-        this.setLayout(new GridLayout(11, 2, 0, 0));
 
-        JRadioButton numOfImpression = new JRadioButton("Number of Impressions");
+        numOfImpressionLabel.setHorizontalAlignment(JLabel.CENTER);
+        numOfClickLabel.setHorizontalAlignment(JLabel.CENTER);
+        numOfUniqueLabel.setHorizontalAlignment(JLabel.CENTER);
+        numOfBounceLabel.setHorizontalAlignment(JLabel.CENTER);
+        numOfConversionLabel.setHorizontalAlignment(JLabel.CENTER);
+        totalCostLabel.setHorizontalAlignment(JLabel.CENTER);
+        ctrLabel.setHorizontalAlignment(JLabel.CENTER);
+        cpcLabel.setHorizontalAlignment(JLabel.CENTER);
+        cpmLabel.setHorizontalAlignment(JLabel.CENTER);
+        cpaLabel.setHorizontalAlignment(JLabel.CENTER);
+        bounceRateLabel.setHorizontalAlignment(JLabel.CENTER);
+
+
+        numOfImpression = new JRadioButton("Number of Impressions");
         numOfImpression.addActionListener(e->{
             cp.setChart(cd.getChart(Metric.NUM_OF_IMPRESSIONS));
             repaint();
         });
 
-        JRadioButton numOfClick = new JRadioButton("Number of Clicks");
+        numOfClick = new JRadioButton("Number of Clicks");
         numOfClick.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.NUM_OF_CLICKS));
             repaint();
         });
 
-        JRadioButton numOfUnique = new JRadioButton("Number of Unique Clicks");
+        numOfUnique = new JRadioButton("Number of Unique Clicks");
         numOfUnique.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.NUM_OF_UNIQUE_CLICKS));
             repaint();
         });
 
-        JRadioButton numOfBounce = new JRadioButton("Number of Bounces");
+        numOfBounce = new JRadioButton("Number of Bounces");
         numOfBounce.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.NUM_OF_BOUNCES));
             repaint();
         });
 
-        JRadioButton numOfConversion = new JRadioButton("Number of Conversions");
+        numOfConversion = new JRadioButton("Number of Conversions");
         numOfConversion.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.NUM_OF_CONVERSIONS));
             repaint();
         });
 
-        JRadioButton totalCost = new JRadioButton("Total Cost");
+        totalCost = new JRadioButton("Total Cost");
         totalCost.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.TOTAL_COST));
             repaint();
         });
 
-        JRadioButton ctr = new JRadioButton("Click-through-rate");
+        ctr = new JRadioButton("Click-Through-Rate");
         ctr.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.CTR));
             repaint();
         });
 
-        JRadioButton cpc = new JRadioButton("Cost-per-click");
+        cpc = new JRadioButton("Cost-per-Click");
         cpc.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.CPC));
             repaint();
         });
 
-        JRadioButton cpm = new JRadioButton("Cost-per-thousand Impressions");
+        cpm = new JRadioButton("Cost-per-Thousand Impressions");
         cpm.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.CPM));
             repaint();
         });
 
-        JRadioButton cpa = new JRadioButton("Cost-per-acquisition");
+        cpa = new JRadioButton("Cost-per-Acquisition");
         cpa.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.CPA));
             repaint();
         });
 
-        JRadioButton bounceRate = new JRadioButton("Bounce Rate");
+        bounceRate = new JRadioButton("Bounce Rate");
         bounceRate.addActionListener(e->{
 
             cp.setChart(cd.getChart(Metric.BOUNCE_RATE));
             repaint();
         });
+
+        numOfImpression.setEnabled(false);
+        numOfClick.setEnabled(false);
+        numOfBounce.setEnabled(false);
+        numOfUnique.setEnabled(false);
+        numOfConversion.setEnabled(false);
+        totalCost.setEnabled(false);
+        ctr.setEnabled(false);
+        cpc.setEnabled(false);
+        cpm.setEnabled(false);
+        cpa.setEnabled(false);
+        bounceRate.setEnabled(false);
+
 
         bg.add(numOfImpression);
         bg.add(numOfClick);
@@ -135,6 +161,13 @@ public class KeyMetrics extends JPanel implements Observer {
         bg.add(cpa);
         bg.add(bounceRate);
 
+        JLabel metric = new JLabel("Metric:");
+        metric.setHorizontalAlignment(JLabel.CENTER);
+        JLabel val = new JLabel("Overall Campaign Value:");
+        val.setHorizontalAlignment(JLabel.CENTER);
+
+        this.add(metric);
+        this.add(val);
         this.add(numOfImpression);
         this.add(numOfImpressionLabel);
         this.add(numOfClick);
@@ -176,6 +209,18 @@ public class KeyMetrics extends JPanel implements Observer {
 
     @Override
     public void update() {
+        numOfImpression.setEnabled(true);
+        numOfClick.setEnabled(true);
+        numOfBounce.setEnabled(true);
+        numOfUnique.setEnabled(true);
+        numOfConversion.setEnabled(true);
+        totalCost.setEnabled(true);
+        ctr.setEnabled(true);
+        cpc.setEnabled(true);
+        cpm.setEnabled(true);
+        cpa.setEnabled(true);
+        bounceRate.setEnabled(true);
+
         if(bg.getSelection()!=null) {
             bg.getSelection().setArmed(true);
             bg.getSelection().setPressed(true);

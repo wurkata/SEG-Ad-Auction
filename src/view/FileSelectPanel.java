@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * Created by furqan on 04/03/2019.
@@ -63,8 +64,13 @@ public class FileSelectPanel extends JPanel {
         JButton confirm = new JButton("Confirm");
         confirm.addActionListener(e->{
             if(!impLabel.equals("No file selected") && !clickLabel.equals("No file selected") && !serverLabel.equals("No file selected")){
-                controller.setModel(new File(impLabel.getText()), new File(clickLabel.getText()), new File(serverLabel.getText()));
-                frame.dispose();
+                try {
+                    controller.setModel(new File(impLabel.getText()), new File(clickLabel.getText()), new File(serverLabel.getText()));
+                    frame.dispose();
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 

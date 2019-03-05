@@ -27,7 +27,7 @@ public class Parser {
             return clickLog;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Exception thrown trying to read click log");
+            throw new Exception("Error reading click log: \nPlease check the file is in the correct format and try again.");
         }
     }
 
@@ -46,7 +46,7 @@ public class Parser {
             return new Pair<>(impressionLog, subjects);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Exception thrown trying to read impression log");
+            throw new Exception("Error reading impression log: \nPlease check the file is in the correct format and try again.");
         }
     }
 
@@ -68,7 +68,7 @@ public class Parser {
             return serverLog;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Exception thrown trying to read server log");
+            throw new Exception("Error reading server log: \nPlease check the file is in the correct format and try again.");
         }
 
     }

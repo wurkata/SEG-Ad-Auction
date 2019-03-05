@@ -29,39 +29,33 @@ public class Model {
     private ArrayList<FilterDate> dates = new ArrayList<>();
 
 
-    public Model(File impressionLog, File clickLog, File serverLog) {
+    public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
         loadFile(impressionLog, FileType.IMPRESSION_LOG);
         loadFile(clickLog, FileType.CLICK_LOG);
         loadFile(serverLog, FileType.SERVER_LOG);
         getDates();
     }
 
-    public boolean loadFile(File inputFile, FileType fileType) {
-        try {
-            switch (fileType) {
-                case IMPRESSION_LOG:
-                    Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
-                    impressionLog = p.getKey();
-                    subjects = p.getValue();
-                    //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
-                    return true;
-                case CLICK_LOG:
-                    this.clickLog = Parser.readClickLog(inputFile);
-                    //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
-                    return true;
-                case SERVER_LOG:
-                    this.serverLog = Parser.readServerLog(inputFile);
-                    //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
-                    return true;
-                default:
-                    System.out.println("Wrong file type!");
-                    return false;
+    private boolean loadFile(File inputFile, FileType fileType) throws Exception{
+        switch (fileType) {
+            case IMPRESSION_LOG:
+                Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
+                impressionLog = p.getKey();
+                subjects = p.getValue();
+                //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
+                return true;
+            case CLICK_LOG:
+                this.clickLog = Parser.readClickLog(inputFile);
+                //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
+                return true;
+            case SERVER_LOG:
+                this.serverLog = Parser.readServerLog(inputFile);
+                //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
+                return true;
+            default:
+                System.out.println("Wrong file type!");
+                return false;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
     }
 
 

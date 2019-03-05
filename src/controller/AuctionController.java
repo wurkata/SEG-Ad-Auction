@@ -27,6 +27,16 @@ public class AuctionController {
         // Load Model
         // Load UI
         // Manage Interaction
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            // If Nimbus is not available, you can set the GUI to another look and feel.
+        }
         new AuctionController();
     }
 
@@ -40,7 +50,7 @@ public class AuctionController {
         }
     }
 
-    public void setModel(File impLog, File clickLog, File serverLog){
+    public void setModel(File impLog, File clickLog, File serverLog) throws Exception{
         auctionModel = new Model(impLog, clickLog, serverLog);
         notifyUpdate();
     }

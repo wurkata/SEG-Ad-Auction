@@ -1,3 +1,5 @@
+package tests;
+
 import model.Model;
 import org.junit.*;
 

@@ -6,16 +6,19 @@ import java.awt.*;
 import javax.swing.*;
 
 public class Header extends Component {
-
-
-
     private AuctionController controller;
 
     public JPanel displayHeader(AuctionController controller) {
         this.controller=controller;
         JPanel header = new JPanel(new GridLayout(1, 5));
         JButton settings = new JButton("Preferences");
-        settings.setEnabled(false);
+        //settings.setEnabled(false);
+        settings.addActionListener(e->{
+            JFrame frame = new JFrame("Preferences");
+            frame.setContentPane(new PreferencesPanel(controller, frame));
+            frame.pack();
+            frame.setVisible(true);
+        });
         JButton imp = new JButton("Import");
         JButton sav = new JButton("Save");
         sav.setEnabled(false);

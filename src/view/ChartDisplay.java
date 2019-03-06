@@ -107,7 +107,7 @@ public class ChartDisplay {
                 break;
         }
 
-        DateAxis x = new DateAxis("Date");
+        DateAxis x = new DateAxis("Date (YYYY-MM-DD HHHH)");
         x.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd HHHH"));
         XYPlot plot = new XYPlot(dataset, x, new NumberAxis(val),new XYLineAndShapeRenderer());
         plot.getRenderer().setSeriesStroke(0,new BasicStroke(4.0f));

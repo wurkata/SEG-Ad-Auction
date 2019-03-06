@@ -34,7 +34,7 @@ public class ChartControl extends Component {
     public JPanel displayChartControls(AuctionController controller) {
         this.controller=controller;
         JPanel cc = new JPanel(new FlowLayout());
-        cc.add(tgs);
+
         tgs.setSnapToTicks(true);
         tgs.setPaintLabels(true);
         Hashtable<Integer, JLabel> labels = new Hashtable<>();
@@ -43,7 +43,6 @@ public class ChartControl extends Component {
         labels.put(2, new JLabel("Months"));
         labels.put(3, new JLabel("Years"));
         tgs.setLabelTable(labels);
-        tgs.setName("Time Granularity Slider");
         tgs.addChangeListener(e->{
             switch(((JSlider)e.getSource()).getValue()) {
                 case 0:
@@ -61,6 +60,8 @@ public class ChartControl extends Component {
             }
 
         });
+        JLabel tgsLabel = new JLabel("Chart Granularity");
+
 
         SpinnerNumberModel bouncePageModel = new SpinnerNumberModel(0,0,Integer.MAX_VALUE,1);
         JSpinner bouncePageSpinner = new JSpinner(bouncePageModel);
@@ -78,9 +79,12 @@ public class ChartControl extends Component {
         bounceSecondSpinner.addChangeListener(tl);
         bounceMinuteSpinner.addChangeListener(tl);
         bounceHourSpinner.addChangeListener(tl);
-
-
         JLabel bounceTime = new JLabel("Time Bounce Threshold (hh:mm:ss)");
+
+        JPanel tgsPanel = new JPanel();
+        tgsPanel.setLayout(new BoxLayout(tgsPanel, BoxLayout.LINE_AXIS));
+        tgsPanel.add(tgsLabel);
+        tgsPanel.add(tgs);
 
         JPanel pagePanel = new JPanel();
         pagePanel.setLayout(new BoxLayout(pagePanel, BoxLayout.LINE_AXIS));
@@ -96,6 +100,8 @@ public class ChartControl extends Component {
         timePanel.add(new JLabel(":"));
         timePanel.add(bounceSecondSpinner);
 
+
+        cc.add(tgsPanel);
         cc.add(pagePanel);
         cc.add(timePanel);
 //        cc.add(dow);

@@ -16,8 +16,8 @@ import java.util.List;
 public class AuctionController {
     private Model auctionModel;
     private ArrayList<Observer> observers = new ArrayList<>();
-    public AuctionController() {
 
+    public AuctionController() {
         BaseFrame bs = new BaseFrame(this);
 
         bs.initUI();
@@ -40,17 +40,17 @@ public class AuctionController {
         new AuctionController();
     }
 
-    public void addObserver(Observer o){
+    public void addObserver(Observer o) {
         observers.add(o);
     }
 
-    public void notifyUpdate(){
-        for(Observer o:observers){
+    public void notifyUpdate() {
+        for (Observer o : observers) {
             o.update();
         }
     }
 
-    public void setModel(File impLog, File clickLog, File serverLog) throws Exception{
+    public void setModel(File impLog, File clickLog, File serverLog) throws Exception {
         auctionModel = new Model(impLog, clickLog, serverLog);
         notifyUpdate();
     }
@@ -68,7 +68,7 @@ public class AuctionController {
         auctionModel.setCostMode(impressionCostMode);
     }
 
-    public double getTotalCost(){
+    public double getTotalCost() {
         return auctionModel.getTotalCost();
     }
 

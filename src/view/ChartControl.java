@@ -4,7 +4,6 @@ import common.Granularity;
 import controller.AuctionController;
 
 import java.awt.*;
-import java.util.HashMap;
 import java.util.Hashtable;
 
 import javax.swing.*;
@@ -33,7 +32,7 @@ public class ChartControl extends Component {
 
     public JPanel displayChartControls(AuctionController controller) {
         this.controller=controller;
-        JPanel cc = new JPanel(new FlowLayout());
+        JPanel cc = new JPanel(new GridLayout(10, 2));
 
         tgs.setSnapToTicks(true);
         tgs.setPaintLabels(true);

@@ -3,17 +3,18 @@ package view;
 import controller.AuctionController;
 
 import java.awt.*;
+import java.io.File;
 import javax.swing.*;
 
 public class Header extends Component {
     private AuctionController controller;
 
     public JPanel displayHeader(AuctionController controller) {
-        this.controller=controller;
+        this.controller = controller;
         JPanel header = new JPanel(new GridLayout(1, 5));
         JButton settings = new JButton("Preferences");
         //settings.setEnabled(false);
-        settings.addActionListener(e->{
+        settings.addActionListener(e -> {
             JFrame frame = new JFrame("Preferences");
             frame.setContentPane(new PreferencesPanel(controller, frame));
             frame.pack();
@@ -27,9 +28,15 @@ public class Header extends Component {
         JButton print = new JButton("Print");
         print.setEnabled(false);
 
+        try {
+            controller.setModel(new File("input/impression_log.csv"), new File("input/click_log.csv"), new File("input/server_log.csv"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         header.add(settings);
         header.add(imp);
-        imp.addActionListener(e->{
+        imp.addActionListener(e -> {
             JFrame frame = new JFrame("Select files to import");
             frame.setContentPane(new FileSelectPanel(controller, frame));
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

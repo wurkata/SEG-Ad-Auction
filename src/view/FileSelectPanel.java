@@ -69,7 +69,7 @@ public class FileSelectPanel extends JPanel {
         confirm.addActionListener(e -> {
             if (!impLabel.getText().equals("No file selected") && !clickLabel.equals("No file selected") && !serverLabel.equals("No file selected")) {
                 try {
-                    controller.setModel(new File(impLabel.getText()), new File(clickLabel.getText()), new File(serverLabel.getText()));
+                    // controller.setModel(new File(impLabel.getText()), new File(clickLabel.getText()), new File(serverLabel.getText()));
                     frame.dispose();
                 } catch (Exception ex) {
                     ex.printStackTrace();

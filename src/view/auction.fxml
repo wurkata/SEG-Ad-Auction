@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.ToggleGroup?>
+<VBox prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <fx:define>
+        <ToggleGroup fx:id="chartToggleGroup"/>
+    </fx:define>
+    <children>
+        <MenuBar VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="New"/>
+                        <MenuItem mnemonicParsing="false" text="Open…"/>
+                        <Menu mnemonicParsing="false" text="Open Recent"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Close"/>
+                        <MenuItem mnemonicParsing="false" text="Save"/>
+                        <MenuItem mnemonicParsing="false" text="Save As…"/>
+                        <MenuItem mnemonicParsing="false" text="Revert"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Preferences…"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Quit"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Undo"/>
+                        <MenuItem mnemonicParsing="false" text="Redo"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Cut"/>
+                        <MenuItem mnemonicParsing="false" text="Copy"/>
+                        <MenuItem mnemonicParsing="false" text="Paste"/>
+                        <MenuItem mnemonicParsing="false" text="Delete"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Select All"/>
+                        <MenuItem mnemonicParsing="false" text="Unselect All"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About MyHelloApp"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+            <children>
+                <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE"
+                         AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                         AnchorPane.topAnchor="0.0">
+                    <tabs>
+                        <Tab text="Campaign 1">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                    <children>
+                                        <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0"
+                                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                    AnchorPane.topAnchor="0.0">
+                                            <center>
+                                                <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0"
+                                                      BorderPane.alignment="CENTER">
+                                                    <children>
+                                                        <LineChart prefHeight="620.0" prefWidth="1000.0">
+                                                            <xAxis>
+                                                                <CategoryAxis side="BOTTOM"/>
+                                                            </xAxis>
+                                                            <yAxis>
+                                                                <NumberAxis side="LEFT"/>
+                                                            </yAxis>
+                                                        </LineChart>
+                                                        <GridPane>
+                                                            <columnConstraints>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                                   prefWidth="100.0"/>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                                   prefWidth="50.0"/>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                                   prefWidth="100.0"/>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                                   prefWidth="50.0"/>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                                   prefWidth="100.0"/>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                                                                   prefWidth="50.0"/>
+                                                            </columnConstraints>
+                                                            <rowConstraints>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                                vgrow="SOMETIMES"/>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                                vgrow="SOMETIMES"/>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                                vgrow="SOMETIMES"/>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                                vgrow="SOMETIMES"/>
+                                                            </rowConstraints>
+                                                            <children>
+                                                                <Label fx:id="noImpressions" text="n/a"
+                                                                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                                                <Label fx:id="noClicks" text="n/a"
+                                                                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                                <Label fx:id="noBounces" text="n/a"
+                                                                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                                                <Label fx:id="noUqClicks" text="n/a"
+                                                                       GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                                                                <Label fx:id="noConversions" text="n/a"
+                                                                       GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                                                                <Label fx:id="totalCost" text="n/a"
+                                                                       GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                                                                <Label fx:id="ctr" text="n/a" GridPane.columnIndex="3"
+                                                                       GridPane.rowIndex="2"/>
+                                                                <Label fx:id="cpc" text="n/a" GridPane.columnIndex="3"
+                                                                       GridPane.rowIndex="3"/>
+                                                                <Label fx:id="cti" text="n/a" GridPane.columnIndex="5"
+                                                                       GridPane.rowIndex="0"/>
+                                                                <Label fx:id="cpa" text="n/a" GridPane.columnIndex="5"
+                                                                       GridPane.rowIndex="1"/>
+                                                                <Label fx:id="bounceRate" text="n/a"
+                                                                       GridPane.columnIndex="5" GridPane.rowIndex="2"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="noImpressionsBtn"
+                                                                             mnemonicParsing="false"
+                                                                             text="No. Impressions"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="noClicksBtn" mnemonicParsing="false"
+                                                                             text="No. Clicks" GridPane.rowIndex="1"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="noBouncesBtn"
+                                                                             mnemonicParsing="false" text="No. Bounces"
+                                                                             GridPane.rowIndex="2"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="noUqClicksBtn"
+                                                                             mnemonicParsing="false"
+                                                                             text="No. Unique Clicks"
+                                                                             GridPane.rowIndex="3"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="noConversionsBtn"
+                                                                             mnemonicParsing="false"
+                                                                             text="No. Conversions"
+                                                                             GridPane.columnIndex="2"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="totalCostBtn"
+                                                                             mnemonicParsing="false" text="Total Cost"
+                                                                             GridPane.columnIndex="2"
+                                                                             GridPane.rowIndex="1"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="ctrBtn" mnemonicParsing="false"
+                                                                             text="CTR" GridPane.columnIndex="2"
+                                                                             GridPane.rowIndex="2"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="cpcBtn" mnemonicParsing="false"
+                                                                             text="CPC" GridPane.columnIndex="2"
+                                                                             GridPane.rowIndex="3"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="ctiBtn" mnemonicParsing="false"
+                                                                             text="CTI" GridPane.columnIndex="4"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="cpaBtn" mnemonicParsing="false"
+                                                                             text="CPA" GridPane.columnIndex="4"
+                                                                             GridPane.rowIndex="1"/>
+                                                                <RadioButton toggleGroup="$chartToggleGroup"
+                                                                             fx:id="bounceRateBtn"
+                                                                             mnemonicParsing="false" text="Bounce Rate"
+                                                                             GridPane.columnIndex="4"
+                                                                             GridPane.rowIndex="2"/>
+                                                            </children>
+                                                        </GridPane>
+                                                    </children>
+                                                    <BorderPane.margin>
+                                                        <Insets/>
+                                                    </BorderPane.margin>
+                                                    <padding>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                    </padding>
+                                                </VBox>
+                                            </center>
+                                            <left>
+                                                <VBox alignment="TOP_CENTER" prefHeight="738.0" prefWidth="244.0"
+                                                      spacing="5.0" BorderPane.alignment="CENTER">
+                                                    <children>
+                                                        <Label text="Data Granularity">
+                                                            <opaqueInsets>
+                                                                <Insets/>
+                                                            </opaqueInsets>
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0"
+                                                                        top="20.0"/>
+                                                            </VBox.margin>
+                                                        </Label>
+                                                        <Slider fx:id="chartGranularitySlider" blockIncrement="1.0"
+                                                                majorTickUnit="1.0" max="4.0" min="1.0"
+                                                                minorTickCount="0" showTickLabels="true"
+                                                                showTickMarks="true" snapToTicks="true" value="1.0">
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0"/>
+                                                            </VBox.margin>
+                                                        </Slider>
+                                                    </children>
+                                                    <BorderPane.margin>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                    </BorderPane.margin>
+                                                    <opaqueInsets>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                    </opaqueInsets>
+                                                </VBox>
+                                            </left>
+                                        </BorderPane>
+                                    </children>
+                                    <opaqueInsets>
+                                        <Insets/>
+                                    </opaqueInsets>
+                                </AnchorPane>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+            </children>
+        </AnchorPane>
+    </children>
+</VBox>

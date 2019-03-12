@@ -1,16 +1,13 @@
 package view;
 
 import common.Metric;
-import common.Observer;
 import controller.AuctionController;
-import javafx.util.Pair;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
 
 import java.awt.*;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -195,8 +192,7 @@ public class KeyMetrics extends JPanel implements Observer, Runnable {
         bounceRateLabel.setText(df.format(controller.getBounceRate()));
     }
 
-    @Override
-    public void update() {
+    public void updateMetrics() {
         numOfImpression.setEnabled(true);
         numOfClick.setEnabled(true);
         numOfBounce.setEnabled(true);
@@ -216,21 +212,6 @@ public class KeyMetrics extends JPanel implements Observer, Runnable {
             bg.getSelection().setArmed(false);
         }
         updateLabels();
-    }
-
-    @Override
-    public void update(String name) {
-        switch (name) {
-            case "chart":
-                cp.setChart(cd.getCurChart());
-                break;
-
-            case "metrics":
-                break;
-
-            default:
-                break;
-        }
     }
 
     private void addComponent(JComponent comp, int x, int y) {
@@ -256,5 +237,21 @@ public class KeyMetrics extends JPanel implements Observer, Runnable {
     @Override
     public void run() {
         init();
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        switch (arg.toString()) {
+            case "chart":
+                cp.setChart(cd.getCurChart());
+                break;
+
+            case "metrics":
+                updateMetrics();
+                break;
+
+            default:
+                break;
+        }
     }
 }

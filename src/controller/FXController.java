@@ -1,50 +1,85 @@
 package controller;
 
-import common.Granularity;
-import javafx.application.Application;
-import javafx.util.Pair;
-import view.BaseFrame;
 import common.FileType;
-import model.*;
-import view.FXApplication;
+import common.Granularity;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.util.Pair;
+import javafx.util.StringConverter;
+import model.Model;
 
-import javax.swing.*;
 import java.io.File;
+import java.net.URL;
 import java.util.*;
 
-public class AuctionController extends Observable {
+public class FXController implements Initializable, Observer {
+    public Label noImpressions;
+    public Label noClicks;
+    public Label noBounces;
+    public Label noUqClicks;
+    public Label noConversions;
+    public Label totalCost;
+    public Label ctr;
+    public Label cpc;
+    public Label cti;
+    public Label cpa;
+    public Label bounceRate;
+    public Slider chartGranularitySlider;
+
+    private List<Label> metricsList;
     private Model auctionModel;
 
-    public AuctionController() {
-        /*
-        BaseFrame bs = new BaseFrame(this);
-        new Thread(bs).start();
-        */
-
-        Application.launch(FXApplication.class);
+    public FXController() {
     }
 
-    public static void main(String[] args) {
-        try {
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        setChartGranularitySliderLabels();
+        addMetricsToList();
+    }
+
+    private void setChartGranularitySliderLabels() {
+        chartGranularitySlider.setLabelFormatter(new StringConverter<Double>() {
+            @Override
+            public String toString(Double n) {
+                switch (n.intValue()) {
+                    case 1:
+                        return "Hour";
+                    case 2:
+                        return "Day";
+                    case 3:
+                        return "Month";
+                    default:
+                        return "Year";
                 }
             }
-        } catch (Exception e) {
-            // If Nimbus is not available, you can set the GUI to another look and feel.
-        }
 
-        new AuctionController();
+            @Override
+            public Double fromString(String s) {
+                switch (s) {
+                    case "Hour":
+                        return 1d;
+                    case "Day":
+                        return 2d;
+                    case "Month":
+                        return 3d;
+                    default:
+                        return 4d;
+                }
+            }
+        });
     }
 
-    /*
+    private void setMetrics() {
+
+    }
+
     public void setModel(File impLog, File clickLog, File serverLog) {
         auctionModel = new Model(this, impLog, clickLog, serverLog);
+        auctionModel.addObserver(this);
         new Thread(auctionModel).start();
     }
-    */
 
     public void uploadData(FileType fileType) {
         auctionModel.uploadData(fileType);
@@ -148,16 +183,34 @@ public class AuctionController extends Observable {
 
     public void setGranularity(Granularity g) {
         auctionModel.setGranularity(g);
-        notifyObservers("metrics");
     }
 
     public void setBounceTime(long ms) {
         auctionModel.setBounceTime(ms);
-        notifyObservers("metrics");
     }
 
     public void setBouncePageReq(int pages) {
         auctionModel.setBouncePageReq(pages);
-        notifyObservers("metrics");
+    }
+
+    private void addMetricsToList() {
+        metricsList = new ArrayList<>();
+        Collections.addAll(metricsList,
+                noImpressions,
+                noClicks,
+                noBounces,
+                noUqClicks,
+                noConversions,
+                totalCost,
+                ctr,
+                cpc,
+                cti,
+                cpa,
+                bounceRate);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+
     }
 }

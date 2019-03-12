@@ -14,9 +14,14 @@ import java.sql.DriverManager;
  * Created by furqan on 27/02/2019.
  */
 public class Model {
-    private List<ImpressionLog> impressionLog;
-    private List<ClickLog> clickLog;
-    private List<ServerLog> serverLog;
+    private List<ImpressionLog> impressionLog = new ArrayList<>();
+    private List<ClickLog> clickLog= new ArrayList<>();
+    private List<ServerLog> serverLog= new ArrayList<>();
+
+    private List<ImpressionLog> rawImpressionLog;
+    private List<ClickLog> rawClickLog;
+    private List<ServerLog> rawServerLog;
+
     private HashMap<String, SubjectLog> subjects;
     private boolean impressionCost = true;
     private String campaignTitle;
@@ -40,16 +45,19 @@ public class Model {
         switch (fileType) {
             case IMPRESSION_LOG:
                 Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
-                impressionLog = p.getKey();
+                rawImpressionLog = p.getKey();
+                impressionLog.addAll(rawImpressionLog);
                 subjects = p.getValue();
                 //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
                 return true;
             case CLICK_LOG:
-                this.clickLog = Parser.readClickLog(inputFile);
+                rawClickLog = Parser.readClickLog(inputFile);
+                clickLog.addAll(rawClickLog);
                 //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
                 return true;
             case SERVER_LOG:
-                this.serverLog = Parser.readServerLog(inputFile);
+                rawServerLog = Parser.readServerLog(inputFile);
+                serverLog.addAll(rawServerLog);
                 //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
                 return true;
             default:

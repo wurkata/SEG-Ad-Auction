@@ -67,7 +67,8 @@ nb-configuration.xml
 docs/*
 input/*
 outs/*
-
+files/*
+src/main.java
 #########################
 ## Custom
 #########################

@@ -13,6 +13,7 @@ import java.sql.DriverManager;
 /**
  * Created by furqan on 27/02/2019.
  */
+
 public class Model {
     private List<ImpressionLog> impressionLog;
     private List<ClickLog> clickLog;

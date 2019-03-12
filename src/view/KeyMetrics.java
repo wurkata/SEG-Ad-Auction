@@ -3,7 +3,9 @@ package view;
 import common.Metric;
 import common.Observer;
 import controller.AuctionController;
+import javafx.util.Pair;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 
 import java.awt.*;
 import java.text.DecimalFormat;
@@ -13,7 +15,7 @@ import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-public class KeyMetrics extends JPanel implements Observer {
+public class KeyMetrics extends JPanel implements Observer, Runnable {
 
     /**
      * @Author Zeno
@@ -26,6 +28,7 @@ public class KeyMetrics extends JPanel implements Observer {
     private AuctionController controller;
     private ChartPanel cp;
     private ChartDisplay cd;
+    private Thread chartThread;
 
     private JRadioButton numOfImpression, numOfClick, numOfBounce, numOfUnique, numOfConversion, totalCost, ctr, cpc, cpm, cpa, bounceRate;
     private JLabel numOfImpressionLabel = new JLabel("n/a");
@@ -49,8 +52,7 @@ public class KeyMetrics extends JPanel implements Observer {
         this.controller = controller;
         this.cp = cp;
         cd = new ChartDisplay(controller);
-
-        init();
+        cd.addObserver(this);
     }
 
     public void init() {
@@ -66,67 +68,67 @@ public class KeyMetrics extends JPanel implements Observer {
 
         numOfImpression = new JRadioButton("Number of Impressions");
         numOfImpression.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.NUM_OF_IMPRESSIONS));
+            getChartFor(Metric.NUM_OF_IMPRESSIONS);
             repaint();
         });
 
         numOfClick = new JRadioButton("Number of Clicks");
         numOfClick.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.NUM_OF_CLICKS));
+            getChartFor(Metric.NUM_OF_CLICKS);
             repaint();
         });
 
         numOfUnique = new JRadioButton("Number of Unique Clicks");
         numOfUnique.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.NUM_OF_UNIQUE_CLICKS));
+            getChartFor(Metric.NUM_OF_UNIQUE_CLICKS);
             repaint();
         });
 
         numOfBounce = new JRadioButton("Number of Bounces");
         numOfBounce.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.NUM_OF_BOUNCES));
+            getChartFor(Metric.NUM_OF_BOUNCES);
             repaint();
         });
 
         numOfConversion = new JRadioButton("Number of Conversions");
         numOfConversion.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.NUM_OF_CONVERSIONS));
+            getChartFor(Metric.NUM_OF_CONVERSIONS);
             repaint();
         });
 
         totalCost = new JRadioButton("Total Cost");
         totalCost.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.TOTAL_COST));
+            getChartFor(Metric.TOTAL_COST);
             repaint();
         });
 
         ctr = new JRadioButton("Click-Through-Rate");
         ctr.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.CTR));
+            getChartFor(Metric.CTR);
             repaint();
         });
 
         cpc = new JRadioButton("Cost-per-Click");
         cpc.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.CPC));
+            getChartFor(Metric.CPC);
             repaint();
         });
 
         cpm = new JRadioButton("Cost-per-Thousand Impressions");
         cpm.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.CPM));
+            getChartFor(Metric.CPM);
             repaint();
         });
 
         cpa = new JRadioButton("Cost-per-Acquisition");
         cpa.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.CPA));
+            getChartFor(Metric.CPA);
             repaint();
         });
 
         bounceRate = new JRadioButton("Bounce Rate");
         bounceRate.addActionListener(e -> {
-            cp.setChart(cd.getChart(Metric.BOUNCE_RATE));
+            getChartFor(Metric.BOUNCE_RATE);
             repaint();
         });
 
@@ -216,17 +218,43 @@ public class KeyMetrics extends JPanel implements Observer {
         updateLabels();
     }
 
+    @Override
+    public void update(String name) {
+        switch (name) {
+            case "chart":
+                cp.setChart(cd.getCurChart());
+                break;
+
+            case "metrics":
+                break;
+
+            default:
+                break;
+        }
+    }
+
     private void addComponent(JComponent comp, int x, int y) {
         if (x % 2 == 1) {
             constraints.insets = new Insets(5, 5, 5, 40);
         } else {
             constraints.insets = new Insets(5, 5, 5, 5);
             comp.setFont(titleFont);
-            comp.setForeground(new Color(80,80,80));
+            comp.setForeground(new Color(80, 80, 80));
         }
 
         constraints.gridx = x;
         constraints.gridy = y;
         this.add(comp, constraints);
+    }
+
+    private void getChartFor(Metric metric) {
+        chartThread = new Thread(cd);
+        cd.setChartRequest(metric);
+        chartThread.start();
+    }
+
+    @Override
+    public void run() {
+        init();
     }
 }

@@ -2,6 +2,7 @@ package model;
 
 import common.FileType;
 import common.Granularity;
+import controller.AuctionController;
 import javafx.util.Pair;
 
 import java.io.File;
@@ -14,10 +15,15 @@ import java.sql.DriverManager;
  * Created by furqan on 27/02/2019.
  */
 
-public class Model {
+public class Model implements Runnable {
+    private File fileImpression;
+    private File fileClick;
+    private File fileServer;
+
     private List<ImpressionLog> impressionLog;
     private List<ClickLog> clickLog;
     private List<ServerLog> serverLog;
+
     private HashMap<String, SubjectLog> subjects;
     private boolean impressionCost = true;
     private String campaignTitle;
@@ -26,15 +32,15 @@ public class Model {
     private long bounceTime=-1;
 
     private Granularity granularity = Granularity.DAY;
-
     private ArrayList<FilterDate> dates = new ArrayList<>();
 
+    private AuctionController controller;
 
-    public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
-        loadFile(impressionLog, FileType.IMPRESSION_LOG);
-        loadFile(clickLog, FileType.CLICK_LOG);
-        loadFile(serverLog, FileType.SERVER_LOG);
-        getDates();
+    public Model(AuctionController controller, File impressionLog, File clickLog, File serverLog) {
+        this.controller = controller;
+        fileImpression = impressionLog;
+        fileClick = clickLog;
+        fileServer = serverLog;
     }
 
     private boolean loadFile(File inputFile, FileType fileType) throws Exception{
@@ -981,6 +987,20 @@ public class Model {
                     }
                 });
 
+    }
+
+    @Override
+    public void run() {
+        try {
+            loadFile(fileImpression, FileType.IMPRESSION_LOG);
+            loadFile(fileClick, FileType.CLICK_LOG);
+            loadFile(fileServer, FileType.SERVER_LOG);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        getDates();
+        controller.notifyUpdate();
     }
 
 

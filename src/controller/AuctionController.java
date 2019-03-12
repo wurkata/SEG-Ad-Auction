@@ -19,8 +19,7 @@ public class AuctionController {
 
     public AuctionController() {
         BaseFrame bs = new BaseFrame(this);
-
-        bs.initUI();
+        new Thread(bs).start();
     }
 
     public static void main(String[] args) {
@@ -51,8 +50,8 @@ public class AuctionController {
     }
 
     public void setModel(File impLog, File clickLog, File serverLog) throws Exception {
-        auctionModel = new Model(impLog, clickLog, serverLog);
-        notifyUpdate();
+        auctionModel = new Model(this, impLog, clickLog, serverLog);
+        new Thread(auctionModel).start();
     }
 
     public void uploadData(FileType fileType) {

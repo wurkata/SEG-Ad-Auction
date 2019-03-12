@@ -13,7 +13,7 @@ import javax.swing.*;
  * @Date 02/03/2019
  * This is the basic layout for the UI
  */
-public class BaseFrame extends JFrame {
+public class BaseFrame extends JFrame implements Runnable {
 
     private ChartPanel chartPanel;
     private KeyMetrics chartMetrics;
@@ -33,6 +33,7 @@ public class BaseFrame extends JFrame {
 
         chartPanel = new ChartPanel(null);
         chartMetrics = new KeyMetrics(controller, chartPanel);
+        new Thread(chartMetrics).start();
         header = new Header();
         chartControl = new ChartControl();
 
@@ -61,5 +62,10 @@ public class BaseFrame extends JFrame {
         add(chartControl.displayChartControls(controller), BorderLayout.WEST);
         add(header.displayHeader(controller), BorderLayout.NORTH);
         setVisible(true);
+    }
+
+    @Override
+    public void run() {
+        initUI();
     }
 }

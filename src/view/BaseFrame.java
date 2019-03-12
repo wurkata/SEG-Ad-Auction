@@ -39,16 +39,15 @@ public class BaseFrame extends JFrame {
         chartHolder = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        chartHolder.setBackground(new Color(100, 100, 100));
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1;
         gbc.weighty = 1;
         chartHolder.add(chartPanel, gbc);
-        gbc.weightx = 1;
         gbc.weighty = 0.1;
         gbc.gridy = 1;
+        gbc.insets = new Insets(10,60,10,10);
         chartHolder.add(chartMetrics, gbc);
     }
 

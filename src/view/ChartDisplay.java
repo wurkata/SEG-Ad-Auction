@@ -2,7 +2,6 @@ package view;
 
 
 import common.Metric;
-import common.Observer;
 import controller.AuctionController;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
@@ -16,19 +15,16 @@ import org.jfree.data.time.TimeSeriesCollection;
 import java.awt.*;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Observable;
 
-public class ChartDisplay implements Runnable {
+public class ChartDisplay extends Observable implements Runnable {
     private AuctionController controller;
-    private List<Observer> observerList;
 
     private Metric chartMetric;
     private JFreeChart chart;
 
     public ChartDisplay(AuctionController controller) {
         this.controller = controller;
-        this.observerList = new ArrayList<>();
     }
 
     public void getChart(Metric metric) {
@@ -121,7 +117,7 @@ public class ChartDisplay implements Runnable {
         plot.getRenderer().setSeriesStroke(0, new BasicStroke(4.0f));
         this.chart = new JFreeChart(title, plot);
 
-        notifyUpdate("chart");
+        notifyObservers("chart");
     }
 
     public JFreeChart getCurChart() {
@@ -130,22 +126,6 @@ public class ChartDisplay implements Runnable {
 
     public void setChartRequest(Metric metric) {
         this.chartMetric = metric;
-    }
-
-    public void addObserver(Observer ob) {
-        observerList.add(ob);
-    }
-
-    private void notifyUpdate(String name) {
-        switch (name) {
-            case "chart":
-                observerList.forEach(o -> o.update(name));
-                break;
-
-            default:
-                observerList.forEach(Observer::update);
-                break;
-        }
     }
 
     @Override

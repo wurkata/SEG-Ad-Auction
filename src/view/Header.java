@@ -29,7 +29,7 @@ public class Header extends Component {
         print.setEnabled(false);
 
         try {
-            controller.setModel(new File("input/impression_log.csv"), new File("input/click_log.csv"), new File("input/server_log.csv"));
+            // controller.setModel(new File("input/impression_log.csv"), new File("input/click_log.csv"), new File("input/server_log.csv"));
         } catch (Exception e) {
             e.printStackTrace();
         }

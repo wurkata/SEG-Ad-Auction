@@ -1,6 +1,7 @@
 package tests;
 
 import controller.AuctionController;
+import controller.FXController;
 import model.Model;
 import org.junit.*;
 
@@ -13,7 +14,7 @@ public class ModelTest{
     public ModelTest() {
         try {
             myModel = new Model(
-                    new AuctionController(),
+                    new FXController(),
                     new File("input/impression_log.csv"),
                     new File("input/click_log.csv"),
                     new File("input/server_log.csv")

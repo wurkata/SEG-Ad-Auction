@@ -3,6 +3,7 @@ package model;
 import common.FileType;
 import common.Granularity;
 import controller.AuctionController;
+import controller.FXController;
 import javafx.util.Pair;
 
 import java.io.File;
@@ -15,7 +16,7 @@ import java.sql.DriverManager;
  * Created by furqan on 27/02/2019.
  */
 
-public class Model implements Runnable {
+public class Model extends Observable implements Runnable {
     private File fileImpression;
     private File fileClick;
     private File fileServer;
@@ -34,9 +35,9 @@ public class Model implements Runnable {
     private Granularity granularity = Granularity.DAY;
     private ArrayList<FilterDate> dates = new ArrayList<>();
 
-    private AuctionController controller;
+    private FXController controller;
 
-    public Model(AuctionController controller, File impressionLog, File clickLog, File serverLog) {
+    public Model(FXController controller, File impressionLog, File clickLog, File serverLog) {
         this.controller = controller;
         fileImpression = impressionLog;
         fileClick = clickLog;
@@ -1000,9 +1001,8 @@ public class Model implements Runnable {
         }
 
         getDates();
-        controller.notifyUpdate();
+        notifyObservers();
     }
-
 
     private static class FilterDate{
         public int hours,day,month,year;

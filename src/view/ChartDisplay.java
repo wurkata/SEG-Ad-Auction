@@ -113,6 +113,4 @@ public class ChartDisplay {
         plot.getRenderer().setSeriesStroke(0,new BasicStroke(4.0f));
         return new JFreeChart(title, plot);
     }
-
-
 }

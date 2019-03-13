@@ -1,6 +1,7 @@
 package model;
 
 import common.FileType;
+import common.Filters.Filter;
 import common.Granularity;
 import javafx.util.Pair;
 
@@ -33,6 +34,7 @@ public class Model {
 
     private ArrayList<FilterDate> dates = new ArrayList<>();
 
+    private HashMap<Integer, Filter> filters = new HashMap<Integer, Filter>();
 
     public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
         loadFile(impressionLog, FileType.IMPRESSION_LOG);
@@ -730,7 +732,7 @@ public class Model {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed()<bouncePages)
+                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
                             .count();
                 }
             case DAY:
@@ -742,7 +744,7 @@ public class Model {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed()<bouncePages)
+                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
                             .count();
                 }
             case MONTH:
@@ -754,7 +756,7 @@ public class Model {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed()<bouncePages)
+                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
                             .count();
                 }
             case YEAR:
@@ -766,7 +768,7 @@ public class Model {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed()<bouncePages)
+                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
                             .count();
                 }
         }
@@ -781,8 +783,7 @@ public class Model {
         } else {
             return serverLog.stream()
                     .filter(entry ->
-                            (entry.getExitDate() != null &&
-                                    bounceTime < (entry.getExitDate().getTime() - entry.getEntryDate().getTime()))
+                            entry.getTimeSpent() < bounceTime
                             || entry.getPagesViewed()<bouncePages
                     )
                     .count();
@@ -990,6 +991,37 @@ public class Model {
 
     }
 
+    //add filter
+    public void addFilter(Filter f, int filterID){
+        filters.put(filterID,f);
+        filterData();
+    }
+
+    //remove filter
+    public void removeFilter(int filterID){
+        filters.remove(filterID);
+        filterData();
+    }
+
+    private void filterData(){
+        impressionLog.clear();
+        rawImpressionLog.stream()
+                .filter(il->
+                filters.values().stream().map(f->f.filter(il)).reduce(true,Boolean::logicalAnd))
+                .forEach(il->impressionLog.add(il));
+
+        clickLog.clear();
+        rawClickLog.stream()
+                .filter(cl->
+                        filters.values().stream().map(f->f.filter(cl)).reduce(true,Boolean::logicalAnd))
+                .forEach(cl->clickLog.add(cl));
+
+        serverLog.clear();
+        rawServerLog.stream()
+                .filter(sl->
+                        filters.values().stream().map(f->f.filter(sl)).reduce(true,Boolean::logicalAnd))
+                .forEach(sl->serverLog.add(sl));
+    }
 
     private static class FilterDate{
         public int hours,day,month,year;

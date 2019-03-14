@@ -1,22 +1,33 @@
 package controller;
 
+import com.jfoenix.controls.JFXRadioButton;
+import com.jfoenix.controls.JFXSlider;
 import common.Granularity;
 import common.Metric;
+import common.Observer;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
 import model.Model;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ResourceBundle;
 
 public class FXController implements Initializable, Observer {
+    @FXML
+    MenuItem menuImportData;
+
+    @FXML
+    private GridPane metricsGrid;
+
     @FXML
     private Label noImpressions;
     @FXML
@@ -40,39 +51,40 @@ public class FXController implements Initializable, Observer {
     @FXML
     private Label bounceRate;
     @FXML
-    private Slider chartGranularitySlider;
+    private JFXSlider chartGranularitySlider;
 
     @FXML
-    public Slider zoomChartX;
+    JFXSlider zoomChartX;
     @FXML
-    public ProgressIndicator chartProgress;
+    ProgressIndicator chartProgress;
     @FXML
-    public LineChart<String, Number> campaignChart;
+    LineChart<String, Number> campaignChart;
 
     @FXML
-    public ToggleGroup chartToggleGroup;
+    private ToggleGroup chartToggleGroup;
+
     @FXML
-    public RadioButton noImpressionsBtn;
+    JFXRadioButton noImpressionsBtn;
     @FXML
-    public RadioButton noClicksBtn;
+    JFXRadioButton noClicksBtn;
     @FXML
-    public RadioButton noUniqueClicksBtn;
+    JFXRadioButton noUniqueClicksBtn;
     @FXML
-    public RadioButton noConversionsBtn;
+    JFXRadioButton noConversionsBtn;
     @FXML
-    public RadioButton noBouncesBtn;
+    JFXRadioButton noBouncesBtn;
     @FXML
-    public RadioButton bounceRateBtn;
+    JFXRadioButton bounceRateBtn;
     @FXML
-    public RadioButton totalCostBtn;
+    JFXRadioButton totalCostBtn;
     @FXML
-    public RadioButton CTRBtn;
+    JFXRadioButton CTRBtn;
     @FXML
-    public RadioButton CPCBtn;
+    JFXRadioButton CPCBtn;
     @FXML
-    public RadioButton CPMBtn;
+    JFXRadioButton CPMBtn;
     @FXML
-    public RadioButton CPABtn;
+    JFXRadioButton CPABtn;
 
     public Model auctionModel;
 
@@ -94,7 +106,9 @@ public class FXController implements Initializable, Observer {
         chartProgress.setVisible(false);
         chartProgress.toFront();
         // chartProgress.progressProperty().bind(auctionModel.progressProperty());
+
         Platform.runLater(auctionModel);
+        menuImportData.setOnAction(e -> Platform.runLater(auctionModel));
 
         chartProgress.progressProperty().unbind();
 
@@ -120,11 +134,6 @@ public class FXController implements Initializable, Observer {
                     Platform.runLater(plotChartTask);
                 }
         );
-
-        zoomChartX.setOnMouseReleased(e -> {
-            // TODO: Chart ZOOM
-            campaignChart.setScaleX(zoomChartX.getValue() / 10);
-        });
     }
 
     private void setChartGranularitySliderLabels() {
@@ -174,14 +183,36 @@ public class FXController implements Initializable, Observer {
                     break;
             }
 
-            PlotChartTask plotChartTask = new PlotChartTask();
-            chartProgress.progressProperty().bind(plotChartTask.progressProperty());
-            Platform.runLater(plotChartTask);
+            if (chartToggleGroup.getSelectedToggle() != null) {
+                PlotChartTask plotChartTask = new PlotChartTask();
+                chartProgress.progressProperty().bind(plotChartTask.progressProperty());
+                Platform.runLater(plotChartTask);
+            }
         });
     }
 
     @Override
-    public void update(Observable o, Object arg) {
+    public void update() {
+
+    }
+
+    @Override
+    public void update(Object arg) {
+        switch (arg.toString()) {
+            case "files":
+                metricsGrid.getChildren().forEach(e -> {
+                    if (e instanceof RadioButton) {
+                        e.setDisable(false);
+                    }
+                });
+                break;
+            case "metrics":
+                break;
+            case "chart":
+                break;
+            default:
+                break;
+        }
     }
 
     class PlotChartTask extends Task {

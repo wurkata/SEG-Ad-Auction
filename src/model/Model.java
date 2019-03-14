@@ -3,6 +3,8 @@ package model;
 import common.FileType;
 import common.Granularity;
 import common.Metric;
+import common.Observable;
+import common.Observer;
 import controller.FXController;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -14,6 +16,8 @@ import javafx.concurrent.Task;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
 import java.sql.Statement;
 import java.text.DecimalFormat;
@@ -25,7 +29,7 @@ import java.sql.DriverManager;
  * Created by furqan on 27/02/2019.
  */
 
-public class Model extends Task {
+public class Model extends Task implements Observable {
     private Connection con;
 
     private DecimalFormat df = new DecimalFormat("#.####");
@@ -53,6 +57,18 @@ public class Model extends Task {
     @Override
     protected Object call() throws Exception {
         Platform.runLater(() -> {
+            /*
+            JFileChooser chooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "CSV File", "csv");
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showOpenDialog(null);
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                System.out.println("You chose to open this file: " +
+                        chooser.getSelectedFile().getName());
+            }
+            */
+
             loadFile(fileImpressionLog, FileType.IMPRESSION_LOG);
             loadFile(fileClickLog, FileType.CLICK_LOG);
             loadFile(fileServerLog, FileType.SERVER_LOG);
@@ -60,6 +76,8 @@ public class Model extends Task {
             getDates();
 
             setMetrics();
+
+            notifyObservers("files");
         });
         return null;
     }
@@ -1022,6 +1040,26 @@ public class Model extends Task {
                     }
                 });
 
+    }
+
+    @Override
+    public void addObserver(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(Object arg) {
+        observers.forEach(o -> o.update(arg));
+    }
+
+    @Override
+    public void notifyObservers() {
+        observers.forEach(Observer::update);
     }
 
     private static class FilterDate {

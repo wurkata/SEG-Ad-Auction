@@ -1,13 +1,13 @@
 package controller;
 
 import common.Metric;
+import common.Observable;
+import common.Observer;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import model.Model;
 
-import java.util.Observable;
-
-public class GraphController extends Observable implements Runnable {
+public class GraphController implements Observable, Runnable {
     private Model model;
     private FXController controller;
 
@@ -68,18 +68,27 @@ public class GraphController extends Observable implements Runnable {
                 return null;
             }
         });
+
         notifyObservers("chart");
     }
 
     @Override
-    public void notifyObservers() {
-        setChanged();
-        super.notifyObservers();
+    public void addObserver(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
     }
 
     @Override
     public void notifyObservers(Object arg) {
-        setChanged();
-        super.notifyObservers(arg);
+        observers.forEach(o -> o.update(arg));
+    }
+
+    @Override
+    public void notifyObservers() {
+        observers.forEach(Observer::update);
     }
 }

@@ -9,17 +9,13 @@ import javafx.stage.Stage;
 
 public class FXApplication extends Application {
 
-    private FXController controller;
-
     public static void main(String[] args) {
         launch();
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        controller = new FXController();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("auction.fxml"));
-        loader.setController(controller);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("campaignsScene.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Ad Auction");
         primaryStage.setScene(new Scene(root, 1200, 800));

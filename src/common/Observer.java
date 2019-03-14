@@ -5,5 +5,5 @@ package common;
  */
 public interface Observer {
     void update();
-    void update(String name);
+    void update(Object arg);
 }

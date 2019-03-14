@@ -3,14 +3,11 @@ package controller;
 import common.Granularity;
 import common.Metric;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.util.StringConverter;
 import model.Model;
@@ -19,7 +16,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.*;
 
-public class FXController implements Initializable {
+public class FXController implements Initializable, Observer {
     @FXML
     private Label noImpressions;
     @FXML
@@ -46,34 +43,40 @@ public class FXController implements Initializable {
     private Slider chartGranularitySlider;
 
     @FXML
-    private LineChart<String, Number> campaignChart;
+    public Slider zoomChartX;
+    @FXML
+    public ProgressIndicator chartProgress;
+    @FXML
+    public LineChart<String, Number> campaignChart;
 
     @FXML
-    private ToggleGroup chartToggleGroup;
+    public ToggleGroup chartToggleGroup;
     @FXML
-    private RadioButton noImpressionsBtn;
+    public RadioButton noImpressionsBtn;
     @FXML
-    private RadioButton noClicksBtn;
+    public RadioButton noClicksBtn;
     @FXML
-    private RadioButton noUniqueClicksBtn;
+    public RadioButton noUniqueClicksBtn;
     @FXML
-    private RadioButton noConversionsBtn;
+    public RadioButton noConversionsBtn;
     @FXML
-    private RadioButton noBouncesBtn;
+    public RadioButton noBouncesBtn;
     @FXML
-    private RadioButton bounceRateBtn;
+    public RadioButton bounceRateBtn;
     @FXML
-    private RadioButton totalCostBtn;
+    public RadioButton totalCostBtn;
     @FXML
-    private RadioButton CTRBtn;
+    public RadioButton CTRBtn;
     @FXML
-    private RadioButton CPCBtn;
+    public RadioButton CPCBtn;
     @FXML
-    private RadioButton CPMBtn;
+    public RadioButton CPMBtn;
     @FXML
-    private RadioButton CPABtn;
+    public RadioButton CPABtn;
 
-    private Model auctionModel;
+    public Model auctionModel;
+
+    private GraphController graphController;
 
     public FXController() {
         this.auctionModel = new Model(
@@ -81,11 +84,19 @@ public class FXController implements Initializable {
                 new File("input/click_log.csv"),
                 new File("input/server_log.csv")
         );
+
+        this.graphController = new GraphController(this, auctionModel);
+        graphController.addObserver(this);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        chartProgress.setVisible(false);
+        chartProgress.toFront();
+        // chartProgress.progressProperty().bind(auctionModel.progressProperty());
         Platform.runLater(auctionModel);
+
+        chartProgress.progressProperty().unbind();
 
         setChartGranularitySliderLabels();
 
@@ -101,66 +112,18 @@ public class FXController implements Initializable {
         CPM.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.CPM));
         CPA.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.CPA));
 
-        campaignChart.dataProperty().bind(auctionModel.chartData.chartDataProperty());
+        campaignChart.setAnimated(false);
 
         chartToggleGroup.selectedToggleProperty().addListener(e -> {
-            Task<Void> plotChart = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-                    // campaignChart.getData().clear();
-
-                    XYChart.Series<String, Number> campaignSeries = new XYChart.Series<>();
-                    if (noImpressionsBtn.isSelected()) {
-                        auctionModel.setChartData(Metric.NUM_OF_IMPRESSIONS);
-                        return null;
-                        // campaignSeries.setName("Number of Impressions");
-                        // auctionModel.getNumOfImpressionsPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (noClicksBtn.isSelected()) {
-                        campaignSeries.setName("Number of Clicks");
-                        auctionModel.getNumOfClicksPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (noUniqueClicksBtn.isSelected()) {
-                        campaignSeries.setName("Number of Unique Clicks");
-                        auctionModel.getNumOfUniqueClicksPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (noConversionsBtn.isSelected()) {
-                        campaignSeries.setName("Number of Conversions");
-                        auctionModel.getNumOfConversionsPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (noBouncesBtn.isSelected()) {
-                        campaignSeries.setName("Number of Bounces");
-                        auctionModel.getNumOfBouncesPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (totalCostBtn.isSelected()) {
-                        campaignSeries.setName("Total Cost");
-                        auctionModel.getTotalCostPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (bounceRateBtn.isSelected()) {
-                        campaignSeries.setName("Bounce Rate");
-                        auctionModel.getBounceRatePair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (CTRBtn.isSelected()) {
-                        campaignSeries.setName("Click-through-rate (CTR)");
-                        auctionModel.getCTRPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (CPCBtn.isSelected()) {
-                        campaignSeries.setName("Cost-per-click (CPC)");
-                        auctionModel.getClickCostPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (CPMBtn.isSelected()) {
-                        campaignSeries.setName("Cost-per-thousand Impressions (CPM)");
-                        auctionModel.getCPMPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    if (CPABtn.isSelected()) {
-                        campaignSeries.setName("Cost-per-acquisition (CPA)");
-                        auctionModel.getCPAPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
-                    }
-                    return null;
+                    PlotChartTask plotChartTask = new PlotChartTask();
+                    chartProgress.progressProperty().bind(plotChartTask.progressProperty());
+                    Platform.runLater(plotChartTask);
                 }
-            };
+        );
 
-            Platform.runLater(plotChart);
+        zoomChartX.setOnMouseReleased(e -> {
+            // TODO: Chart ZOOM
+            campaignChart.setScaleX(zoomChartX.getValue() / 10);
         });
     }
 
@@ -210,10 +173,22 @@ public class FXController implements Initializable {
                     auctionModel.setGranularity(Granularity.YEAR);
                     break;
             }
+
+            PlotChartTask plotChartTask = new PlotChartTask();
+            chartProgress.progressProperty().bind(plotChartTask.progressProperty());
+            Platform.runLater(plotChartTask);
         });
     }
 
-    public void chartToggleGroupAction(ActionEvent event) {
-        System.out.println("Toggled: " + chartToggleGroup.getSelectedToggle().getUserData().toString());
+    @Override
+    public void update(Observable o, Object arg) {
+    }
+
+    class PlotChartTask extends Task {
+        @Override
+        protected Void call() {
+            new Thread(graphController).start();
+            return null;
+        }
     }
 }

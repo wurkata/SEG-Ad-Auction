@@ -4,6 +4,7 @@ import common.FileType;
 import common.Granularity;
 import common.Metric;
 import controller.FXController;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -51,13 +52,15 @@ public class Model extends Task {
 
     @Override
     protected Object call() throws Exception {
-        loadFile(fileImpressionLog, FileType.IMPRESSION_LOG);
-        loadFile(fileClickLog, FileType.CLICK_LOG);
-        loadFile(fileServerLog, FileType.SERVER_LOG);
+        Platform.runLater(() -> {
+            loadFile(fileImpressionLog, FileType.IMPRESSION_LOG);
+            loadFile(fileClickLog, FileType.CLICK_LOG);
+            loadFile(fileServerLog, FileType.SERVER_LOG);
 
-        getDates();
+            getDates();
 
-        setMetrics();
+            setMetrics();
+        });
         return null;
     }
 
@@ -1040,6 +1043,7 @@ public class Model extends Task {
                 return false;
             }
         }
+
     }
 
     private void setMetrics() {
@@ -1062,46 +1066,57 @@ public class Model extends Task {
         switch (metric) {
             case NUM_OF_IMPRESSIONS:
                 getNumOfImpressionsPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Impressions");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case NUM_OF_CLICKS:
                 getNumOfClicksPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Clicks");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case NUM_OF_UNIQUE_CLICKS:
                 getNumOfUniqueClicksPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Unique Clicks");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case NUM_OF_CONVERSIONS:
                 getNumOfConversionsPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Conversions");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case NUM_OF_BOUNCES:
                 getNumOfBouncesPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Bounces");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case BOUNCE_RATE:
                 getBounceRatePair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Bounce Rate");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case TOTAL_COST:
                 getTotalCostPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Total Cost");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case CTR:
                 getCTRPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Click-through-rate");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case CPC:
                 getClickCostPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Cost-per-click");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case CPM:
                 getCPMPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Cost-per-thousand Impressions");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
             case CPA:
                 getCPAPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Cost-per-acquisition");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
         }

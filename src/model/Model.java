@@ -58,28 +58,24 @@ public class Model extends Task implements Observable {
     protected Object call() throws Exception {
         Platform.runLater(() -> {
             /*
-            JFileChooser chooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "CSV File", "csv");
-            chooser.setFileFilter(filter);
-            int returnVal = chooser.showOpenDialog(null);
-            if(returnVal == JFileChooser.APPROVE_OPTION) {
-                System.out.println("You chose to open this file: " +
-                        chooser.getSelectedFile().getName());
-            }
-            */
-
             loadFile(fileImpressionLog, FileType.IMPRESSION_LOG);
             loadFile(fileClickLog, FileType.CLICK_LOG);
             loadFile(fileServerLog, FileType.SERVER_LOG);
+            */
 
             getDates();
 
             setMetrics();
 
+
             notifyObservers("files");
         });
         return null;
+    }
+
+    public Model() {
+        metrics = new Metrics();
+        chartData = new ChartData();
     }
 
     public Model(File fileImpressionLog, File fileClickLog, File fileServerLog) {
@@ -91,6 +87,7 @@ public class Model extends Task implements Observable {
         chartData = new ChartData();
     }
 
+    /*
     private void loadFile(File inputFile, FileType fileType) {
         try {
             switch (fileType) {
@@ -116,8 +113,23 @@ public class Model extends Task implements Observable {
             e.printStackTrace();
         }
     }
+    */
 
-// ------ DATABASE -----------------------------------------------------------------------------------------------------
+    public void setImpressionLog(List<ImpressionLog> impressionLog) {
+        this.impressionLog = impressionLog;
+        notifyObservers(FileType.IMPRESSION_LOG);
+    }
+
+    public void setClickLog(List<ClickLog> clickLog) {
+        this.clickLog = clickLog;
+        notifyObservers(FileType.CLICK_LOG);
+    }
+
+    public void setServerLog(List<ServerLog> serverLog) {
+        this.serverLog = serverLog;
+        notifyObservers(FileType.SERVER_LOG);
+    }
+    // ------ DATABASE -----------------------------------------------------------------------------------------------------
 
     public void connectToDatabase() {
         try {

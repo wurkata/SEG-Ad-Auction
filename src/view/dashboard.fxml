@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXRadioButton?>
-<?import com.jfoenix.controls.JFXSlider?>
+<?import com.jfoenix.controls.JFXButton?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.RadialGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.text.Font?>
 
-<VBox prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.FXController">
+<VBox prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
@@ -64,115 +59,81 @@
             </menus>
         </MenuBar>
         <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-            <children>
-                <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <tabs>
-                        <Tab text="Campaign 1">
-                            <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                    <children>
-                                        <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                            <center>
-                                                <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER">
-                                                    <children>
-                                                        <LineChart fx:id="campaignChart" prefHeight="620.0" prefWidth="1000.0">
-                                                            <xAxis>
-                                                                <CategoryAxis side="BOTTOM" />
-                                                            </xAxis>
-                                                            <yAxis>
-                                                                <NumberAxis side="LEFT" />
-                                                            </yAxis>
-                                                        </LineChart>
-                                                        <GridPane fx:id="metricsGrid">
-                                                            <columnConstraints>
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0" />
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0" />
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0" />
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
-                                                            </columnConstraints>
-                                                            <rowConstraints>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                            </rowConstraints>
-                                                            <children>
-                                                                <Label fx:id="noImpressions" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                                                <Label fx:id="noClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                                <Label fx:id="noBounces" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                                <Label fx:id="noUniqueClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                                                <Label fx:id="noConversions" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                                                                <Label fx:id="totalCost" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                                                <Label fx:id="CTR" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                                                <Label fx:id="CPC" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                                                <Label fx:id="CPM" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="0" />
-                                                                <Label fx:id="CPA" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-                                                                <Label fx:id="bounceRate" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="2" />
-                                                                <JFXRadioButton fx:id="noImpressionsBtn" disable="true" mnemonicParsing="false" text="No. Impressions">
-                                                                    <toggleGroup>
-                                                                        <ToggleGroup fx:id="chartToggleGroup" />
-                                                                    </toggleGroup>
-                                                                </JFXRadioButton>
-                                                                <JFXRadioButton fx:id="noClicksBtn" disable="true" mnemonicParsing="false" text="No. Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="1" />
-                                                                <JFXRadioButton fx:id="noBouncesBtn" disable="true" mnemonicParsing="false" text="No. Bounces" toggleGroup="$chartToggleGroup" GridPane.rowIndex="2" />
-                                                                <JFXRadioButton fx:id="noUniqueClicksBtn" disable="true" mnemonicParsing="false" text="No. Unique Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="3" />
-                                                                <JFXRadioButton fx:id="noConversionsBtn" disable="true" mnemonicParsing="false" text="No. Conversions" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" />
-                                                                <JFXRadioButton fx:id="totalCostBtn" disable="true" mnemonicParsing="false" text="Total Cost" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                                                <JFXRadioButton fx:id="CTRBtn" disable="true" mnemonicParsing="false" text="CTR" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                                                <JFXRadioButton fx:id="CPCBtn" disable="true" mnemonicParsing="false" text="CPC" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                                                                <JFXRadioButton fx:id="CPMBtn" disable="true" mnemonicParsing="false" text="CPM" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" />
-                                                                <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                                                                <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                                            </children>
-                                                        </GridPane>
-                                                        <ProgressIndicator fx:id="chartProgress" progress="0.0" scaleX="2.0" scaleY="2.0" translateY="-400.0" />
-                                                    </children>
-                                                    <BorderPane.margin>
-                                                        <Insets />
-                                                    </BorderPane.margin>
-                                                    <padding>
-                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                    </padding>
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <Accordion>
+                    <panes>
+                      <TitledPane animated="false" prefHeight="250.0" text="New campaign">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <children>
+                                          <HBox alignment="CENTER" spacing="50.0">
+                                             <children>
+                                                <VBox alignment="CENTER" spacing="20.0">
+                                                   <children>
+                                                      <Label text="Import Impression Log" />
+                                                      <JFXButton fx:id="importImpressionLog" onAction="#importFile" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" style="-fx-background-color: #ccc;" text="Import">
+                                                         <padding>
+                                                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                                         </padding>
+                                                      </JFXButton>
+                                                   </children>
                                                 </VBox>
-                                            </center>
-                                            <left>
-                                                <VBox alignment="TOP_CENTER" prefHeight="738.0" prefWidth="244.0" spacing="5.0" BorderPane.alignment="CENTER">
-                                                    <children>
-                                                        <Label text="Data Granularity">
-                                                            <opaqueInsets>
-                                                                <Insets />
-                                                            </opaqueInsets>
-                                                            <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
-                                                            </VBox.margin>
-                                                        </Label>
-                                                        <JFXSlider fx:id="chartGranularitySlider" blockIncrement="1.0" majorTickUnit="1.0" max="4.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0">
-                                                            <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" />
-                                                            </VBox.margin>
-                                                        </JFXSlider>
-                                                    </children>
-                                                    <BorderPane.margin>
-                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                    </BorderPane.margin>
-                                                    <opaqueInsets>
-                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                    </opaqueInsets>
+                                                <VBox alignment="CENTER" spacing="20.0">
+                                                   <children>
+                                                      <Label text="Import Click Log" />
+                                                      <JFXButton fx:id="importClickLog" onAction="#importFile" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" style="-fx-background-color: #ccc;" text="Import">
+                                                         <padding>
+                                                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                                         </padding>
+                                                      </JFXButton>
+                                                   </children>
                                                 </VBox>
-                                            </left>
-                                        </BorderPane>
-                                    </children>
-                                    <opaqueInsets>
-                                        <Insets />
-                                    </opaqueInsets>
-                                </AnchorPane>
-                            </content>
-                        </Tab>
-                    </tabs>
-                </TabPane>
-            </children>
+                                                <VBox alignment="CENTER" spacing="20.0">
+                                                   <children>
+                                                      <Label text="Import Server Log" />
+                                                      <JFXButton fx:id="importServerLog" onAction="#importFile" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" style="-fx-background-color: #ccc;" text="Import">
+                                                         <padding>
+                                                            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                                         </padding>
+                                                      </JFXButton>
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                             <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                             </padding>
+                                          </HBox>
+                                          <JFXButton disable="true" fx:id="createCampaignBtn" alignment="CENTER" onAction="#createCampaign" prefHeight="60.0" prefWidth="300.0" style="-fx-background-color: #ddd; -border-radius: 10px; -fx-border-style: solid; -fx-border-color: #ccc; -fx-border-width: 2px;" text="New campaign" textFill="#535353">
+                                             <font>
+                                                <Font name="System Bold" size="25.0" />
+                                             </font>
+                                             <cursor>
+                                                <Cursor fx:constant="HAND" />
+                                             </cursor>
+                                             <ripplerFill>
+                                                <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
+                                                   <stops>
+                                                      <Stop color="#46bfda" />
+                                                      <Stop color="#66e3ff" offset="1.0" />
+                                                   </stops>
+                                                </RadialGradient>
+                                             </ripplerFill>
+                                          </JFXButton>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                      </TitledPane>
+                    </panes>
+                  </Accordion>
+               </children>
+            </VBox>
+         </children>
         </AnchorPane>
     </children>
 </VBox>

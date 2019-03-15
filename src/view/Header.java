@@ -44,7 +44,6 @@ public class Header extends Component {
             frame.setVisible(true);
         });
 
-
         header.add(sav);
         header.add(histogram);
         header.add(print);

@@ -29,37 +29,37 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="New"/>
-                        <MenuItem fx:id="menuImportData" mnemonicParsing="false" text="Import data"/>
-                        <Menu mnemonicParsing="false" text="Open Recent"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Close"/>
-                        <MenuItem mnemonicParsing="false" text="Save"/>
-                        <MenuItem mnemonicParsing="false" text="Save As…"/>
-                        <MenuItem mnemonicParsing="false" text="Revert"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Preferences…"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Quit"/>
+                        <MenuItem mnemonicParsing="false" text="New" />
+                        <MenuItem fx:id="menuImportData" mnemonicParsing="false" text="Import data" />
+                        <Menu mnemonicParsing="false" text="Open Recent" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Close" />
+                        <MenuItem mnemonicParsing="false" text="Save" />
+                        <MenuItem mnemonicParsing="false" text="Save As…" />
+                        <MenuItem mnemonicParsing="false" text="Revert" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Preferences…" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Quit" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Edit">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Undo"/>
-                        <MenuItem mnemonicParsing="false" text="Redo"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Cut"/>
-                        <MenuItem mnemonicParsing="false" text="Copy"/>
-                        <MenuItem mnemonicParsing="false" text="Paste"/>
-                        <MenuItem mnemonicParsing="false" text="Delete"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Select All"/>
-                        <MenuItem mnemonicParsing="false" text="Unselect All"/>
+                        <MenuItem mnemonicParsing="false" text="Undo" />
+                        <MenuItem mnemonicParsing="false" text="Redo" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Cut" />
+                        <MenuItem mnemonicParsing="false" text="Copy" />
+                        <MenuItem mnemonicParsing="false" text="Paste" />
+                        <MenuItem mnemonicParsing="false" text="Delete" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" text="Select All" />
+                        <MenuItem mnemonicParsing="false" text="Unselect All" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About MyHelloApp"/>
+                        <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
                     </items>
                 </Menu>
             </menus>
@@ -78,63 +78,63 @@
                                                     <children>
                                                         <LineChart fx:id="campaignChart" prefHeight="620.0" prefWidth="1000.0">
                                                             <xAxis>
-                                                                <CategoryAxis side="BOTTOM"/>
+                                                                <CategoryAxis side="BOTTOM" />
                                                             </xAxis>
                                                             <yAxis>
-                                                                <NumberAxis side="LEFT"/>
+                                                                <NumberAxis side="LEFT" />
                                                             </yAxis>
                                                         </LineChart>
-                                                        <GridPane fx:id="metricsGrid">
+                                                        <GridPane fx:id="metricsGrid" vgap="10.0">
                                                             <columnConstraints>
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0"/>
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0"/>
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0"/>
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0"/>
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0"/>
-                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0"/>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
                                                             </columnConstraints>
                                                             <rowConstraints>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                             </rowConstraints>
                                                             <children>
-                                                                <Label fx:id="noImpressions" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                                                                <Label fx:id="noClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                                                                <Label fx:id="noBounces" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                                                                <Label fx:id="noUniqueClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-                                                                <Label fx:id="noConversions" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
-                                                                <Label fx:id="totalCost" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
-                                                                <Label fx:id="CTR" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
-                                                                <Label fx:id="CPC" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
-                                                                <Label fx:id="CPM" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="0"/>
-                                                                <Label fx:id="CPA" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="1"/>
-                                                                <Label fx:id="bounceRate" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="2"/>
+                                                                <Label fx:id="noImpressions" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                                <Label fx:id="noClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                <Label fx:id="noBounces" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                <Label fx:id="noUniqueClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                <Label fx:id="noConversions" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                                                <Label fx:id="totalCost" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                                                <Label fx:id="CTR" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                                                <Label fx:id="CPC" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                                                <Label fx:id="CPM" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="0" />
+                                                                <Label fx:id="CPA" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                                                                <Label fx:id="bounceRate" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="2" />
                                                                 <JFXRadioButton fx:id="noImpressionsBtn" disable="true" mnemonicParsing="false" text="No. Impressions">
                                                                     <toggleGroup>
-                                                                        <ToggleGroup fx:id="chartToggleGroup"/>
+                                                                        <ToggleGroup fx:id="chartToggleGroup" />
                                                                     </toggleGroup>
                                                                 </JFXRadioButton>
-                                                                <JFXRadioButton fx:id="noClicksBtn" disable="true" mnemonicParsing="false" text="No. Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="1"/>
-                                                                <JFXRadioButton fx:id="noBouncesBtn" disable="true" mnemonicParsing="false" text="No. Bounces" toggleGroup="$chartToggleGroup" GridPane.rowIndex="2"/>
-                                                                <JFXRadioButton fx:id="noUniqueClicksBtn" disable="true" mnemonicParsing="false" text="No. Unique Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="3"/>
-                                                                <JFXRadioButton fx:id="noConversionsBtn" disable="true" mnemonicParsing="false" text="No. Conversions" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2"/>
-                                                                <JFXRadioButton fx:id="totalCostBtn" disable="true" mnemonicParsing="false" text="Total Cost" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                                                                <JFXRadioButton fx:id="CTRBtn" disable="true" mnemonicParsing="false" text="CTR" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                                                                <JFXRadioButton fx:id="CPCBtn" disable="true" mnemonicParsing="false" text="CPC" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
-                                                                <JFXRadioButton fx:id="CPMBtn" disable="true" mnemonicParsing="false" text="CPM" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4"/>
-                                                                <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
-                                                                <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2"/>
+                                                                <JFXRadioButton fx:id="noClicksBtn" disable="true" mnemonicParsing="false" text="No. Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="1" />
+                                                                <JFXRadioButton fx:id="noBouncesBtn" disable="true" mnemonicParsing="false" text="No. Bounces" toggleGroup="$chartToggleGroup" GridPane.rowIndex="2" />
+                                                                <JFXRadioButton fx:id="noUniqueClicksBtn" disable="true" mnemonicParsing="false" text="No. Unique Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="3" />
+                                                                <JFXRadioButton fx:id="noConversionsBtn" disable="true" mnemonicParsing="false" text="No. Conversions" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" />
+                                                                <JFXRadioButton fx:id="totalCostBtn" disable="true" mnemonicParsing="false" text="Total Cost" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                                <JFXRadioButton fx:id="CTRBtn" disable="true" mnemonicParsing="false" text="CTR" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                                                <JFXRadioButton fx:id="CPCBtn" disable="true" mnemonicParsing="false" text="CPC" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                                                <JFXRadioButton fx:id="CPMBtn" disable="true" mnemonicParsing="false" text="CPM" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" />
+                                                                <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                                                <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2" />
                                                             </children>
                                                         </GridPane>
-                                                        <ProgressIndicator fx:id="chartProgress" progress="0.0" scaleX="2.0" scaleY="2.0" translateY="-400.0"/>
+                                                        <ProgressIndicator fx:id="chartProgress" progress="0.0" scaleX="2.0" scaleY="2.0" translateY="-400.0" />
                                                     </children>
                                                     <BorderPane.margin>
-                                                        <Insets/>
+                                                        <Insets />
                                                     </BorderPane.margin>
                                                     <padding>
-                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                     </padding>
                                                 </VBox>
                                             </center>
@@ -143,31 +143,31 @@
                                                     <children>
                                                         <Label text="Data Granularity">
                                                             <opaqueInsets>
-                                                                <Insets/>
+                                                                <Insets />
                                                             </opaqueInsets>
                                                             <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0"/>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
                                                             </VBox.margin>
                                                         </Label>
                                                         <JFXSlider fx:id="chartGranularitySlider" blockIncrement="1.0" majorTickUnit="1.0" max="4.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0">
                                                             <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0"/>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" />
                                                             </VBox.margin>
                                                         </JFXSlider>
-                                                        <JFXButton fx:id="importDataBtn" mnemonicParsing="false" text="Import data"/>
+                                                        <JFXButton fx:id="importDataBtn" mnemonicParsing="false" text="Import data" />
                                                     </children>
                                                     <BorderPane.margin>
-                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                     </BorderPane.margin>
                                                     <opaqueInsets>
-                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                     </opaqueInsets>
                                                 </VBox>
                                             </left>
                                         </BorderPane>
                                     </children>
                                     <opaqueInsets>
-                                        <Insets/>
+                                        <Insets />
                                     </opaqueInsets>
                                 </AnchorPane>
                             </content>

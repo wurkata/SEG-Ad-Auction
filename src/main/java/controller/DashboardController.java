@@ -60,7 +60,7 @@ public class DashboardController implements Initializable, Observer {
 
     @FXML
     private void createCampaign(ActionEvent event) throws Exception {
-        FXController controller = new FXController(model);
+        CampaignController controller = new CampaignController(model);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaignsScene.fxml"));
         loader.setController(controller);

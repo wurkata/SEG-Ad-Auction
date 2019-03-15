@@ -16,8 +16,6 @@ import javax.swing.*;
 public class BaseFrame extends JFrame implements Runnable {
 
     private ChartPanel chartPanel;
-    private KeyMetrics chartMetrics;
-    private Header header;
     private ChartControl chartControl;
     private AuctionController controller;
     private JPanel chartHolder;
@@ -32,9 +30,6 @@ public class BaseFrame extends JFrame implements Runnable {
         setSize(1600, 900);
 
         chartPanel = new ChartPanel(null);
-        chartMetrics = new KeyMetrics(controller, chartPanel);
-        new Thread(chartMetrics).start();
-        header = new Header();
         chartControl = new ChartControl();
 
         chartHolder = new JPanel(new GridBagLayout());
@@ -49,18 +44,14 @@ public class BaseFrame extends JFrame implements Runnable {
         gbc.weighty = 0.1;
         gbc.gridy = 1;
         gbc.insets = new Insets(10,60,10,10);
-        chartHolder.add(chartMetrics, gbc);
     }
 
     public void initUI() {
-        chartMetrics.setPreferredSize(new Dimension(300, 100));
-        chartMetrics.setAlignmentX(RIGHT_ALIGNMENT);
 
 
         add(chartHolder, BorderLayout.CENTER);
         // add(chartMetrics, BorderLayout.SOUTH);
         add(chartControl.displayChartControls(controller), BorderLayout.WEST);
-        add(header.displayHeader(controller), BorderLayout.NORTH);
         setVisible(true);
     }
 

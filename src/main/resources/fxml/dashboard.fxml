@@ -140,6 +140,7 @@
                       </TitledPane>
                     </panes>
                   </Accordion>
+                  <JFXButton fx:id="addTestCampaign" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="100.0" text="Directly Add Campaign (Testing)" />
                </children>
             </VBox>
          </children>

@@ -1,6 +1,5 @@
 package controller;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXSlider;
 import common.Granularity;
@@ -15,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
 import model.Model;
+import org.jfree.chart.fx.ChartViewer;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -53,7 +53,7 @@ public class FXController implements Initializable, Observer {
     @FXML
     ProgressIndicator chartProgress;
     @FXML
-    LineChart<String, Number> campaignChart;
+    ChartViewer campaignChartViewer;
 
     @FXML
     private ToggleGroup chartToggleGroup;
@@ -81,51 +81,47 @@ public class FXController implements Initializable, Observer {
     @FXML
     JFXRadioButton CPABtn;
 
-    public Model auctionModel;
+    public Model model;
 
     private GraphController graphController;
 
-    public FXController(Model auctionModel) {
-        this.auctionModel = auctionModel;
-        this.graphController = new GraphController(this, auctionModel);
-        graphController.addObserver(this);
+    public FXController(Model model) {
+        this.model = model;
         /*
-        this.auctionModel = new Model(
+        this.model = new Model(
                 new File("input/impression_log.csv"),
                 new File("input/click_log.csv"),
                 new File("input/server_log.csv")
         );
-
-        this.graphController = new GraphController(this, auctionModel);
-        graphController.addObserver(this);
         */
+
+        this.graphController = new GraphController(this, model);
+        graphController.addObserver(this);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         chartProgress.setVisible(false);
         chartProgress.toFront();
-        // chartProgress.progressProperty().bind(auctionModel.progressProperty());
+        // chartProgress.progressProperty().bind(model.progressProperty());
 
-        Platform.runLater(auctionModel);
+        Platform.runLater(model);
 
         chartProgress.progressProperty().unbind();
 
         setChartGranularitySliderLabels();
 
-        noImpressions.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.NUM_OF_IMPRESSIONS));
-        noClicks.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.NUM_OF_CLICKS));
-        noUniqueClicks.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.NUM_OF_UNIQUE_CLICKS));
-        noConversions.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.NUM_OF_CONVERSIONS));
-        noBounces.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.NUM_OF_BOUNCES));
-        bounceRate.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.BOUNCE_RATE));
-        totalCost.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.TOTAL_COST));
-        CTR.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.CTR));
-        CPC.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.CPC));
-        CPM.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.CPM));
-        CPA.textProperty().bind(auctionModel.metrics.MetricsProperty(Metric.CPA));
-
-        campaignChart.setAnimated(false);
+        noImpressions.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_IMPRESSIONS));
+        noClicks.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_CLICKS));
+        noUniqueClicks.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_UNIQUE_CLICKS));
+        noConversions.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_CONVERSIONS));
+        noBounces.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_BOUNCES));
+        bounceRate.textProperty().bind(model.metrics.MetricsProperty(Metric.BOUNCE_RATE));
+        totalCost.textProperty().bind(model.metrics.MetricsProperty(Metric.TOTAL_COST));
+        CTR.textProperty().bind(model.metrics.MetricsProperty(Metric.CTR));
+        CPC.textProperty().bind(model.metrics.MetricsProperty(Metric.CPC));
+        CPM.textProperty().bind(model.metrics.MetricsProperty(Metric.CPM));
+        CPA.textProperty().bind(model.metrics.MetricsProperty(Metric.CPA));
 
         chartToggleGroup.selectedToggleProperty().addListener(e -> {
                     PlotChartTask plotChartTask = new PlotChartTask();
@@ -169,16 +165,16 @@ public class FXController implements Initializable, Observer {
         chartGranularitySlider.setOnMouseReleased(e -> {
             switch ((int) chartGranularitySlider.getValue()) {
                 case 1:
-                    auctionModel.setGranularity(Granularity.HOUR);
+                    model.setGranularity(Granularity.HOUR);
                     break;
                 case 2:
-                    auctionModel.setGranularity(Granularity.DAY);
+                    model.setGranularity(Granularity.DAY);
                     break;
                 case 3:
-                    auctionModel.setGranularity(Granularity.MONTH);
+                    model.setGranularity(Granularity.MONTH);
                     break;
                 case 4:
-                    auctionModel.setGranularity(Granularity.YEAR);
+                    model.setGranularity(Granularity.YEAR);
                     break;
             }
 
@@ -208,6 +204,7 @@ public class FXController implements Initializable, Observer {
             case "metrics":
                 break;
             case "chart":
+                campaignChartViewer.setChart(graphController.getChart());
                 break;
             default:
                 break;

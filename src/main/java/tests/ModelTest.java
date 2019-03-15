@@ -1,7 +1,5 @@
 package tests;
 
-import controller.AuctionController;
-import controller.FXController;
 import model.Model;
 import org.junit.*;
 

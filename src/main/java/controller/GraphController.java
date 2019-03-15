@@ -1,11 +1,8 @@
 package controller;
 
-import com.sun.prism.BasicStroke;
 import common.Metric;
 import common.Observable;
 import common.Observer;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
 import model.Model;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
@@ -16,18 +13,17 @@ import org.jfree.data.time.Hour;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import java.awt.*;
 import java.text.SimpleDateFormat;
-
-import static common.Metric.*;
 
 public class GraphController implements Observable, Runnable {
     private Model model;
-    private FXController controller;
+    private CampaignController controller;
 
     private Metric metric;
     private JFreeChart chart;
 
-    public GraphController(FXController controller, Model model) {
+    public GraphController(CampaignController controller, Model model) {
         this.controller = controller;
         this.model = model;
     }
@@ -74,8 +70,8 @@ public class GraphController implements Observable, Runnable {
 
     @Override
     public void run() {
-        controller.campaignChartViewer.setVisible(false);
-        controller.chartProgress.setVisible(true);
+        // controller.campaignChartViewer.setVisible(false);
+        // controller.chartProgress.setVisible(true);
         plotChart();
     }
 
@@ -122,7 +118,15 @@ public class GraphController implements Observable, Runnable {
                 break;
             case BOUNCE_RATE:
                 TimeSeries bounceRate = new TimeSeries("Bounce Rate");
-                controller.model.getBounceRatePair().forEach(e -> bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                controller.model.getBounceRatePair().forEach(e -> {
+                    bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    notifyObservers(bounceRate);
+                    try {
+                        Thread.sleep(500);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                });
                 title = "Bounce Rate";
                 val = "Bounce Rate";
                 dataset.addSeries(bounceRate);
@@ -150,7 +154,10 @@ public class GraphController implements Observable, Runnable {
                 break;
             case NUM_OF_IMPRESSIONS:
                 TimeSeries imp = new TimeSeries("Number Of Impressions");
-                controller.model.getNumOfImpressionsPair().forEach(e -> imp.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                controller.model.getNumOfImpressionsPair().forEach(e -> {
+                    imp.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    notifyObservers(imp);
+                });
                 title = "Number of Impressions";
                 val = "Impressions";
                 dataset.addSeries(imp);
@@ -167,7 +174,7 @@ public class GraphController implements Observable, Runnable {
         DateAxis x = new DateAxis("Date (YYYY-MM-DD HHHH)");
         x.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd HHHH"));
         XYPlot plot = new XYPlot(dataset, x, new NumberAxis(val), new XYLineAndShapeRenderer());
-        // plot.getRenderer().setSeriesStroke(0, new BasicStroke(4.0f));
+        plot.getRenderer().setSeriesStroke(0, new BasicStroke(4.0f));
         this.chart = new JFreeChart(title, plot);
 
         /*

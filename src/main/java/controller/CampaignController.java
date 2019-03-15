@@ -11,15 +11,24 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
 import model.Model;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.fx.ChartViewer;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.XYSeriesCollection;
 
+import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class FXController implements Initializable, Observer {
+public class CampaignController implements Initializable, Observer {
     @FXML
     private GridPane metricsGrid;
 
@@ -85,7 +94,7 @@ public class FXController implements Initializable, Observer {
 
     private GraphController graphController;
 
-    public FXController(Model model) {
+    public CampaignController(Model model) {
         this.model = model;
         /*
         this.model = new Model(
@@ -129,6 +138,13 @@ public class FXController implements Initializable, Observer {
                     Platform.runLater(plotChartTask);
                 }
         );
+
+        campaignChartViewer.setChart(ChartFactory.createTimeSeriesChart(
+                "Test",
+                "X",
+                "Y",
+                new XYSeriesCollection()
+        ));
     }
 
     private void setChartGranularitySliderLabels() {
@@ -193,21 +209,29 @@ public class FXController implements Initializable, Observer {
 
     @Override
     public void update(Object arg) {
-        switch (arg.toString()) {
-            case "files":
-                metricsGrid.getChildren().forEach(e -> {
-                    if (e instanceof RadioButton) {
-                        e.setDisable(false);
-                    }
-                });
-                break;
-            case "metrics":
-                break;
-            case "chart":
-                campaignChartViewer.setChart(graphController.getChart());
-                break;
-            default:
-                break;
+        if (arg instanceof TimeSeries) {
+            JFreeChart chart = campaignChartViewer.getChart();
+            XYPlot plot = chart.getXYPlot();
+            plot.getRenderer().setSeriesStroke(0, new BasicStroke(4.0f));
+            plot.setDataset(new TimeSeriesCollection((TimeSeries) arg));
+            plot.getDomainAxis().setAutoRange(true);
+        } else {
+            switch (arg.toString()) {
+                case "files":
+                    metricsGrid.getChildren().forEach(e -> {
+                        if (e instanceof RadioButton) {
+                            e.setDisable(false);
+                        }
+                    });
+                    break;
+                case "metrics":
+                    break;
+                case "chart":
+                    campaignChartViewer.setChart(graphController.getChart());
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

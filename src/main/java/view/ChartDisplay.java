@@ -120,14 +120,6 @@ public class ChartDisplay extends Observable implements Runnable {
         notifyObservers("chart");
     }
 
-    public JFreeChart getCurChart() {
-        return this.chart;
-    }
-
-    public void setChartRequest(Metric metric) {
-        this.chartMetric = metric;
-    }
-
     @Override
     public void run() {
         getChart(chartMetric);

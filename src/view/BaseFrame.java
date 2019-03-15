@@ -4,7 +4,7 @@ import controller.AuctionController;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 
 import javax.swing.*;
 
@@ -13,15 +13,17 @@ import javax.swing.*;
  * @Date 02/03/2019
  * This is the basic layout for the UI
  */
-public class BaseFrame extends JFrame {
+public class BaseFrame extends JFrame implements Runnable {
 
-    private KeyMetrics km;
-    private Header header = new Header();
-    private ChartControl chart = new ChartControl();
+    private ChartPanel chartPanel;
+    private KeyMetrics chartMetrics;
+    private Header header;
+    private ChartControl chartControl;
     private AuctionController controller;
+    private JPanel chartHolder;
 
     public BaseFrame(AuctionController controller) {
-        this.controller=controller;
+        this.controller = controller;
 
         setTitle("Ad-Auction-Dashboard");
         setLayout(new BorderLayout());
@@ -29,17 +31,41 @@ public class BaseFrame extends JFrame {
         setResizable(true);
         setSize(1600, 900);
 
+        chartPanel = new ChartPanel(null);
+        chartMetrics = new KeyMetrics(controller, chartPanel);
+        new Thread(chartMetrics).start();
+        header = new Header();
+        chartControl = new ChartControl();
+
+        chartHolder = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        chartHolder.add(chartPanel, gbc);
+        gbc.weighty = 0.1;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(10,60,10,10);
+        chartHolder.add(chartMetrics, gbc);
     }
 
     public void initUI() {
+        chartMetrics.setPreferredSize(new Dimension(300, 100));
+        chartMetrics.setAlignmentX(RIGHT_ALIGNMENT);
+
+
+        add(chartHolder, BorderLayout.CENTER);
+        // add(chartMetrics, BorderLayout.SOUTH);
+        add(chartControl.displayChartControls(controller), BorderLayout.WEST);
         add(header.displayHeader(controller), BorderLayout.NORTH);
-        ChartPanel cp = new ChartPanel(null);
-
-        km=new KeyMetrics(controller, cp);
-        add(km, BorderLayout.WEST);
-        add(chart.displayChartControls(controller), BorderLayout.SOUTH);
-
-        add(cp, BorderLayout.CENTER);
         setVisible(true);
+    }
+
+    @Override
+    public void run() {
+        initUI();
     }
 }

@@ -3,10 +3,25 @@ package model;
 import common.FileType;
 import common.Filters.Filter;
 import common.Granularity;
+import common.Metric;
+import common.Observable;
+import common.Observer;
+import controller.FXController;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,7 +29,12 @@ import java.sql.DriverManager;
 /**
  * Created by furqan on 27/02/2019.
  */
-public class Model {
+
+public class Model extends Task implements Observable {
+    private Connection con;
+
+    private DecimalFormat df = new DecimalFormat("#.####");
+
     private List<ImpressionLog> impressionLog = new ArrayList<>();
     private List<ClickLog> clickLog= new ArrayList<>();
     private List<ServerLog> serverLog= new ArrayList<>();
@@ -23,51 +43,131 @@ public class Model {
     private List<ClickLog> rawClickLog;
     private List<ServerLog> rawServerLog;
 
+    private File fileImpressionLog;
+    private File fileClickLog;
+    private File fileServerLog;
+
+    public Metrics metrics;
+    public ChartData chartData;
+
+    private String campaignTitle;
+
     private HashMap<String, SubjectLog> subjects;
     private boolean impressionCost = true;
-    private String campaignTitle;
     private int bouncePages = 0;
-    private Connection con;
-    private long bounceTime=-1;
+    private long bounceTime = -1;
 
     private Granularity granularity = Granularity.DAY;
-
     private ArrayList<FilterDate> dates = new ArrayList<>();
 
     private HashMap<Integer, Filter> filters = new HashMap<Integer, Filter>();
 
-    public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
-        loadFile(impressionLog, FileType.IMPRESSION_LOG);
-        loadFile(clickLog, FileType.CLICK_LOG);
-        loadFile(serverLog, FileType.SERVER_LOG);
-        getDates();
+//     public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
+//         loadFile(impressionLog, FileType.IMPRESSION_LOG);
+//         loadFile(clickLog, FileType.CLICK_LOG);
+//         loadFile(serverLog, FileType.SERVER_LOG);
+//         getDates();
+//     }
+
+//     private boolean loadFile(File inputFile, FileType fileType) throws Exception{
+//         switch (fileType) {
+//             case IMPRESSION_LOG:
+//                 Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
+//                 rawImpressionLog = p.getKey();
+//                 impressionLog.addAll(rawImpressionLog);
+//                 subjects = p.getValue();
+//                 //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
+//                 return true;
+//             case CLICK_LOG:
+//                 rawClickLog = Parser.readClickLog(inputFile);
+//                 clickLog.addAll(rawClickLog);
+//                 //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
+//                 return true;
+//             case SERVER_LOG:
+//                 rawServerLog = Parser.readServerLog(inputFile);
+//                 serverLog.addAll(rawServerLog);
+//                 //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
+//                 return true;
+//             default:
+//                 System.out.println("Wrong file type!");
+//                 return false;
+
+    @Override
+    protected Object call() throws Exception {
+        Platform.runLater(() -> {
+            /*
+            loadFile(fileImpressionLog, FileType.IMPRESSION_LOG);
+            loadFile(fileClickLog, FileType.CLICK_LOG);
+            loadFile(fileServerLog, FileType.SERVER_LOG);
+            */
+
+            getDates();
+
+            setMetrics();
+
+
+            notifyObservers("files");
+        });
+        return null;
     }
 
-    private boolean loadFile(File inputFile, FileType fileType) throws Exception{
-        switch (fileType) {
-            case IMPRESSION_LOG:
-                Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
-                rawImpressionLog = p.getKey();
-                impressionLog.addAll(rawImpressionLog);
-                subjects = p.getValue();
-                //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
-                return true;
-            case CLICK_LOG:
-                rawClickLog = Parser.readClickLog(inputFile);
-                clickLog.addAll(rawClickLog);
-                //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
-                return true;
-            case SERVER_LOG:
-                rawServerLog = Parser.readServerLog(inputFile);
-                serverLog.addAll(rawServerLog);
-                //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
-                return true;
-            default:
-                System.out.println("Wrong file type!");
-                return false;
+    public Model() {
+        metrics = new Metrics();
+        chartData = new ChartData();
+    }
+
+    public Model(File fileImpressionLog, File fileClickLog, File fileServerLog) {
+        this.fileImpressionLog = fileImpressionLog;
+        this.fileClickLog = fileClickLog;
+        this.fileServerLog = fileServerLog;
+
+        metrics = new Metrics();
+        chartData = new ChartData();
+    }
+
+    /*
+    private void loadFile(File inputFile, FileType fileType) {
+        try {
+            switch (fileType) {
+                case IMPRESSION_LOG:
+                    Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
+                    impressionLog = p.getKey();
+                    subjects = p.getValue();
+                    //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
+                    break;
+                case CLICK_LOG:
+                    this.clickLog = Parser.readClickLog(inputFile);
+                    //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
+                    break;
+                case SERVER_LOG:
+                    this.serverLog = Parser.readServerLog(inputFile);
+                    //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
+                    break;
+                default:
+                    System.out.println("Wrong file type!");
+                    break;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    */
+
+    public void setImpressionLog(List<ImpressionLog> impressionLog) {
+        this.impressionLog = impressionLog;
+        notifyObservers(FileType.IMPRESSION_LOG);
     }
 
+    public void setClickLog(List<ClickLog> clickLog) {
+        this.clickLog = clickLog;
+        notifyObservers(FileType.CLICK_LOG);
+    }
+
+    public void setServerLog(List<ServerLog> serverLog) {
+        this.serverLog = serverLog;
+        notifyObservers(FileType.SERVER_LOG);
+    }
+    // ------ DATABASE -----------------------------------------------------------------------------------------------------
 
     public void connectToDatabase() {
         try {
@@ -173,53 +273,53 @@ public class Model {
         }
     }
 
-    private double getTotalCost(FilterDate d){
-        switch (granularity){
+    private double getTotalCost(FilterDate d) {
+        switch (granularity) {
             case HOUR:
-                if(impressionCost){
+                if (impressionCost) {
                     return impressionLog.stream()
-                            .filter(e->e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                            .filter(e -> e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                             .mapToDouble(ImpressionLog::getImpressionCost)
                             .sum();
-                }else{
+                } else {
                     return clickLog.stream()
-                            .filter(e->e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                            .filter(e -> e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                             .mapToDouble(ClickLog::getClickCost)
                             .sum();
                 }
             case DAY:
-                if(impressionCost){
+                if (impressionCost) {
                     return impressionLog.stream()
-                            .filter(e-> e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                            .filter(e -> e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                             .mapToDouble(ImpressionLog::getImpressionCost)
                             .sum();
-                }else{
+                } else {
                     return clickLog.stream()
-                            .filter(e-> e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                            .filter(e -> e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                             .mapToDouble(ClickLog::getClickCost)
                             .sum();
                 }
             case MONTH:
-                if(impressionCost){
+                if (impressionCost) {
                     return impressionLog.stream()
-                            .filter(e-> e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                            .filter(e -> e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                             .mapToDouble(ImpressionLog::getImpressionCost)
                             .sum();
-                }else{
+                } else {
                     return clickLog.stream()
-                            .filter(e-> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                            .filter(e -> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                             .mapToDouble(ClickLog::getClickCost)
                             .sum();
                 }
             case YEAR:
-                if(impressionCost){
+                if (impressionCost) {
                     return impressionLog.stream()
-                            .filter(e-> e.getImpressionDate().getYear() == d.year)
+                            .filter(e -> e.getImpressionDate().getYear() == d.year)
                             .mapToDouble(ImpressionLog::getImpressionCost)
                             .sum();
-                }else{
+                } else {
                     return clickLog.stream()
-                            .filter(e-> e.getClickDate().getYear() == d.year)
+                            .filter(e -> e.getClickDate().getYear() == d.year)
                             .mapToDouble(ClickLog::getClickCost)
                             .sum();
                 }
@@ -227,26 +327,26 @@ public class Model {
         return 0;
     }
 
-    public List<Pair<Date, Double>> getTotalCostPair(){
-        ArrayList<Pair<Date,Double>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Double>> getTotalCostPair() {
+        ArrayList<Pair<Date, Double>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
                 if (impressionCost) {
-                    for(FilterDate d:dates){
-                        if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                            list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                    for (FilterDate d : dates) {
+                        if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                            list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
                                     impressionLog.stream()
-                                            .filter(e-> e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                            .filter(e -> e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                                             .mapToDouble(ImpressionLog::getImpressionCost)
                                             .sum()));
 
                     }
                 } else {
-                    for(FilterDate d:dates){
-                        if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                            list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                    for (FilterDate d : dates) {
+                        if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                            list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
                                     clickLog.stream()
-                                            .filter(e-> e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                            .filter(e -> e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                             .mapToDouble(ClickLog::getClickCost)
                                             .sum()));
 
@@ -256,21 +356,21 @@ public class Model {
                 break;
             case DAY:
                 if (impressionCost) {
-                    for(FilterDate d:dates){
-                        if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                            list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day),
+                    for (FilterDate d : dates) {
+                        if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                            list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day),
                                     impressionLog.stream()
-                                            .filter(e-> e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                            .filter(e -> e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                                             .mapToDouble(ImpressionLog::getImpressionCost)
                                             .sum()));
 
                     }
                 } else {
-                    for(FilterDate d:dates){
-                        if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                            list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day),
+                    for (FilterDate d : dates) {
+                        if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                            list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day),
                                     clickLog.stream()
-                                            .filter(e-> e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                            .filter(e -> e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                             .mapToDouble(ClickLog::getClickCost)
                                             .sum()));
 
@@ -279,21 +379,21 @@ public class Model {
                 break;
             case MONTH:
                 if (impressionCost) {
-                    for(FilterDate d:dates){
-                        if(list.stream().map(Pair::getKey).noneMatch(e-> e.getMonth() == d.month && e.getYear() == d.year))
-                            list.add( new Pair<Date, Double>(new Date(d.year, d.month+1, -1),
+                    for (FilterDate d : dates) {
+                        if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
+                            list.add(new Pair<Date, Double>(new Date(d.year, d.month + 1, -1),
                                     impressionLog.stream()
-                                            .filter(e-> e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                            .filter(e -> e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                                             .mapToDouble(ImpressionLog::getImpressionCost)
                                             .sum()));
 
                     }
                 } else {
-                    for(FilterDate d:dates){
-                        if(list.stream().map(Pair::getKey).noneMatch(e-> e.getMonth() == d.month && e.getYear() == d.year))
-                            list.add( new Pair<Date, Double>(new Date(d.year, d.month+1,-1),
+                    for (FilterDate d : dates) {
+                        if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
+                            list.add(new Pair<Date, Double>(new Date(d.year, d.month + 1, -1),
                                     clickLog.stream()
-                                            .filter(e-> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                            .filter(e -> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                             .mapToDouble(ClickLog::getClickCost)
                                             .sum()));
 
@@ -302,21 +402,21 @@ public class Model {
                 break;
             case YEAR:
                 if (impressionCost) {
-                    for(FilterDate d:dates){
-                        if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                            list.add( new Pair<Date, Double>(new Date(d.year, 11, 31),
+                    for (FilterDate d : dates) {
+                        if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                            list.add(new Pair<Date, Double>(new Date(d.year, 11, 31),
                                     impressionLog.stream()
-                                            .filter(e-> e.getImpressionDate().getYear() == d.year)
+                                            .filter(e -> e.getImpressionDate().getYear() == d.year)
                                             .mapToDouble(ImpressionLog::getImpressionCost)
                                             .sum()));
 
                     }
                 } else {
-                    for(FilterDate d:dates){
-                        if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                            list.add( new Pair<Date, Double>(new Date(d.year, 11,31),
+                    for (FilterDate d : dates) {
+                        if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                            list.add(new Pair<Date, Double>(new Date(d.year, 11, 31),
                                     clickLog.stream()
-                                            .filter(e-> e.getClickDate().getYear() == d.year)
+                                            .filter(e -> e.getClickDate().getYear() == d.year)
                                             .mapToDouble(ClickLog::getClickCost)
                                             .sum()));
 
@@ -334,46 +434,46 @@ public class Model {
         return (getTotalCost() / numOfClicks);
     }
 
-    public List<Pair<Date, Double>> getClickCostPair(){
-        ArrayList<Pair<Date,Double>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Double>> getClickCostPair() {
+        ArrayList<Pair<Date, Double>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 getTotalCost(d) /
                                         clickLog.stream()
-                        .filter(e->e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
-                        .count()));
+                                                .filter(e -> e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                                .count()));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day),
                                 getTotalCost(d) /
                                         clickLog.stream()
-                                                .filter(e->e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                                .filter(e -> e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                                 .count()));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
                         list.add(new Pair<Date, Double>(new Date(d.year, d.month + 1, -1),
                                 getTotalCost(d) /
                                         clickLog.stream()
-                                                .filter(e->e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                                .filter(e -> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                                 .count()));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, 11, 31),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, 11, 31),
                                 getTotalCost(d) /
                                         clickLog.stream()
-                                                .filter(e-> e.getClickDate().getYear() == d.year)
+                                                .filter(e -> e.getClickDate().getYear() == d.year)
                                                 .count()));
                 }
                 break;
@@ -388,47 +488,47 @@ public class Model {
         return (getTotalCost() / numOfRecords) * 1000.0;
     }
 
-    public List<Pair<Date, Double>> getCPMPair(){
-        ArrayList<Pair<Date,Double>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Double>> getCPMPair() {
+        ArrayList<Pair<Date, Double>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 getTotalCost(d) /
                                         impressionLog.stream()
-                                                .filter(e->e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
-                                                .count()*1000.0));
+                                                .filter(e -> e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                                .count() * 1000.0));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day),
                                 getTotalCost(d) /
                                         impressionLog.stream()
-                                                .filter(e-> e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
-                                                .count()*1000.0));
+                                                .filter(e -> e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                                .count() * 1000.0));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
                         list.add(new Pair<Date, Double>(new Date(d.year, d.month + 1, -1),
                                 getTotalCost(d) /
                                         impressionLog.stream()
-                                                .filter(e->e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
-                                                .count()*1000.0));
+                                                .filter(e -> e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                                .count() * 1000.0));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, 11, 31),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, 11, 31),
                                 getTotalCost(d) /
                                         impressionLog.stream()
-                                                .filter(e-> e.getImpressionDate().getYear() == d.year)
-                                                .count()*1000.0));
+                                                .filter(e -> e.getImpressionDate().getYear() == d.year)
+                                                .count() * 1000.0));
                 }
                 break;
         }
@@ -444,58 +544,58 @@ public class Model {
         return ((double) numOfClicks / numOfImpressions);
     }
 
-    public List<Pair<Date, Double>> getCTRPair(){
-        ArrayList<Pair<Date,Double>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Double>> getCTRPair() {
+        ArrayList<Pair<Date, Double>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 (double) clickLog.stream()
-                                        .filter(e->e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                         .count()
-                                /
+                                        /
                                         impressionLog.stream()
-                                                .filter(e->e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                                .filter(e -> e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                                                 .count()));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day),
                                 (double) clickLog.stream()
-                                        .filter(e->e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                         .count()
                                         /
                                         impressionLog.stream()
-                                                .filter(e->e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                                .filter(e -> e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                                                 .count()));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
                         list.add(new Pair<Date, Double>(new Date(d.year, d.month + 1, -1),
                                 (double) clickLog.stream()
-                                        .filter(e-> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                         .count()
                                         /
                                         impressionLog.stream()
-                                                .filter(e->e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                                .filter(e -> e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                                                 .count()));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, 11, 31),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, 11, 31),
                                 (double) clickLog.stream()
-                                        .filter(e-> e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getYear() == d.year)
                                         .count()
                                         /
                                         impressionLog.stream()
-                                                .filter(e-> e.getImpressionDate().getYear() == d.year)
+                                                .filter(e -> e.getImpressionDate().getYear() == d.year)
                                                 .count()));
                 }
                 break;
@@ -506,56 +606,56 @@ public class Model {
     //Cost per acquisition
     public double getCPA() {
         long numOfAcquisitions = serverLog.stream()
-                .filter(s -> s.getConversion() ==1)
+                .filter(s -> s.getConversion() == 1)
                 .count();
 
         return (getTotalCost() / numOfAcquisitions);
     }
 
-    public List<Pair<Date, Double>> getCPAPair(){
-        ArrayList<Pair<Date,Double>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Double>> getCPAPair() {
+        ArrayList<Pair<Date, Double>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 getTotalCost(d) /
                                         serverLog.stream()
-                                                .filter(e->e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                                                .filter(s->s.getConversion()==1)
+                                                .filter(e -> e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
+                                                .filter(s -> s.getConversion() == 1)
                                                 .count()));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day),
                                 getTotalCost(d) /
                                         serverLog.stream()
-                                                .filter(e->e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                                                .filter(s->s.getConversion()==1)
+                                                .filter(e -> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
+                                                .filter(s -> s.getConversion() == 1)
                                                 .count()));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
                         list.add(new Pair<Date, Double>(new Date(d.year, d.month + 1, -1),
                                 getTotalCost(d) /
                                         serverLog.stream()
-                                                .filter(e->e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                                                .filter(s->s.getConversion()==1)
+                                                .filter(e -> e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
+                                                .filter(s -> s.getConversion() == 1)
                                                 .count()));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, 11, 31),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, 11, 31),
                                 getTotalCost(d) /
                                         serverLog.stream()
-                                                .filter(e->e.getEntryDate().getYear() == d.year)
-                                                .filter(s->s.getConversion()==1)
+                                                .filter(e -> e.getEntryDate().getYear() == d.year)
+                                                .filter(s -> s.getConversion() == 1)
                                                 .count()));
                 }
                 break;
@@ -568,42 +668,42 @@ public class Model {
         return impressionLog.size();
     }
 
-    public List<Pair<Date, Long>> getNumOfImpressionsPair(){
-        ArrayList<Pair<Date,Long>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Long>> getNumOfImpressionsPair() {
+        ArrayList<Pair<Date, Long>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
-                                        impressionLog.stream()
-                                                .filter(e->e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
-                                                .count()));
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                                impressionLog.stream()
+                                        .filter(e -> e.getImpressionDate().getHours() == d.hours && e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                        .count()));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 impressionLog.stream()
-                                        .filter(e->e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                        .filter(e -> e.getImpressionDate().getDate() == d.day && e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                                         .count()));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 impressionLog.stream()
-                                        .filter(e->e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
+                                        .filter(e -> e.getImpressionDate().getMonth() == d.month && e.getImpressionDate().getYear() == d.year)
                                         .count()));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 impressionLog.stream()
-                                        .filter(e->e.getImpressionDate().getYear() == d.year)
+                                        .filter(e -> e.getImpressionDate().getYear() == d.year)
                                         .count()));
                 }
                 break;
@@ -617,42 +717,42 @@ public class Model {
         return clickLog.size();
     }
 
-    public List<Pair<Date, Long>> getNumOfClicksPair(){
-        ArrayList<Pair<Date,Long>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Long>> getNumOfClicksPair() {
+        ArrayList<Pair<Date, Long>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 clickLog.stream()
-                                        .filter(e->e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                         .count()));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 clickLog.stream()
-                                        .filter(e->e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                         .count()));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 clickLog.stream()
-                                        .filter(e-> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                         .count()));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 clickLog.stream()
-                                        .filter(e-> e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getYear() == d.year)
                                         .count()));
                 }
                 break;
@@ -670,48 +770,48 @@ public class Model {
                 .count();
     }
 
-    public List<Pair<Date, Long>> getNumOfUniqueClicksPair(){
-        ArrayList<Pair<Date,Long>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Long>> getNumOfUniqueClicksPair() {
+        ArrayList<Pair<Date, Long>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 clickLog.stream()
-                                        .filter(e->e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getHours() == d.hours && e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                         .map(ClickLog::getSubjectID)
                                         .distinct()
                                         .count()));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 clickLog.stream()
-                                        .filter(e->e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getDate() == d.day && e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                         .map(ClickLog::getSubjectID)
                                         .distinct()
                                         .count()));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 clickLog.stream()
-                                        .filter(e-> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getMonth() == d.month && e.getClickDate().getYear() == d.year)
                                         .map(ClickLog::getSubjectID)
                                         .distinct()
                                         .count()));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 clickLog.stream()
-                                        .filter(e-> e.getClickDate().getYear() == d.year)
+                                        .filter(e -> e.getClickDate().getYear() == d.year)
                                         .map(ClickLog::getSubjectID)
                                         .distinct()
                                         .count()));
@@ -721,13 +821,13 @@ public class Model {
         return list;
     }
 
-    private long getNumOfBounces(FilterDate d){
-        switch(granularity) {
+    private long getNumOfBounces(FilterDate d) {
+        switch (granularity) {
             case HOUR:
-                if (bounceTime <= 0 && bouncePages<=0) {
+                if (bounceTime <= 0 && bouncePages <= 0) {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e->e.getConversion()==0)
+                            .filter(e -> e.getConversion() == 0)
                             .count();
                 } else {
                     return serverLog.stream()
@@ -736,10 +836,10 @@ public class Model {
                             .count();
                 }
             case DAY:
-                if (bounceTime <= 0 && bouncePages<=0) {
+                if (bounceTime <= 0 && bouncePages <= 0) {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e->e.getConversion()==0)
+                            .filter(e -> e.getConversion() == 0)
                             .count();
                 } else {
                     return serverLog.stream()
@@ -748,10 +848,10 @@ public class Model {
                             .count();
                 }
             case MONTH:
-                if (bounceTime <= 0 && bouncePages<=0) {
+                if (bounceTime <= 0 && bouncePages <= 0) {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e->e.getConversion()==0)
+                            .filter(e -> e.getConversion() == 0)
                             .count();
                 } else {
                     return serverLog.stream()
@@ -760,10 +860,10 @@ public class Model {
                             .count();
                 }
             case YEAR:
-                if (bounceTime <= 0 && bouncePages<=0) {
+                if (bounceTime <= 0 && bouncePages <= 0) {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getYear() == d.year)
-                            .filter(e->e.getConversion()==0)
+                            .filter(e -> e.getConversion() == 0)
                             .count();
                 } else {
                     return serverLog.stream()
@@ -778,7 +878,7 @@ public class Model {
     // Get number of bounces
     public long getNumOfBounces() {
         // if no bounce time is use conversion
-        if (bounceTime <= 0 && bouncePages<=0) {
+        if (bounceTime <= 0 && bouncePages <= 0) {
             return serverLog.size() - getNumOfConversions();
         } else {
             return serverLog.stream()
@@ -790,34 +890,34 @@ public class Model {
         }
     }
 
-    public List<Pair<Date, Long>> getNumOfBouncesPair(){
-        ArrayList<Pair<Date,Long>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Long>> getNumOfBouncesPair() {
+        ArrayList<Pair<Date, Long>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 getNumOfBounces(d)));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 getNumOfBounces(d)));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 getNumOfBounces(d)));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 getNumOfBounces(d)));
                 }
                 break;
@@ -831,53 +931,53 @@ public class Model {
         return bounceNum / serverLog.size();
     }
 
-    public List<Pair<Date, Double>> getBounceRatePair(){
-        ArrayList<Pair<Date,Double>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Double>> getBounceRatePair() {
+        ArrayList<Pair<Date, Double>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
-                                (double)getNumOfBounces(d)
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                                (double) getNumOfBounces(d)
                                         /
                                         serverLog.stream()
-                                                .filter(e->e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
+                                                .filter(e -> e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
                                                 .count()
                         ));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
-                                (double)getNumOfBounces(d)
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                                (double) getNumOfBounces(d)
                                         /
                                         serverLog.stream()
-                                                .filter(e->e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
+                                                .filter(e -> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
                                                 .count()
                         ));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
-                                (double)getNumOfBounces(d)
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                                (double) getNumOfBounces(d)
                                         /
                                         serverLog.stream()
-                                                .filter(e->e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
+                                                .filter(e -> e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
                                                 .count()
                         ));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
-                                (double)getNumOfBounces(d)
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, d.day, d.hours, 0),
+                                (double) getNumOfBounces(d)
                                         /
                                         serverLog.stream()
-                                                .filter(e->e.getEntryDate().getYear() == d.year)
+                                                .filter(e -> e.getEntryDate().getYear() == d.year)
                                                 .count()
                         ));
                 }
@@ -887,54 +987,53 @@ public class Model {
     }
 
 
-
     // Get number of conversions
     public long getNumOfConversions() {
         return serverLog.stream()
-                .filter(e->e.getConversion()==1)
+                .filter(e -> e.getConversion() == 1)
                 .count();
     }
 
-    public List<Pair<Date, Long>> getNumOfConversionsPair(){
-        ArrayList<Pair<Date,Long>> list = new ArrayList<>();
-        switch(granularity){
+    public List<Pair<Date, Long>> getNumOfConversionsPair() {
+        ArrayList<Pair<Date, Long>> list = new ArrayList<>();
+        switch (granularity) {
             case HOUR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getHours()==d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getHours() == d.hours && e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 serverLog.stream()
-                                        .filter(e->e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                                        .filter(e->e.getConversion()==1)
+                                        .filter(e -> e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
+                                        .filter(e -> e.getConversion() == 1)
                                         .count()));
                 }
                 break;
             case DAY:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getDate() == d.day && e.getMonth() == d.month && e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 serverLog.stream()
-                                        .filter(e-> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                                        .filter(e->e.getConversion()==1)
+                                        .filter(e -> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
+                                        .filter(e -> e.getConversion() == 1)
                                         .count()));
                 }
                 break;
             case MONTH:
-                for(FilterDate d:dates) {
+                for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> e.getMonth() == d.month && e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 serverLog.stream()
-                                        .filter(e->e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                                        .filter(e->e.getConversion()==1)
+                                        .filter(e -> e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
+                                        .filter(e -> e.getConversion() == 1)
                                         .count()));
                 }
                 break;
             case YEAR:
-                for(FilterDate d:dates){
-                    if(list.stream().map(Pair::getKey).noneMatch(e-> e.getYear() == d.year))
-                        list.add( new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> e.getYear() == d.year))
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, d.day, d.hours, 0),
                                 serverLog.stream()
-                                        .filter(e->e.getEntryDate().getYear() == d.year)
-                                        .filter(e->e.getConversion()==1)
+                                        .filter(e -> e.getEntryDate().getYear() == d.year)
+                                        .filter(e -> e.getConversion() == 1)
                                         .count()));
                 }
                 break;
@@ -944,27 +1043,28 @@ public class Model {
 
     //sets granularity for output data.
     //0=hour, 1=day, 2=month, 3=year
-    public void setGranularity(Granularity g){
-        this.granularity=g;
+    public void setGranularity(Granularity g) {
+        this.granularity = g;
     }
 
     // Sets Bounce Time
     public void setBounceTime(long ms) {
         this.bounceTime = ms;
     }
+
     //Sets minimum number of pages for visit to not be a bounce
-    public void setBouncePageReq(int pages){
+    public void setBouncePageReq(int pages) {
         this.bouncePages = pages;
     }
 
     //Collects dates for granularising
-    private void getDates(){
+    private void getDates() {
         impressionLog.stream()
                 .map(ImpressionLog::getImpressionDate)
                 .distinct()
-                .forEach(e->{
+                .forEach(e -> {
                     FilterDate d = new FilterDate(e.getHours(), e.getDate(), e.getMonth(), e.getYear());
-                    if(!dates.contains(d)){
+                    if (!dates.contains(d)) {
                         dates.add(d);
                     }
                 });
@@ -972,9 +1072,9 @@ public class Model {
         clickLog.stream()
                 .map(ClickLog::getClickDate)
                 .distinct()
-                .forEach(e->{
+                .forEach(e -> {
                     FilterDate d = new FilterDate(e.getHours(), e.getDate(), e.getMonth(), e.getYear());
-                    if(!dates.contains(d)){
+                    if (!dates.contains(d)) {
                         dates.add(d);
                     }
                 });
@@ -982,9 +1082,9 @@ public class Model {
         serverLog.stream()
                 .map(ServerLog::getEntryDate)
                 .distinct()
-                .forEach(e->{
+                .forEach(e -> {
                     FilterDate d = new FilterDate(e.getHours(), e.getDate(), e.getMonth(), e.getYear());
-                    if(!dates.contains(d)){
+                    if (!dates.contains(d)) {
                         dates.add(d);
                     }
                 });
@@ -1022,24 +1122,120 @@ public class Model {
                         filters.values().stream().map(f->f.filter(sl)).reduce(true,Boolean::logicalAnd))
                 .forEach(sl->serverLog.add(sl));
     }
+    
+    @Override
+    public void addObserver(Observer o) {
+        observers.add(o);
+    }
 
-    private static class FilterDate{
-        public int hours,day,month,year;
-        public FilterDate(int hours, int day, int month, int year){
-            this.hours=hours;
-            this.day=day;
-            this.month=month;
-            this.year=year;
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    @Override
+    public void notifyObservers(Object arg) {
+        observers.forEach(o -> o.update(arg));
+    }
+
+    @Override
+    public void notifyObservers() {
+        observers.forEach(Observer::update);
+    }
+
+    private static class FilterDate {
+        public int hours, day, month, year;
+
+        public FilterDate(int hours, int day, int month, int year) {
+            this.hours = hours;
+            this.day = day;
+            this.month = month;
+            this.year = year;
         }
 
         @Override
-        public boolean equals(Object o){
-            if(o instanceof FilterDate) {
+        public boolean equals(Object o) {
+            if (o instanceof FilterDate) {
                 FilterDate d = (FilterDate) o;
                 return this.hours == d.hours && this.day == d.day && this.month == d.month && this.year == d.year;
-            }else {
+            } else {
                 return false;
             }
+        }
+
+    }
+
+    private void setMetrics() {
+        metrics.setNoImpressions(df.format(getNumOfImpressions()));
+        metrics.setNoClicks(df.format(getNumOfClicks()));
+        metrics.setNoUniqueClicks(df.format(getNumOfUniqueClicks()));
+        metrics.setNoConversions(df.format(getNumOfConversions()));
+        metrics.setNoBounces(df.format(getNumOfBounces()));
+        metrics.setBounceRate(df.format(getBounceRate()));
+        metrics.setTotalCost(df.format(getTotalCost()));
+        metrics.setCTR(df.format(getCTR()));
+        metrics.setCPC(df.format(getClickCost()));
+        metrics.setCPM(df.format(getCPM()));
+        metrics.setCPA(df.format(getCPA()));
+    }
+
+    public void setChartData(Metric metric) {
+        XYChart.Series<String, Number> campaignSeries = new XYChart.Series<>();
+
+        switch (metric) {
+            case NUM_OF_IMPRESSIONS:
+                getNumOfImpressionsPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Impressions");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case NUM_OF_CLICKS:
+                getNumOfClicksPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Clicks");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case NUM_OF_UNIQUE_CLICKS:
+                getNumOfUniqueClicksPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Unique Clicks");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case NUM_OF_CONVERSIONS:
+                getNumOfConversionsPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Conversions");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case NUM_OF_BOUNCES:
+                getNumOfBouncesPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Number of Bounces");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case BOUNCE_RATE:
+                getBounceRatePair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Bounce Rate");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case TOTAL_COST:
+                getTotalCostPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Total Cost");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case CTR:
+                getCTRPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Click-through-rate");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case CPC:
+                getClickCostPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Cost-per-click");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case CPM:
+                getCPMPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Cost-per-thousand Impressions");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
+            case CPA:
+                getCPAPair().forEach(e -> campaignSeries.getData().add(new XYChart.Data<>(e.getKey().toString(), e.getValue())));
+                campaignSeries.setName("Cost-per-acquisition");
+                chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
+                break;
         }
     }
 }

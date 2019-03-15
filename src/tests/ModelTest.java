@@ -1,5 +1,7 @@
 package tests;
 
+import controller.AuctionController;
+import controller.FXController;
 import model.Model;
 import org.junit.*;
 
@@ -7,8 +9,9 @@ import java.io.File;
 
 import static org.junit.Assert.*;
 
-public class ModelTest{
+public class ModelTest {
     private Model myModel;
+
     public ModelTest() {
         try {
             myModel = new Model(
@@ -16,7 +19,7 @@ public class ModelTest{
                     new File("input/click_log.csv"),
                     new File("input/server_log.csv")
             );
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Input load failed: " + e);
         }
     }
@@ -75,7 +78,7 @@ public class ModelTest{
 
     @Test
     public void bounceNumTest() {
-        assertEquals(21897 ,myModel.getNumOfBounces(), 0);
+        assertEquals(21897, myModel.getNumOfBounces(), 0);
     }
 
     @Test

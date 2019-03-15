@@ -1,32 +1,30 @@
 package controller;
 
 import common.Granularity;
-import common.Observer;
+import javafx.application.Application;
 import javafx.util.Pair;
 import view.BaseFrame;
 import common.FileType;
 import model.*;
+import view.FXApplication;
 
 import javax.swing.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-public class AuctionController {
+public class AuctionController extends Observable {
     private Model auctionModel;
-    private ArrayList<Observer> observers = new ArrayList<>();
 
     public AuctionController() {
+        /*
         BaseFrame bs = new BaseFrame(this);
+        new Thread(bs).start();
+        */
 
-        bs.initUI();
+        Application.launch(FXApplication.class);
     }
 
     public static void main(String[] args) {
-        // Load Model
-        // Load UI
-        // Manage Interaction
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -37,23 +35,16 @@ public class AuctionController {
         } catch (Exception e) {
             // If Nimbus is not available, you can set the GUI to another look and feel.
         }
+
         new AuctionController();
     }
 
-    public void addObserver(Observer o) {
-        observers.add(o);
+    /*
+    public void setModel(File impLog, File clickLog, File serverLog) {
+        auctionModel = new Model(this, impLog, clickLog, serverLog);
+        new Thread(auctionModel).start();
     }
-
-    public void notifyUpdate() {
-        for (Observer o : observers) {
-            o.update();
-        }
-    }
-
-    public void setModel(File impLog, File clickLog, File serverLog) throws Exception {
-        auctionModel = new Model(impLog, clickLog, serverLog);
-        notifyUpdate();
-    }
+    */
 
     public void uploadData(FileType fileType) {
         auctionModel.uploadData(fileType);
@@ -62,7 +53,6 @@ public class AuctionController {
     public void setCampaignTitle(String title) {
         auctionModel.setCampaignTitle(title);
     }
-
 
     public void setCostMode(boolean impressionCostMode) {
         auctionModel.setCostMode(impressionCostMode);
@@ -158,16 +148,16 @@ public class AuctionController {
 
     public void setGranularity(Granularity g) {
         auctionModel.setGranularity(g);
-        notifyUpdate();
+        notifyObservers("metrics");
     }
 
     public void setBounceTime(long ms) {
         auctionModel.setBounceTime(ms);
-        notifyUpdate();
+        notifyObservers("metrics");
     }
 
     public void setBouncePageReq(int pages) {
         auctionModel.setBouncePageReq(pages);
-        notifyUpdate();
+        notifyObservers("metrics");
     }
 }

@@ -1,5 +1,6 @@
 package controller;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXSlider;
 import common.Granularity;
@@ -7,13 +8,15 @@ import common.Metric;
 import common.Observer;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import model.Model;
 
@@ -23,7 +26,7 @@ import java.util.ResourceBundle;
 
 public class FXController implements Initializable, Observer {
     @FXML
-    MenuItem menuImportData;
+    public JFXButton importDataBtn;
 
     @FXML
     private GridPane metricsGrid;
@@ -90,7 +93,11 @@ public class FXController implements Initializable, Observer {
 
     private GraphController graphController;
 
-    public FXController() {
+    public FXController(Model auctionModel) {
+        this.auctionModel = auctionModel;
+        this.graphController = new GraphController(this, auctionModel);
+        graphController.addObserver(this);
+        /*
         this.auctionModel = new Model(
                 new File("input/impression_log.csv"),
                 new File("input/click_log.csv"),
@@ -99,6 +106,7 @@ public class FXController implements Initializable, Observer {
 
         this.graphController = new GraphController(this, auctionModel);
         graphController.addObserver(this);
+        */
     }
 
     @Override
@@ -108,7 +116,6 @@ public class FXController implements Initializable, Observer {
         // chartProgress.progressProperty().bind(auctionModel.progressProperty());
 
         Platform.runLater(auctionModel);
-        menuImportData.setOnAction(e -> Platform.runLater(auctionModel));
 
         chartProgress.progressProperty().unbind();
 

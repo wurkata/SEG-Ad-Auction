@@ -1,6 +1,5 @@
 package view;
 
-import controller.FXController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,7 +14,7 @@ public class FXApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("campaignsScene.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("dashboard.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Ad Auction");
         primaryStage.setScene(new Scene(root, 1200, 800));

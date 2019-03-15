@@ -18,10 +18,7 @@ import model.Parser;
 
 import java.io.File;
 import java.net.URL;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.Callable;
 
 public class DashboardController implements Initializable, Observer {
     @FXML
@@ -62,28 +59,24 @@ public class DashboardController implements Initializable, Observer {
     }
 
     @FXML
-    private void importFile (ActionEvent event) throws Exception {
-        String importPath = Paths.get("./input").toAbsolutePath().normalize().toString();
-        File importFile;
-
+    private void importFile(ActionEvent event) {
         FileChooser fc = new FileChooser();
-        Parser p;
 
         String btnId = ((JFXButton) event.getSource()).getId();
         if (btnId.contains("Impression")) {
             fc.setTitle("Import Impression Log...");
-            importFile = fc.showOpenDialog(((Node)event.getSource()).getScene().getWindow());
-            Platform.runLater(new Parser(model, importFile, FileType.IMPRESSION_LOG));
+            File importFile = fc.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
+            if (importFile != null) Platform.runLater(new Parser(model, importFile, FileType.IMPRESSION_LOG));
         }
         if (btnId.contains("Click")) {
             fc.setTitle("Import Click Log...");
-            importFile = fc.showOpenDialog(((Node)event.getSource()).getScene().getWindow());
-            Platform.runLater(new Parser(model, importFile, FileType.CLICK_LOG));
+            File importFile = fc.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
+            if (importFile != null) Platform.runLater(new Parser(model, importFile, FileType.CLICK_LOG));
         }
         if (btnId.contains("Server")) {
             fc.setTitle("Import Server Log...");
-            importFile = fc.showOpenDialog(((Node)event.getSource()).getScene().getWindow());
-            Platform.runLater(new Parser(model, importFile, FileType.SERVER_LOG));
+            File importFile = fc.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
+            if (importFile != null) Platform.runLater(new Parser(model, importFile, FileType.SERVER_LOG));
         }
     }
 
@@ -96,17 +89,17 @@ public class DashboardController implements Initializable, Observer {
     public void update(Object arg) {
         if (arg == FileType.IMPRESSION_LOG) {
             importImpressionLog.setText("Change file...");
-            importImpressionLog.setStyle("-fx-background-color: green");
+            importImpressionLog.setStyle("-fx-background-color: #c5ff8c");
             impressionLogLoaded = true;
         }
         if (arg == FileType.CLICK_LOG) {
             importClickLog.setText("Change file...");
-            importClickLog.setStyle("-fx-background-color: green");
+            importClickLog.setStyle("-fx-background-color: #c5ff8c");
             clickLogLoaded = true;
         }
         if (arg == FileType.SERVER_LOG) {
             importServerLog.setText("Change file...");
-            importServerLog.setStyle("-fx-background-color: green");
+            importServerLog.setStyle("-fx-background-color: #c5ff8c");
             serverLogLoaded = true;
         }
 

@@ -31,6 +31,9 @@ public class DashboardController implements Initializable, Observer {
     @FXML
     private JFXButton importServerLog;
 
+    @FXML
+    private JFXButton addTestCampaign;
+
     private Model model;
     private boolean impressionLogLoaded = false;
     private boolean clickLogLoaded = false;
@@ -38,8 +41,21 @@ public class DashboardController implements Initializable, Observer {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        createCampaignBtn.setDisable(false);
         model = new Model();
         model.addObserver(this);
+
+        addTestCampaign.setOnAction(e -> {
+            Platform.runLater(new Parser(model, new File("input/impression_log.csv"), FileType.IMPRESSION_LOG));
+            Platform.runLater(new Parser(model, new File("input/click_log.csv"), FileType.CLICK_LOG));
+            Platform.runLater(new Parser(model, new File("input/server_log.csv"), FileType.SERVER_LOG));
+
+            try {
+                createCampaign(e);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     @FXML

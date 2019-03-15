@@ -1,6 +1,7 @@
 package model;
 
 import common.FileType;
+import common.Filters.Filter;
 import common.Granularity;
 import common.Metric;
 import common.Observable;
@@ -34,9 +35,13 @@ public class Model extends Task implements Observable {
 
     private DecimalFormat df = new DecimalFormat("#.####");
 
-    private List<ImpressionLog> impressionLog;
-    private List<ClickLog> clickLog;
-    private List<ServerLog> serverLog;
+    private List<ImpressionLog> impressionLog = new ArrayList<>();
+    private List<ClickLog> clickLog= new ArrayList<>();
+    private List<ServerLog> serverLog= new ArrayList<>();
+
+    private List<ImpressionLog> rawImpressionLog;
+    private List<ClickLog> rawClickLog;
+    private List<ServerLog> rawServerLog;
 
     private File fileImpressionLog;
     private File fileClickLog;
@@ -46,6 +51,7 @@ public class Model extends Task implements Observable {
     public ChartData chartData;
 
     private String campaignTitle;
+
     private HashMap<String, SubjectLog> subjects;
     private boolean impressionCost = true;
     private int bouncePages = 0;
@@ -53,6 +59,38 @@ public class Model extends Task implements Observable {
 
     private Granularity granularity = Granularity.DAY;
     private ArrayList<FilterDate> dates = new ArrayList<>();
+
+    private HashMap<Integer, Filter> filters = new HashMap<Integer, Filter>();
+
+//     public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
+//         loadFile(impressionLog, FileType.IMPRESSION_LOG);
+//         loadFile(clickLog, FileType.CLICK_LOG);
+//         loadFile(serverLog, FileType.SERVER_LOG);
+//         getDates();
+//     }
+
+//     private boolean loadFile(File inputFile, FileType fileType) throws Exception{
+//         switch (fileType) {
+//             case IMPRESSION_LOG:
+//                 Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
+//                 rawImpressionLog = p.getKey();
+//                 impressionLog.addAll(rawImpressionLog);
+//                 subjects = p.getValue();
+//                 //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
+//                 return true;
+//             case CLICK_LOG:
+//                 rawClickLog = Parser.readClickLog(inputFile);
+//                 clickLog.addAll(rawClickLog);
+//                 //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
+//                 return true;
+//             case SERVER_LOG:
+//                 rawServerLog = Parser.readServerLog(inputFile);
+//                 serverLog.addAll(rawServerLog);
+//                 //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
+//                 return true;
+//             default:
+//                 System.out.println("Wrong file type!");
+//                 return false;
 
     @Override
     protected Object call() throws Exception {
@@ -794,7 +832,7 @@ public class Model extends Task implements Observable {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed() < bouncePages)
+                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
                             .count();
                 }
             case DAY:
@@ -806,7 +844,7 @@ public class Model extends Task implements Observable {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed() < bouncePages)
+                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
                             .count();
                 }
             case MONTH:
@@ -818,7 +856,7 @@ public class Model extends Task implements Observable {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed() < bouncePages)
+                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
                             .count();
                 }
             case YEAR:
@@ -830,7 +868,7 @@ public class Model extends Task implements Observable {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getExitDate() != null && bounceTime < (e.getExitDate().getTime() - e.getEntryDate().getTime())) || e.getPagesViewed() < bouncePages)
+                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
                             .count();
                 }
         }
@@ -845,9 +883,8 @@ public class Model extends Task implements Observable {
         } else {
             return serverLog.stream()
                     .filter(entry ->
-                            (entry.getExitDate() != null &&
-                                    bounceTime < (entry.getExitDate().getTime() - entry.getEntryDate().getTime()))
-                                    || entry.getPagesViewed() < bouncePages
+                            entry.getTimeSpent() < bounceTime
+                            || entry.getPagesViewed()<bouncePages
                     )
                     .count();
         }
@@ -1054,6 +1091,38 @@ public class Model extends Task implements Observable {
 
     }
 
+    //add filter
+    public void addFilter(Filter f, int filterID){
+        filters.put(filterID,f);
+        filterData();
+    }
+
+    //remove filter
+    public void removeFilter(int filterID){
+        filters.remove(filterID);
+        filterData();
+    }
+
+    private void filterData(){
+        impressionLog.clear();
+        rawImpressionLog.stream()
+                .filter(il->
+                filters.values().stream().map(f->f.filter(il)).reduce(true,Boolean::logicalAnd))
+                .forEach(il->impressionLog.add(il));
+
+        clickLog.clear();
+        rawClickLog.stream()
+                .filter(cl->
+                        filters.values().stream().map(f->f.filter(cl)).reduce(true,Boolean::logicalAnd))
+                .forEach(cl->clickLog.add(cl));
+
+        serverLog.clear();
+        rawServerLog.stream()
+                .filter(sl->
+                        filters.values().stream().map(f->f.filter(sl)).reduce(true,Boolean::logicalAnd))
+                .forEach(sl->serverLog.add(sl));
+    }
+    
     @Override
     public void addObserver(Observer o) {
         observers.add(o);
@@ -1062,8 +1131,6 @@ public class Model extends Task implements Observable {
     @Override
     public void removeObserver(Observer o) {
         observers.remove(o);
-    }
-
     @Override
     public void notifyObservers(Object arg) {
         observers.forEach(o -> o.update(arg));

@@ -39,6 +39,13 @@ public class ServerLog {
         return exitDate;
     }
 
+    public long getTimeSpent(){
+        if(this.exitDate==null){
+            return Long.MAX_VALUE;
+        }else{
+            return exitDate.getTime()-entryDate.getTime();
+        }
+    }
 
     public int getPagesViewed() {
         return pagesViewed;

@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Created by furqan on 04/03/2019.
@@ -20,7 +21,6 @@ public class FileSelectPanel extends JPanel {
         init();
     }
 
-
     public void init() {
         this.setLayout(new GridLayout(3, 3));
         this.setPreferredSize(new Dimension(500, 100));
@@ -30,8 +30,11 @@ public class FileSelectPanel extends JPanel {
         JLabel serverLabel = new JLabel("No file selected");
         JButton impButton = new JButton("Select impression log");
 
+        String currentPath = Paths.get("./input").toAbsolutePath().normalize().toString();
+
         impButton.addActionListener(e -> {
             final JFileChooser fc = new JFileChooser();
+            fc.setCurrentDirectory(new File(currentPath));
             fc.addChoosableFileFilter(new FileNameExtensionFilter("CSV file", "csv"));
             if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 File impLog = fc.getSelectedFile();
@@ -42,6 +45,7 @@ public class FileSelectPanel extends JPanel {
         JButton clickButton = new JButton("Select click log");
         clickButton.addActionListener(e -> {
             final JFileChooser fc = new JFileChooser();
+            fc.setCurrentDirectory(new File(currentPath));
             fc.addChoosableFileFilter(new FileNameExtensionFilter("CSV file", "csv"));
             if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 File clickLog = fc.getSelectedFile();
@@ -52,6 +56,7 @@ public class FileSelectPanel extends JPanel {
         JButton serverButton = new JButton("Select server log");
         serverButton.addActionListener(e -> {
             final JFileChooser fc = new JFileChooser();
+            fc.setCurrentDirectory(new File(currentPath));
             fc.addChoosableFileFilter(new FileNameExtensionFilter("CSV file", "csv"));
             if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 File serverLog = fc.getSelectedFile();
@@ -64,7 +69,7 @@ public class FileSelectPanel extends JPanel {
         confirm.addActionListener(e -> {
             if (!impLabel.getText().equals("No file selected") && !clickLabel.equals("No file selected") && !serverLabel.equals("No file selected")) {
                 try {
-                    controller.setModel(new File(impLabel.getText()), new File(clickLabel.getText()), new File(serverLabel.getText()));
+                    // controller.setModel(new File(impLabel.getText()), new File(clickLabel.getText()), new File(serverLabel.getText()));
                     frame.dispose();
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -81,7 +86,5 @@ public class FileSelectPanel extends JPanel {
         this.add(serverButton);
         this.add(new JLabel());
         this.add(confirm);
-
     }
-
 }

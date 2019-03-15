@@ -10,11 +10,9 @@ import java.awt.*;
 
 public class PreferencesPanel extends JPanel {
 
-    private AuctionController controller;
     private JFrame frame;
 
     public PreferencesPanel(AuctionController controller, JFrame frame) {
-        this.controller=controller;
         this.frame=frame;
         init();
     }

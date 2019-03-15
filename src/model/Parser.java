@@ -1,5 +1,8 @@
 package model;
 
+import common.FileType;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.util.Pair;
 
 import java.io.BufferedReader;
@@ -13,9 +16,19 @@ import java.util.stream.Stream;
 /**
  * Created by furqan on 26/02/2019.
  */
-public class Parser {
+public class Parser extends Task<Void> {
 
-    public static ArrayList<ClickLog> readClickLog(File file) throws Exception {
+    private File inputFile;
+    private FileType fileType;
+    private Model model;
+
+    public Parser(Model model, File inputFile, FileType fileType) {
+        this.model = model;
+        this.inputFile = inputFile;
+        this.fileType = fileType;
+    }
+
+    public ArrayList<ClickLog> readClickLog(File file) throws Exception {
         ArrayList<ClickLog> clickLog = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -24,6 +37,9 @@ public class Parser {
             lines.skip(1)
                     .map(e -> e.split(","))
                     .forEach(s -> clickLog.add(new ClickLog(parseDate(s[0]), s[1], Double.parseDouble(s[2]))));
+
+            model.setClickLog(clickLog);
+
             return clickLog;
         } catch (Exception e) {
             e.printStackTrace();
@@ -31,7 +47,7 @@ public class Parser {
         }
     }
 
-    public static Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> readImpressionLog(File file) throws Exception {
+    public Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> readImpressionLog(File file) throws Exception {
         ArrayList<ImpressionLog> impressionLog = new ArrayList<>();
         HashMap<String, SubjectLog> subjects = new HashMap<>();
         try {
@@ -43,6 +59,9 @@ public class Parser {
                         impressionLog.add(new ImpressionLog(parseDate(s[0]), s[1], s[5], Double.parseDouble(s[6])));
                         subjects.put(s[1], new SubjectLog(s[2], parseAge(s[3]), s[4]));
                     });
+
+            model.setImpressionLog(impressionLog);
+
             return new Pair<>(impressionLog, subjects);
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,7 +69,7 @@ public class Parser {
         }
     }
 
-    public static ArrayList<ServerLog> readServerLog(File file) throws Exception {
+    public ArrayList<ServerLog> readServerLog(File file) throws Exception {
         ArrayList<ServerLog> serverLog = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -65,6 +84,9 @@ public class Parser {
                             serverLog.add(new ServerLog(parseDate(s[0]), s[1], parseDate(s[2]), Integer.parseInt(s[3]), parseBool(s[4])));
                         }
                     });
+
+            model.setServerLog(serverLog);
+
             return serverLog;
         } catch (Exception e) {
             e.printStackTrace();
@@ -120,5 +142,19 @@ public class Parser {
             default:
                 return "<25";
         }
+    }
+
+    @Override
+    protected Void call() throws Exception {
+        Platform.runLater(() -> {
+            try {
+                if (fileType == FileType.IMPRESSION_LOG) readImpressionLog(inputFile);
+                if (fileType == FileType.CLICK_LOG) readClickLog(inputFile);
+                if (fileType == FileType.SERVER_LOG) readServerLog(inputFile);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        return null;
     }
 }

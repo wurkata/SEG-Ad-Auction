@@ -14,7 +14,7 @@ public class FXApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("dashboard.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Ad Auction");
         primaryStage.setScene(new Scene(root, 1200, 800));

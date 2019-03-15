@@ -10,24 +10,16 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import model.Model;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class FXController implements Initializable, Observer {
-    @FXML
-    public JFXButton importDataBtn;
-
     @FXML
     private GridPane metricsGrid;
 

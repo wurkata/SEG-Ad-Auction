@@ -1,6 +1,8 @@
 package model;
 
 import common.FileType;
+import common.Observable;
+import common.Observer;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.util.Pair;
@@ -16,7 +18,7 @@ import java.util.stream.Stream;
 /**
  * Created by furqan on 26/02/2019.
  */
-public class Parser extends Task<Void> {
+public class Parser extends Task<Void> implements Observable {
 
     private File inputFile;
     private FileType fileType;
@@ -127,6 +129,7 @@ public class Parser extends Task<Void> {
                 return 0;
         }
     }
+
     public static String parseAge(int age) {
         switch (age) {
             case 1:
@@ -151,10 +154,32 @@ public class Parser extends Task<Void> {
                 if (fileType == FileType.IMPRESSION_LOG) readImpressionLog(inputFile);
                 if (fileType == FileType.CLICK_LOG) readClickLog(inputFile);
                 if (fileType == FileType.SERVER_LOG) readServerLog(inputFile);
+
+                notifyObservers("FILES_LOADED");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
         return null;
+    }
+
+    @Override
+    public void addObserver(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(Object arg) {
+        observers.forEach(o -> o.update(arg));
+    }
+
+    @Override
+    public void notifyObservers() {
+        observers.forEach(Observer::update);
     }
 }

@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import common.FileType;
 import common.Observer;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -54,6 +55,10 @@ public class DashboardController implements Initializable, Observer {
         model = new Model();
         model.addObserver(this);
 
+        importImpressionLog.setOnAction(e -> Platform.runLater(new ImportImpressionLog()));
+        importClickLog.setOnAction(e -> Platform.runLater(new ImportClickLog()));
+        importServerLog.setOnAction(e -> Platform.runLater(new ImportServerLog()));
+
         addTestCampaign.setOnAction(e -> {
             exec.execute(() -> {
                 Parser p = new Parser(model, new File("input/impression_log.csv"), FileType.IMPRESSION_LOG);
@@ -98,25 +103,36 @@ public class DashboardController implements Initializable, Observer {
         window.show();
     }
 
-    @FXML
-    private void importFile(ActionEvent event) {
-        FileChooser fc = new FileChooser();
-
-        String btnId = ((JFXButton) event.getSource()).getId();
-        if (btnId.contains("Impression")) {
+    class ImportImpressionLog extends Task<Void> {
+        @Override
+        protected Void call() throws Exception {
+            FileChooser fc = new FileChooser();
             fc.setTitle("Import Impression Log...");
-            File importFile = fc.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
-            if (importFile != null) Platform.runLater(new Parser(model, importFile, FileType.IMPRESSION_LOG));
+            File importFile = fc.showOpenDialog(importImpressionLog.getScene().getWindow());
+            if (importFile != null) exec.submit(new Parser(model, importFile, FileType.IMPRESSION_LOG));
+            return null;
         }
-        if (btnId.contains("Click")) {
+    }
+
+    class ImportClickLog extends Task<Void> {
+        @Override
+        protected Void call() throws Exception {
+            FileChooser fc = new FileChooser();
             fc.setTitle("Import Click Log...");
-            File importFile = fc.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
-            if (importFile != null) Platform.runLater(new Parser(model, importFile, FileType.CLICK_LOG));
+            File importFile = fc.showOpenDialog(importClickLog.getScene().getWindow());
+            if (importFile != null) exec.submit(new Parser(model, importFile, FileType.CLICK_LOG));
+            return null;
         }
-        if (btnId.contains("Server")) {
+    }
+
+    class ImportServerLog extends Task<Void> {
+        @Override
+        protected Void call() throws Exception {
+            FileChooser fc = new FileChooser();
             fc.setTitle("Import Server Log...");
-            File importFile = fc.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
-            if (importFile != null) Platform.runLater(new Parser(model, importFile, FileType.SERVER_LOG));
+            File importFile = fc.showOpenDialog(importServerLog.getScene().getWindow());
+            if (importFile != null) exec.submit(new Parser(model, importFile, FileType.SERVER_LOG));
+            return null;
         }
     }
 

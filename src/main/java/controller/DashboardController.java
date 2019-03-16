@@ -19,6 +19,9 @@ import model.Parser;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DashboardController implements Initializable, Observer {
     @FXML
@@ -39,6 +42,12 @@ public class DashboardController implements Initializable, Observer {
     private boolean clickLogLoaded = false;
     private boolean serverLogLoaded = false;
 
+    private final ExecutorService exec = Executors.newFixedThreadPool(5, r -> {
+        Thread t = new Thread(r);
+        t.setDaemon(true);
+        return t;
+    });
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         createCampaignBtn.setDisable(false);
@@ -46,9 +55,24 @@ public class DashboardController implements Initializable, Observer {
         model.addObserver(this);
 
         addTestCampaign.setOnAction(e -> {
-            Platform.runLater(new Parser(model, new File("input/impression_log.csv"), FileType.IMPRESSION_LOG));
-            Platform.runLater(new Parser(model, new File("input/click_log.csv"), FileType.CLICK_LOG));
-            Platform.runLater(new Parser(model, new File("input/server_log.csv"), FileType.SERVER_LOG));
+            exec.execute(() -> {
+                Parser p = new Parser(model, new File("input/impression_log.csv"), FileType.IMPRESSION_LOG);
+                p.addObserver(this);
+                Platform.runLater(p);
+            });
+            exec.execute(() -> {
+                Parser p = new Parser(model, new File("input/click_log.csv"), FileType.CLICK_LOG);
+                p.addObserver(this);
+                Platform.runLater(p);
+            });
+            exec.execute(() -> {
+                Parser p = new Parser(model, new File("input/server_log.csv"), FileType.SERVER_LOG);
+                p.addObserver(this);
+                Platform.runLater(p);
+            });
+            // Platform.runLater(new Parser(model, new File("input/impression_log.csv"), FileType.IMPRESSION_LOG));
+            // Platform.runLater(new Parser(model, new File("input/click_log.csv"), FileType.CLICK_LOG));
+            // Platform.runLater(new Parser(model, new File("input/server_log.csv"), FileType.SERVER_LOG));
 
             try {
                 createCampaign(e);

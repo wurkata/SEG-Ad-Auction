@@ -70,8 +70,8 @@ public class GraphController implements Observable, Runnable {
 
     @Override
     public void run() {
-        // controller.campaignChartViewer.setVisible(false);
-        // controller.chartProgress.setVisible(true);
+        controller.campaignChartViewer.setVisible(false);
+        controller.chartProgress.setVisible(true);
         plotChart();
     }
 
@@ -120,12 +120,6 @@ public class GraphController implements Observable, Runnable {
                 TimeSeries bounceRate = new TimeSeries("Bounce Rate");
                 controller.model.getBounceRatePair().forEach(e -> {
                     bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue());
-                    notifyObservers(bounceRate);
-                    try {
-                        Thread.sleep(500);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
                 });
                 title = "Bounce Rate";
                 val = "Bounce Rate";
@@ -156,7 +150,6 @@ public class GraphController implements Observable, Runnable {
                 TimeSeries imp = new TimeSeries("Number Of Impressions");
                 controller.model.getNumOfImpressionsPair().forEach(e -> {
                     imp.addOrUpdate(new Hour(e.getKey()), e.getValue());
-                    notifyObservers(imp);
                 });
                 title = "Number of Impressions";
                 val = "Impressions";

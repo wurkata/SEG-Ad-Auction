@@ -1,11 +1,16 @@
 package controller;
 
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXSlider;
+import com.jfoenix.controls.JFXSpinner;
+import common.Filter;
 import common.Granularity;
 import common.Metric;
 import common.Observer;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -27,6 +32,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CampaignController implements Initializable, Observer {
     @FXML
@@ -90,9 +97,29 @@ public class CampaignController implements Initializable, Observer {
     @FXML
     JFXRadioButton CPABtn;
 
+    /* Bounce Rate control */
+    @FXML
+    GridPane customBRGrid;
+    @FXML
+    JFXCheckBox customBRBtn;
+    @FXML
+    Spinner BRPagesVisited;
+    @FXML
+    Spinner BRTimeSpentH;
+    @FXML
+    Spinner BRTimeSpentM;
+    @FXML
+    Spinner BRTimeSpentS;
+
     public Model model;
 
     private GraphController graphController;
+
+    private final ExecutorService exec = Executors.newFixedThreadPool(5, r -> {
+        Thread t = new Thread(r);
+        t.setDaemon(true);
+        return t;
+    });
 
     public CampaignController(Model model) {
         this.model = model;
@@ -133,6 +160,9 @@ public class CampaignController implements Initializable, Observer {
         CPA.textProperty().bind(model.metrics.MetricsProperty(Metric.CPA));
 
         chartToggleGroup.selectedToggleProperty().addListener(e -> {
+                    customBRBtn.setDisable(false);
+                    chartGranularitySlider.setDisable(false);
+
                     PlotChartTask plotChartTask = new PlotChartTask();
                     chartProgress.progressProperty().bind(plotChartTask.progressProperty());
                     Platform.runLater(plotChartTask);
@@ -145,6 +175,35 @@ public class CampaignController implements Initializable, Observer {
                 "Y",
                 new XYSeriesCollection()
         ));
+
+        customBRBtn.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    customBRGrid.getChildren().forEach(e -> e.setDisable(false));
+                } else {
+                    customBRGrid.getChildren().forEach(e -> {
+                        if (!(e instanceof JFXCheckBox)) e.setDisable(true);
+                    });
+
+                    Platform.runLater(() -> BRPagesVisited.getValueFactory().setValue(0));
+                    Platform.runLater(() -> BRTimeSpentH.getValueFactory().setValue(0));
+                    Platform.runLater(() -> BRTimeSpentM.getValueFactory().setValue(0));
+                    Platform.runLater(() -> BRTimeSpentS.getValueFactory().setValue(0));
+                }
+            }
+        });
+
+        // TODO: FIX UI Breaks sometimes
+        BRPagesVisited.valueProperty().addListener(e -> Platform.runLater(new BouncePageChange()));
+        BRTimeSpentH.valueProperty().addListener(e -> changeBounceTime());
+        BRTimeSpentM.valueProperty().addListener(e -> changeBounceTime());
+        BRTimeSpentS.valueProperty().addListener(e -> changeBounceTime());
+    }
+
+    @FXML
+    private void changeBounceTime() {
+        Platform.runLater(new BounceTimeChange());
     }
 
     private void setChartGranularitySliderLabels() {
@@ -202,6 +261,13 @@ public class CampaignController implements Initializable, Observer {
         });
     }
 
+    private void initTimeSpinners() {
+        BRPagesVisited.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 1000));
+        BRTimeSpentH.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 24));
+        BRTimeSpentM.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59));
+        BRTimeSpentS.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59));
+    }
+
     @Override
     public void update() {
 
@@ -223,8 +289,15 @@ public class CampaignController implements Initializable, Observer {
                             e.setDisable(false);
                         }
                     });
+
+                    initTimeSpinners();
                     break;
                 case "metrics":
+                    break;
+                case "filter":
+                    PlotChartTask plotChartTask = new PlotChartTask();
+                    chartProgress.progressProperty().bind(plotChartTask.progressProperty());
+                    Platform.runLater(plotChartTask);
                     break;
                 case "chart":
                     campaignChartViewer.setChart(graphController.getChart());
@@ -239,6 +312,22 @@ public class CampaignController implements Initializable, Observer {
         @Override
         protected Void call() {
             new Thread(graphController).start();
+            return null;
+        }
+    }
+
+    class BounceTimeChange extends Task {
+        @Override
+        protected Void call() {
+            model.setBounceTime((Integer) BRTimeSpentS.getValue() * 1000 + (Integer) BRTimeSpentM.getValue() * 60 * 1000 + (Integer) BRTimeSpentH.getValue() * 60 * 60 * 1000);
+            return null;
+        }
+    }
+
+    class BouncePageChange extends Task {
+        @Override
+        protected Void call() {
+            model.setBouncePageReq((Integer) BRPagesVisited.getValue());
             return null;
         }
     }

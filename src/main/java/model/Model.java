@@ -29,8 +29,8 @@ public class Model extends Task implements Observable {
     private DecimalFormat df = new DecimalFormat("#.####");
 
     private List<ImpressionLog> impressionLog = new ArrayList<>();
-    private List<ClickLog> clickLog= new ArrayList<>();
-    private List<ServerLog> serverLog= new ArrayList<>();
+    private List<ClickLog> clickLog = new ArrayList<>();
+    private List<ServerLog> serverLog = new ArrayList<>();
 
     private List<ImpressionLog> rawImpressionLog;
     private List<ClickLog> rawClickLog;
@@ -825,7 +825,7 @@ public class Model extends Task implements Observable {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getHours() == d.hours && e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
+                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
                             .count();
                 }
             case DAY:
@@ -837,7 +837,7 @@ public class Model extends Task implements Observable {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getDate() == d.day && e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
+                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
                             .count();
                 }
             case MONTH:
@@ -849,7 +849,7 @@ public class Model extends Task implements Observable {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getMonth() == d.month && e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
+                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
                             .count();
                 }
             case YEAR:
@@ -861,7 +861,7 @@ public class Model extends Task implements Observable {
                 } else {
                     return serverLog.stream()
                             .filter(e -> e.getEntryDate().getYear() == d.year)
-                            .filter(e -> (e.getTimeSpent()<bounceTime || e.getPagesViewed()<bouncePages))
+                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
                             .count();
                 }
         }
@@ -877,7 +877,7 @@ public class Model extends Task implements Observable {
             return serverLog.stream()
                     .filter(entry ->
                             entry.getTimeSpent() < bounceTime
-                            || entry.getPagesViewed()<bouncePages
+                                    || entry.getPagesViewed() < bouncePages
                     )
                     .count();
         }
@@ -1043,11 +1043,13 @@ public class Model extends Task implements Observable {
     // Sets Bounce Time
     public void setBounceTime(long ms) {
         this.bounceTime = ms;
+        notifyObservers("filter");
     }
 
     //Sets minimum number of pages for visit to not be a bounce
     public void setBouncePageReq(int pages) {
         this.bouncePages = pages;
+        notifyObservers("filter");
     }
 
     //Collects dates for granularising
@@ -1085,37 +1087,37 @@ public class Model extends Task implements Observable {
     }
 
     //add filter
-    public void addFilter(Filter f, int filterID){
-        filters.put(filterID,f);
+    public void addFilter(Filter f, int filterID) {
+        filters.put(filterID, f);
         filterData();
     }
 
     //remove filter
-    public void removeFilter(int filterID){
+    public void removeFilter(int filterID) {
         filters.remove(filterID);
         filterData();
     }
 
-    private void filterData(){
+    private void filterData() {
         impressionLog.clear();
         rawImpressionLog.stream()
-                .filter(il->
-                filters.values().stream().map(f->f.filter(il)).reduce(true,Boolean::logicalAnd))
-                .forEach(il->impressionLog.add(il));
+                .filter(il ->
+                        filters.values().stream().map(f -> f.filter(il)).reduce(true, Boolean::logicalAnd))
+                .forEach(il -> impressionLog.add(il));
 
         clickLog.clear();
         rawClickLog.stream()
-                .filter(cl->
-                        filters.values().stream().map(f->f.filter(cl)).reduce(true,Boolean::logicalAnd))
-                .forEach(cl->clickLog.add(cl));
+                .filter(cl ->
+                        filters.values().stream().map(f -> f.filter(cl)).reduce(true, Boolean::logicalAnd))
+                .forEach(cl -> clickLog.add(cl));
 
         serverLog.clear();
         rawServerLog.stream()
-                .filter(sl->
-                        filters.values().stream().map(f->f.filter(sl)).reduce(true,Boolean::logicalAnd))
-                .forEach(sl->serverLog.add(sl));
+                .filter(sl ->
+                        filters.values().stream().map(f -> f.filter(sl)).reduce(true, Boolean::logicalAnd))
+                .forEach(sl -> serverLog.add(sl));
     }
-    
+
     @Override
     public void addObserver(Observer o) {
         observers.add(o);

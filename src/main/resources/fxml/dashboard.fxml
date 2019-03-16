@@ -75,7 +75,7 @@
                                                 <VBox alignment="CENTER" spacing="20.0">
                                                    <children>
                                                       <Label text="Import Impression Log" />
-                                                      <JFXButton fx:id="importImpressionLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" onAction="#importFile" prefWidth="150.0" style="-fx-background-color: #ccc;" text="Import">
+                                                      <JFXButton fx:id="importImpressionLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" style="-fx-background-color: #ccc;" text="Import">
                                                          <padding>
                                                             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                                                          </padding>
@@ -88,7 +88,7 @@
                                                 <VBox alignment="CENTER" spacing="20.0">
                                                    <children>
                                                       <Label text="Import Click Log" />
-                                                      <JFXButton fx:id="importClickLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" onAction="#importFile" prefWidth="150.0" style="-fx-background-color: #ccc;" text="Import">
+                                                      <JFXButton fx:id="importClickLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" style="-fx-background-color: #ccc;" text="Import">
                                                          <padding>
                                                             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                                                          </padding>
@@ -101,7 +101,7 @@
                                                 <VBox alignment="CENTER" spacing="20.0">
                                                    <children>
                                                       <Label text="Import Server Log" />
-                                                      <JFXButton fx:id="importServerLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" onAction="#importFile" prefWidth="150.0" style="-fx-background-color: #ccc;" text="Import">
+                                                      <JFXButton fx:id="importServerLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" style="-fx-background-color: #ccc;" text="Import">
                                                          <padding>
                                                             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                                                          </padding>

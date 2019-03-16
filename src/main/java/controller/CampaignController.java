@@ -159,18 +159,21 @@ public class CampaignController implements Initializable, Observer {
             }
         };
 
+        // Redundant declarations but otherwise it breaks :(; TODO: FIX IT
         ChangeListener<Integer> BRTimeHChangeListener = new ChangeListener<Integer>() {
             @Override
             public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
                 Platform.runLater(new BounceTimeChange());
             }
         };
+
         ChangeListener<Integer> BRTimeMChangeListener = new ChangeListener<Integer>() {
             @Override
             public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
                 Platform.runLater(new BounceTimeChange());
             }
         };
+
         ChangeListener<Integer> BRTimeSChangeListener = new ChangeListener<Integer>() {
             @Override
             public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {

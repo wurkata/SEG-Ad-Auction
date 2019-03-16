@@ -171,9 +171,9 @@
                                                    <GridPane.margin>
                                                       <Insets top="10.0" />
                                                    </GridPane.margin></Label>
-                                                <Spinner fx:id="BRTimeSpentH" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                                <Spinner fx:id="BRTimeSpentM" disable="true" editable="true" layoutX="160.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                                <Spinner fx:id="BRTimeSpentS" cache="true" cacheHint="SCALE_AND_ROTATE" disable="true" editable="true" layoutX="85.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.rowIndex="4" />
+                                                <Spinner fx:id="BRTimeSpentM" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                <Spinner fx:id="BRTimeSpentS" disable="true" editable="true" layoutX="160.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                                <Spinner fx:id="BRTimeSpentH" cache="true" cacheHint="SCALE_AND_ROTATE" disable="true" editable="true" layoutX="85.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.rowIndex="4" />
                                                 <Label disable="true" text="Hours" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                                                 <Label disable="true" text="Minutes" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                                                 <Label disable="true" text="Seconds" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />

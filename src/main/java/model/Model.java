@@ -1040,6 +1040,12 @@ public class Model extends Task implements Observable {
         this.granularity = g;
     }
 
+    public void resetBounceFilters() {
+        this.bouncePages = 0;
+        this.bounceTime = 0;
+        notifyObservers("filter");
+    }
+
     // Sets Bounce Time
     public void setBounceTime(long ms) {
         this.bounceTime = ms;

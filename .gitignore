@@ -67,6 +67,7 @@ nb-configuration.xml
 #########################
 docs/*
 input/*
+*.csv
 outs/*
 #########################
 ## Custom

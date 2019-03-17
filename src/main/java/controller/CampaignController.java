@@ -26,8 +26,6 @@ import org.jfree.data.time.TimeSeriesCollection;
 import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class CampaignController implements Initializable, Observer {
     @FXML
@@ -97,45 +95,31 @@ public class CampaignController implements Initializable, Observer {
     @FXML
     private JFXCheckBox customBRBtn;
     @FXML
-    private Spinner BRPagesVisited;
+    private Spinner<Integer> BRPagesVisited;
     @FXML
-    private Spinner BRTimeSpentH;
+    private Spinner<Integer> BRTimeSpentH;
     @FXML
-    private Spinner BRTimeSpentM;
+    private Spinner<Integer> BRTimeSpentM;
     @FXML
-    private Spinner BRTimeSpentS;
+    private Spinner<Integer> BRTimeSpentS;
 
     public Model model;
 
-    private GraphController graphController;
+    private GraphController graphControllerService;
 
-    private final ExecutorService exec = Executors.newFixedThreadPool(5, r -> {
-        Thread t = new Thread(r);
-        t.setDaemon(true);
-        return t;
-    });
-
-    public CampaignController(Model model) {
+    CampaignController(Model model) {
         this.model = model;
-        /*
-        this.model = new Model(
-                new File("input/impression_log.csv"),
-                new File("input/click_log.csv"),
-                new File("input/server_log.csv")
-        );
-        */
 
-        this.graphController = new GraphController(this, model);
-        graphController.addObserver(this);
+        graphControllerService = new GraphController(this, model);
+        graphControllerService.addObserver(this);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         chartProgress.setVisible(false);
         chartProgress.toFront();
-        // chartProgress.progressProperty().bind(model.progressProperty());
 
-        Platform.runLater(model);
+        model.restart();
 
         chartProgress.progressProperty().unbind();
 
@@ -146,59 +130,29 @@ public class CampaignController implements Initializable, Observer {
                     customBRBtn.setDisable(false);
                     chartGranularitySlider.setDisable(false);
 
-                    PlotChartTask plotChartTask = new PlotChartTask();
-                    chartProgress.progressProperty().bind(plotChartTask.progressProperty());
-                    Platform.runLater(plotChartTask);
+                    campaignChartViewer.setVisible(false);
+                    chartProgress.setVisible(true);
+
+
+                    chartProgress.progressProperty().bind(graphControllerService.progressProperty());
+                    graphControllerService.restart();
                 }
         );
 
-        ChangeListener<Integer> BRPageChangeListener = new ChangeListener<Integer>() {
-            @Override
-            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-                Platform.runLater(new BouncePageChange());
-            }
-        };
+        BRPagesVisited.valueProperty().addListener(e -> model.setBouncePageReq(BRPagesVisited.getValue()));
+        BRTimeSpentH.valueProperty().addListener( e -> Platform.runLater(new BounceTimeChange()));
+        BRTimeSpentM.valueProperty().addListener( e -> Platform.runLater(new BounceTimeChange()));
+        BRTimeSpentS.valueProperty().addListener( e -> Platform.runLater(new BounceTimeChange()));
 
-        // Redundant declarations but otherwise it breaks :(; TODO: FIX IT
-        ChangeListener<Integer> BRTimeHChangeListener = new ChangeListener<Integer>() {
-            @Override
-            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-                Platform.runLater(new BounceTimeChange());
-            }
-        };
-
-        ChangeListener<Integer> BRTimeMChangeListener = new ChangeListener<Integer>() {
-            @Override
-            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-                Platform.runLater(new BounceTimeChange());
-            }
-        };
-
-        ChangeListener<Integer> BRTimeSChangeListener = new ChangeListener<Integer>() {
-            @Override
-            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-                Platform.runLater(new BounceTimeChange());
-            }
-        };
         customBRBtn.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue) {
-                    BRPagesVisited.valueProperty().addListener(BRPageChangeListener);
-                    BRTimeSpentH.valueProperty().addListener(BRTimeHChangeListener);
-                    BRTimeSpentM.valueProperty().addListener(BRTimeMChangeListener);
-                    BRTimeSpentS.valueProperty().addListener(BRTimeSChangeListener);
-
                     customBRGrid.getChildren().forEach(e -> e.setDisable(false));
                 } else {
                     customBRGrid.getChildren().forEach(e -> {
                         if (!(e instanceof JFXCheckBox)) e.setDisable(true);
                     });
-
-                    BRPagesVisited.valueProperty().removeListener(BRPageChangeListener);
-                    BRTimeSpentH.valueProperty().removeListener(BRTimeHChangeListener);
-                    BRTimeSpentM.valueProperty().removeListener(BRTimeMChangeListener);
-                    BRTimeSpentS.valueProperty().removeListener(BRTimeSChangeListener);
 
                     BRPagesVisited.getValueFactory().setValue(0);
                     BRTimeSpentH.getValueFactory().setValue(0);
@@ -206,11 +160,6 @@ public class CampaignController implements Initializable, Observer {
                     BRTimeSpentS.getValueFactory().setValue(0);
 
                     Platform.runLater(new BounceTimeReset());
-
-                    /*
-                    exec.execute(new BounceTimeChange());
-                    exec.execute(new BouncePageChange());
-                    */
                 }
             }
         });
@@ -278,9 +227,8 @@ public class CampaignController implements Initializable, Observer {
             }
 
             if (chartToggleGroup.getSelectedToggle() != null) {
-                PlotChartTask plotChartTask = new PlotChartTask();
-                chartProgress.progressProperty().bind(plotChartTask.progressProperty());
-                Platform.runLater(plotChartTask);
+                chartProgress.progressProperty().bind(graphControllerService.progressProperty());
+                graphControllerService.restart();
             }
         });
     }
@@ -321,25 +269,13 @@ public class CampaignController implements Initializable, Observer {
                     break;
                 case "filter":
                     if (campaignChartViewer.getChart() != null) {
-                        PlotChartTask plotChartTask = new PlotChartTask();
-                        chartProgress.progressProperty().bind(plotChartTask.progressProperty());
-                        Platform.runLater(plotChartTask);
+                        chartProgress.progressProperty().bind(graphControllerService.progressProperty());
+                        graphControllerService.restart();
                     }
-                    break;
-                case "chart":
-                    campaignChartViewer.setChart(graphController.getChart());
                     break;
                 default:
                     break;
             }
-        }
-    }
-
-    class PlotChartTask extends Task {
-        @Override
-        protected Void call() {
-            new Thread(graphController).start();
-            return null;
         }
     }
 
@@ -355,14 +291,6 @@ public class CampaignController implements Initializable, Observer {
         @Override
         protected Void call() throws Exception {
             model.setBounceTime((Integer) BRTimeSpentS.getValueFactory().getValue() * 1000 + (Integer) BRTimeSpentM.getValueFactory().getValue() * 60 * 1000 + (Integer) BRTimeSpentH.getValueFactory().getValue() * 60 * 60 * 1000);
-            return null;
-        }
-    }
-
-    class BouncePageChange extends Task<Void> {
-        @Override
-        protected Void call() throws Exception {
-            model.setBouncePageReq((Integer) BRPagesVisited.getValue());
             return null;
         }
     }

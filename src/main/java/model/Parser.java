@@ -4,6 +4,7 @@ import common.FileType;
 import common.Observable;
 import common.Observer;
 import javafx.application.Platform;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.util.Pair;
 
@@ -18,15 +19,29 @@ import java.util.stream.Stream;
 /**
  * Created by furqan on 26/02/2019.
  */
-public class Parser extends Task<Void> implements Observable {
+public class Parser extends Service<Void> implements Observable {
 
     private File inputFile;
     private FileType fileType;
     private Model model;
 
-    public Parser(Model model, File inputFile, FileType fileType) {
+    public Parser(Model model, File imp, File click, File serv) {
         this.model = model;
-        this.inputFile = inputFile;
+        try {
+            readImpressionLog(imp);
+            readClickLog(click);
+            readServerLog(serv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Parser(Model model) {
+        this.model = model;
+    }
+
+    public void setFile(File file, FileType fileType) {
+        this.inputFile = file;
         this.fileType = fileType;
     }
 
@@ -148,19 +163,26 @@ public class Parser extends Task<Void> implements Observable {
     }
 
     @Override
-    protected Void call() throws Exception {
-        Platform.runLater(() -> {
-            try {
-                if (fileType == FileType.IMPRESSION_LOG) readImpressionLog(inputFile);
-                if (fileType == FileType.CLICK_LOG) readClickLog(inputFile);
-                if (fileType == FileType.SERVER_LOG) readServerLog(inputFile);
+    protected Task<Void> createTask() {
+        return new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                try {
+                    if (fileType == FileType.IMPRESSION_LOG) readImpressionLog(inputFile);
+                    if (fileType == FileType.CLICK_LOG) readClickLog(inputFile);
+                    if (fileType == FileType.SERVER_LOG) readServerLog(inputFile);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-                notifyObservers("FILES_LOADED");
-            } catch (Exception e) {
-                e.printStackTrace();
+                return null;
             }
-        });
-        return null;
+        };
+    }
+
+    @Override
+    protected void succeeded() {
+        notifyObservers("FILES_LOADED");
     }
 
     @Override

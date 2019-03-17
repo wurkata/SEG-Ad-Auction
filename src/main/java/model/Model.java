@@ -8,6 +8,7 @@ import common.Observable;
 import common.Observer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
@@ -23,7 +24,7 @@ import java.sql.DriverManager;
  * Created by furqan on 27/02/2019.
  */
 
-public class Model extends Task implements Observable {
+public class Model extends Service<Void> implements Observable {
     private Connection con;
 
     private DecimalFormat df = new DecimalFormat("#.####");
@@ -85,28 +86,35 @@ public class Model extends Task implements Observable {
 //                 System.out.println("Wrong file type!");
 //                 return false;
 
+
+    public Model() {
+        metrics = new Metrics();
+        chartData = new ChartData();
+    }
+
     @Override
-    protected Object call() throws Exception {
-        Platform.runLater(() -> {
+    protected Task<Void> createTask() {
+        return new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                Platform.runLater(() -> {
             /*
             loadFile(fileImpressionLog, FileType.IMPRESSION_LOG);
             loadFile(fileClickLog, FileType.CLICK_LOG);
             loadFile(fileServerLog, FileType.SERVER_LOG);
             */
 
-            getDates();
-
-            setMetrics();
-
-
-            notifyObservers("files");
-        });
-        return null;
+                    getDates();
+                    setMetrics();
+                });
+                return null;
+            }
+        };
     }
 
-    public Model() {
-        metrics = new Metrics();
-        chartData = new ChartData();
+    @Override
+    protected void succeeded() {
+        notifyObservers("files");
     }
 
     public Model(File fileImpressionLog, File fileClickLog, File fileServerLog) {

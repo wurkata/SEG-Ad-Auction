@@ -6,9 +6,11 @@ import common.Observer;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import model.Model;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Hour;
@@ -152,18 +154,51 @@ public class GraphController extends Service<JFreeChart> implements Observable {
 
         DateAxis x = new DateAxis("Date (YYYY-MM-DD HHHH)");
         x.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd HHHH"));
-        XYPlot plot = new XYPlot(dataset, x, new NumberAxis(val), new XYLineAndShapeRenderer());
-        plot.getRangeAxis().setAutoRange(true);
-        plot.getRenderer().setSeriesStroke(0, new BasicStroke(4.0f));
-        plot.getDomainAxis().setAutoRange(true);
-        plot.getRangeAxis().setAutoRange(true);
-        JFreeChart chart = new JFreeChart(title, plot);
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+                title,
+                "Date/Time",
+                val,
+                dataset,
+               true,
+               true,
+               false
+        );
 
         controller.campaignChartViewer.setVisible(true);
         controller.chartProgress.setVisible(false);
 
         return chart;
     }
+
+
+    @Override
+    protected Task<JFreeChart> createTask() {
+        return new Task<JFreeChart>() {
+            @Override
+            protected JFreeChart call() {
+                controller.campaignChartViewer.setVisible(false);
+                controller.chartProgress.setVisible(true);
+
+                return plotChart();
+            }
+        };
+    }
+
+    @Override
+    protected void succeeded() {
+        controller.campaignChartViewer.setChart(getValue());
+        controller.chartProgress.progressProperty().unbind();
+        XYPlot plot = controller.campaignChartViewer.getChart().getXYPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+        plot.getDomainAxis().setAutoRange(true);
+        plot.getRangeAxis().setAutoRange(true);
+        plot.getRangeAxis().setAutoRange(true);
+        plot.getRenderer().setSeriesStroke(0, new BasicStroke(4.0f));
+        plot.getRenderer().setBaseStroke(new BasicStroke(4));
+    }
+
 
     @Override
     public void addObserver(Observer o) {
@@ -183,24 +218,5 @@ public class GraphController extends Service<JFreeChart> implements Observable {
     @Override
     public void notifyObservers() {
         observers.forEach(Observer::update);
-    }
-
-    @Override
-    protected Task<JFreeChart> createTask() {
-        return new Task<JFreeChart>() {
-            @Override
-            protected JFreeChart call() {
-                controller.campaignChartViewer.setVisible(false);
-                controller.chartProgress.setVisible(true);
-
-                return plotChart();
-            }
-        };
-    }
-
-    @Override
-    protected void succeeded() {
-        controller.campaignChartViewer.setChart(getValue());
-        controller.chartProgress.progressProperty().unbind();
     }
 }

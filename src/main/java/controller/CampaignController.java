@@ -281,7 +281,7 @@ public class CampaignController implements Initializable, Observer {
 
     class BounceTimeReset extends Task<Void> {
         @Override
-        protected Void call() throws Exception {
+        protected Void call() {
             model.resetBounceFilters();
             return null;
         }
@@ -289,8 +289,8 @@ public class CampaignController implements Initializable, Observer {
 
     class BounceTimeChange extends Task<Void> {
         @Override
-        protected Void call() throws Exception {
-            model.setBounceTime((Integer) BRTimeSpentS.getValueFactory().getValue() * 1000 + (Integer) BRTimeSpentM.getValueFactory().getValue() * 60 * 1000 + (Integer) BRTimeSpentH.getValueFactory().getValue() * 60 * 60 * 1000);
+        protected Void call() {
+            model.setBounceTime(BRTimeSpentS.getValueFactory().getValue() * 1000 + BRTimeSpentM.getValueFactory().getValue() * 60 * 1000 + BRTimeSpentH.getValueFactory().getValue() * 60 * 60 * 1000);
             return null;
         }
     }

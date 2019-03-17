@@ -120,6 +120,9 @@
                                                                 <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                                                                 <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2" />
                                                             </children>
+                                             <padding>
+                                                <Insets top="10.0" />
+                                             </padding>
                                                         </GridPane>
                                                         <ProgressIndicator fx:id="chartProgress" progress="0.0" scaleX="2.0" scaleY="2.0" translateY="-400.0" />
                                                     </children>

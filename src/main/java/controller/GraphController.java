@@ -196,7 +196,6 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         plot.getRangeAxis().setAutoRange(true);
         plot.getRangeAxis().setAutoRange(true);
         plot.getRenderer().setSeriesStroke(0, new BasicStroke(4.0f));
-        plot.getRenderer().setBaseStroke(new BasicStroke(4));
     }
 
 

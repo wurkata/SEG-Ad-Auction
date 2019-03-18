@@ -78,7 +78,7 @@ public class Parser extends Service<Void> implements Observable {
                     });
 
             model.setImpressionLog(impressionLog);
-
+            model.setSubjects(subjects);
             return new Pair<>(impressionLog, subjects);
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,7 +112,7 @@ public class Parser extends Service<Void> implements Observable {
 
     }
 
-    private static Date parseDate(String d) {
+    public static Date parseDate(String d) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date parsedDate = null;
         try {

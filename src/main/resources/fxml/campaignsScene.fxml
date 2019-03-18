@@ -23,6 +23,10 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.jfree.chart.fx.ChartViewer?>
 
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXListView?>
+<?import javafx.scene.layout.HBox?>
+<?import com.jfoenix.controls.JFXButton?>
 <VBox prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <MenuBar VBox.vgrow="NEVER">
@@ -43,25 +47,25 @@
                         <MenuItem mnemonicParsing="false" text="Quit" />
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Undo" />
-                        <MenuItem mnemonicParsing="false" text="Redo" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Cut" />
-                        <MenuItem mnemonicParsing="false" text="Copy" />
-                        <MenuItem mnemonicParsing="false" text="Paste" />
-                        <MenuItem mnemonicParsing="false" text="Delete" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Select All" />
-                        <MenuItem mnemonicParsing="false" text="Unselect All" />
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
-                    </items>
-                </Menu>
+                <!--<Menu mnemonicParsing="false" text="Edit">-->
+                <!--<items>-->
+                <!--<MenuItem mnemonicParsing="false" text="Undo" />-->
+                <!--<MenuItem mnemonicParsing="false" text="Redo" />-->
+                <!--<SeparatorMenuItem mnemonicParsing="false" />-->
+                <!--<MenuItem mnemonicParsing="false" text="Cut" />-->
+                <!--<MenuItem mnemonicParsing="false" text="Copy" />-->
+                <!--<MenuItem mnemonicParsing="false" text="Paste" />-->
+                <!--<MenuItem mnemonicParsing="false" text="Delete" />-->
+                <!--<SeparatorMenuItem mnemonicParsing="false" />-->
+                <!--<MenuItem mnemonicParsing="false" text="Select All" />-->
+                <!--<MenuItem mnemonicParsing="false" text="Unselect All" />-->
+                <!--</items>-->
+                <!--</Menu>-->
+                <!--<Menu mnemonicParsing="false" text="Help">-->
+                <!--<items>-->
+                <!--<MenuItem mnemonicParsing="false" text="About MyHelloApp" />-->
+                <!--</items>-->
+                <!--</Menu>-->
             </menus>
         </MenuBar>
         <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
@@ -120,9 +124,9 @@
                                                                 <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                                                                 <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2" />
                                                             </children>
-                                             <padding>
-                                                <Insets top="10.0" />
-                                             </padding>
+                                                            <padding>
+                                                                <Insets top="10.0" />
+                                                            </padding>
                                                         </GridPane>
                                                         <ProgressIndicator fx:id="chartProgress" progress="0.0" scaleX="2.0" scaleY="2.0" translateY="-400.0" />
                                                     </children>
@@ -150,42 +154,81 @@
                                                                 <Insets bottom="10.0" left="10.0" right="10.0" />
                                                             </VBox.margin>
                                                         </JFXSlider>
-                                          <GridPane fx:id="customBRGrid">
-                                            <columnConstraints>
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0" />
-                                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0" />
-                                              <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="70.0" />
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                            </rowConstraints>
-                                             <children>
-                                                 <JFXCheckBox fx:id="customBRBtn" disable="true" mnemonicParsing="false" text="Custom bounce rate">
-                                                   <GridPane.margin>
-                                                      <Insets bottom="10.0" />
-                                                   </GridPane.margin></JFXCheckBox>
-                                                <Label disable="true" maxWidth="1.7976931348623157E308" text="Pages visited" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-                                                <Spinner fx:id="BRPagesVisited" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                                <Label disable="true" layoutX="10.0" layoutY="17.0" text="Time spent" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-                                                   <GridPane.margin>
-                                                      <Insets top="10.0" />
-                                                   </GridPane.margin></Label>
-                                                <Spinner fx:id="BRTimeSpentM" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                                <Spinner fx:id="BRTimeSpentS" disable="true" editable="true" layoutX="160.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                                <Spinner fx:id="BRTimeSpentH" cache="true" cacheHint="SCALE_AND_ROTATE" disable="true" editable="true" layoutX="85.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.rowIndex="4" />
-                                                <Label disable="true" text="Hours" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-                                                <Label disable="true" text="Minutes" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-                                                <Label disable="true" text="Seconds" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-                                                <IntegerValidator GridPane.rowIndex="4" />
-                                             </children>
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                             </VBox.margin>
-                                          </GridPane>
+                                                        <GridPane fx:id="customBRGrid">
+                                                            <columnConstraints>
+                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0" />
+                                                                <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="70.0" />
+                                                            </columnConstraints>
+                                                            <rowConstraints>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            </rowConstraints>
+                                                            <children>
+                                                                <JFXCheckBox fx:id="customBRBtn" disable="true" mnemonicParsing="false" text="Custom bounce rate">
+                                                                    <GridPane.margin>
+                                                                        <Insets bottom="10.0" />
+                                                                    </GridPane.margin></JFXCheckBox>
+                                                                <Label disable="true" maxWidth="1.7976931348623157E308" text="Pages visited" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                                                                <Spinner fx:id="BRPagesVisited" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                                <Label disable="true" layoutX="10.0" layoutY="17.0" text="Time spent" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                                                                    <GridPane.margin>
+                                                                        <Insets top="10.0" />
+                                                                    </GridPane.margin></Label>
+                                                                <Spinner fx:id="BRTimeSpentM" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                                <Spinner fx:id="BRTimeSpentS" disable="true" editable="true" layoutX="160.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                                                <Spinner fx:id="BRTimeSpentH" cache="true" cacheHint="SCALE_AND_ROTATE" disable="true" editable="true" layoutX="85.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.rowIndex="4" />
+                                                                <Label disable="true" text="Hours" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                                <Label disable="true" text="Minutes" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                                <Label disable="true" text="Seconds" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                                <IntegerValidator GridPane.rowIndex="4" />
+                                                            </children>
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                                            </VBox.margin>
+                                                        </GridPane>
+                                                        <Label text="Campaign Filters">
+                                                            <opaqueInsets>
+                                                                <Insets />
+                                                            </opaqueInsets>
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0"/>
+                                                            </VBox.margin>
+                                                        </Label>
+                                                        <JFXComboBox fx:id="filterCampaignSelectorMenu" disable="true" promptText="Select Campaign to Filter (NYI)"></JFXComboBox>
+                                                        <JFXListView fx:id="appliedFiltersList" disable="true" prefHeight="200"/>
+                                                        <HBox>
+                                                            <JFXButton fx:id="addFilter" text="New Filter" disable="true">
+                                                                <style>
+                                                                    <!--Style code from https://stackoverflow.com/a/30680668-->
+                                                                    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+                                                                    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+                                                                    -fx-background-radius: 3px, 3px, 2px, 1px;
+                                                                    -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
+                                                                </style>
+                                                            </JFXButton>
+                                                            <!--<JFXButton fx:id="filterInfo" text="Details" disable="true">-->
+                                                                <!--<style>-->
+                                                                    <!--&lt;!&ndash;Style code from https://stackoverflow.com/a/30680668&ndash;&gt;-->
+                                                                    <!-- -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;-->
+                                                                    <!-- -fx-background-insets: 0 0 -1 0, 0, 1, 2;-->
+                                                                    <!-- -fx-background-radius: 3px, 3px, 2px, 1px;-->
+                                                                    <!-- -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */-->
+                                                                <!--</style>-->
+                                                            <!--</JFXButton>-->
+                                                            <JFXButton fx:id="removeFilter" text="Delete Filter" disable="true">
+                                                                <style>
+                                                                    <!--Style code from https://stackoverflow.com/a/30680668-->
+                                                                    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+                                                                    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+                                                                    -fx-background-radius: 3px, 3px, 2px, 1px;
+                                                                    -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
+                                                                </style>
+                                                            </JFXButton>
+                                                        </HBox>
                                                     </children>
                                                     <BorderPane.margin>
                                                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

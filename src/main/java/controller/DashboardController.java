@@ -40,6 +40,7 @@ public class DashboardController implements Initializable, Observer {
     private boolean serverLogLoaded = false;
 
     private Parser parserService;
+    private File inputFile;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -49,16 +50,25 @@ public class DashboardController implements Initializable, Observer {
         parserService = new Parser(model);
 
         importImpressionLog.setOnAction(e -> {
-            parserService.setFile(importFile(FileType.IMPRESSION_LOG), FileType.IMPRESSION_LOG);
-            parserService.restart();
+            inputFile = importFile(FileType.IMPRESSION_LOG);
+            if (inputFile != null) {
+                parserService.setFile(importFile(FileType.IMPRESSION_LOG), FileType.IMPRESSION_LOG);
+                parserService.restart();
+            }
         });
         importClickLog.setOnAction(e -> {
-            parserService.setFile(importFile(FileType.CLICK_LOG), FileType.CLICK_LOG);
-            parserService.restart();
+            inputFile = importFile(FileType.CLICK_LOG);
+            if (inputFile != null) {
+                parserService.setFile(importFile(FileType.CLICK_LOG), FileType.CLICK_LOG);
+                parserService.restart();
+            }
         });
         importServerLog.setOnAction(e -> {
-            parserService.setFile(importFile(FileType.SERVER_LOG), FileType.SERVER_LOG);
-            parserService.restart();
+            inputFile = importFile(FileType.SERVER_LOG);
+            if (inputFile != null) {
+                parserService.setFile(importFile(FileType.SERVER_LOG), FileType.SERVER_LOG);
+                parserService.restart();
+            }
         });
 
         addTestCampaign.setOnAction(e -> {

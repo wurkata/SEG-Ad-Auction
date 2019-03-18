@@ -1,5 +1,6 @@
 package controller;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXSlider;
@@ -9,12 +10,16 @@ import common.Observer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import model.Model;
 import org.jfree.chart.JFreeChart;
@@ -24,6 +29,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import java.awt.*;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -103,9 +109,22 @@ public class CampaignController implements Initializable, Observer {
     @FXML
     private Spinner<Integer> BRTimeSpentS;
 
+    @FXML
+    private ListView<String> appliedFiltersList;
+    @FXML
+    private JFXButton addFilter;
+//    @FXML
+//    private JFXButton filterInfo;
+    @FXML
+    private JFXButton removeFilter;
+
     public Model model;
 
     private GraphController graphControllerService;
+
+    private String selectedFilter="";
+
+    private ObservableList<String> filters;
 
     CampaignController(Model model) {
         this.model = model;
@@ -125,10 +144,14 @@ public class CampaignController implements Initializable, Observer {
 
         setChartGranularitySliderLabels();
 
+        customBRBtn.setDisable(false);
+        chartGranularitySlider.setDisable(false);
+        appliedFiltersList.setDisable(false);
+        addFilter.setDisable(false);
+
 
         chartToggleGroup.selectedToggleProperty().addListener(e -> {
-                    customBRBtn.setDisable(false);
-                    chartGranularitySlider.setDisable(false);
+
 
                     campaignChartViewer.setVisible(false);
                     chartProgress.setVisible(true);
@@ -163,6 +186,68 @@ public class CampaignController implements Initializable, Observer {
                 }
             }
         });
+
+        filters= appliedFiltersList.getItems();
+        addFilter.setOnMouseClicked(e->{
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(getClass().getResource("/fxml/filter.fxml"));
+                fxmlLoader.setController(new FilterController(model,this));
+
+                Scene scene = new Scene(fxmlLoader.load());
+                Stage stage = new Stage();
+                stage.setTitle("Add Filter");
+                stage.setScene(scene);
+                stage.show();
+            } catch (Exception er) {
+                er.printStackTrace();
+            }
+        });
+
+
+
+
+        appliedFiltersList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                selectedFilter=newValue;
+                removeFilter.setDisable(false);
+            }
+
+        });
+
+        removeFilter.setOnMouseClicked(event -> {
+            int filterID=Integer.parseInt(selectedFilter.split(":")[0]);
+            model.removeFilter(filterID);
+            selectedFilter="";
+            appliedFiltersList.getSelectionModel().clearSelection();
+            filters.removeIf(e->Integer.parseInt(e.split(":")[0])==filterID);
+            removeFilter.setDisable(true);
+        });
+
+    }
+
+    public void addFilter(String filter){
+        filters.add(filter);
+    }
+
+    public int getUsableID(){
+        int[] used = filters.stream().mapToInt(e->Integer.parseInt(e.split(":")[0])).toArray();
+        int i=1;
+        do{
+            boolean found=true;
+            for(int j:used){
+                if (i==j){
+                    found=false;
+                    break;
+                }
+            }
+            if(found){
+                return i;
+            }else{
+                i++;
+            }
+        }while(true);
     }
 
     private void initBindings() {
@@ -235,7 +320,7 @@ public class CampaignController implements Initializable, Observer {
 
     private void initTimeSpinners() {
         BRPagesVisited.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 1000));
-        BRTimeSpentH.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 24));
+        BRTimeSpentH.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE));
         BRTimeSpentM.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59));
         BRTimeSpentS.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59));
     }
@@ -290,7 +375,7 @@ public class CampaignController implements Initializable, Observer {
     class BounceTimeChange extends Task<Void> {
         @Override
         protected Void call() {
-            model.setBounceTime(BRTimeSpentS.getValueFactory().getValue() * 1000 + BRTimeSpentM.getValueFactory().getValue() * 60 * 1000 + BRTimeSpentH.getValueFactory().getValue() * 60 * 60 * 1000);
+            model.setBounceTime((BRTimeSpentS.getValueFactory().getValue() * 1000) + (BRTimeSpentM.getValueFactory().getValue() * 60 * 1000) + (BRTimeSpentH.getValueFactory().getValue() * 60 * 60 * 1000));
             return null;
         }
     }

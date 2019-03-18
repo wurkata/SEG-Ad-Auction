@@ -37,10 +37,6 @@ public class Model extends Service<Void> implements Observable {
     private List<ClickLog> rawClickLog;
     private List<ServerLog> rawServerLog;
 
-    private File fileImpressionLog;
-    private File fileClickLog;
-    private File fileServerLog;
-
     public Metrics metrics;
     public ChartData chartData;
 
@@ -87,6 +83,10 @@ public class Model extends Service<Void> implements Observable {
 //                 return false;
 
 
+    public HashMap<String, SubjectLog> getSubjects() {
+        return subjects;
+    }
+
     public Model() {
         metrics = new Metrics();
         chartData = new ChartData();
@@ -118,10 +118,6 @@ public class Model extends Service<Void> implements Observable {
     }
 
     public Model(File fileImpressionLog, File fileClickLog, File fileServerLog) {
-        this.fileImpressionLog = fileImpressionLog;
-        this.fileClickLog = fileClickLog;
-        this.fileServerLog = fileServerLog;
-
         metrics = new Metrics();
         chartData = new ChartData();
     }
@@ -154,18 +150,25 @@ public class Model extends Service<Void> implements Observable {
     }
     */
 
+    public void setSubjects(HashMap<String, SubjectLog> subjects) {
+        this.subjects = subjects;
+    }
+
     public void setImpressionLog(List<ImpressionLog> impressionLog) {
-        this.impressionLog = impressionLog;
+        this.rawImpressionLog = impressionLog;
+        this.impressionLog.addAll(rawImpressionLog);
         notifyObservers(FileType.IMPRESSION_LOG);
     }
 
     public void setClickLog(List<ClickLog> clickLog) {
-        this.clickLog = clickLog;
+        this.rawClickLog = clickLog;
+        this.clickLog.addAll(rawClickLog);
         notifyObservers(FileType.CLICK_LOG);
     }
 
     public void setServerLog(List<ServerLog> serverLog) {
-        this.serverLog = serverLog;
+        this.rawServerLog = serverLog;
+        this.serverLog.addAll(serverLog);
         notifyObservers(FileType.SERVER_LOG);
     }
     // ------ DATABASE -----------------------------------------------------------------------------------------------------
@@ -1046,23 +1049,27 @@ public class Model extends Service<Void> implements Observable {
     //0=hour, 1=day, 2=month, 3=year
     public void setGranularity(Granularity g) {
         this.granularity = g;
+        setMetrics();
     }
 
     public void resetBounceFilters() {
         this.bouncePages = 0;
         this.bounceTime = 0;
+        setMetrics();
         notifyObservers("filter");
     }
 
     // Sets Bounce Time
     public void setBounceTime(long ms) {
         this.bounceTime = ms;
+        setMetrics();
         notifyObservers("filter");
     }
 
     //Sets minimum number of pages for visit to not be a bounce
     public void setBouncePageReq(int pages) {
         this.bouncePages = pages;
+        setMetrics();
         notifyObservers("filter");
     }
 
@@ -1104,12 +1111,16 @@ public class Model extends Service<Void> implements Observable {
     public void addFilter(Filter f, int filterID) {
         filters.put(filterID, f);
         filterData();
+        setMetrics();
+        notifyObservers("filter");
     }
 
     //remove filter
     public void removeFilter(int filterID) {
         filters.remove(filterID);
         filterData();
+        setMetrics();
+        notifyObservers("filter");
     }
 
     private void filterData() {
@@ -1130,6 +1141,9 @@ public class Model extends Service<Void> implements Observable {
                 .filter(sl ->
                         filters.values().stream().map(f -> f.filter(sl)).reduce(true, Boolean::logicalAnd))
                 .forEach(sl -> serverLog.add(sl));
+        notifyObservers(FileType.IMPRESSION_LOG);
+        notifyObservers(FileType.CLICK_LOG);
+        notifyObservers(FileType.SERVER_LOG);
     }
 
     @Override

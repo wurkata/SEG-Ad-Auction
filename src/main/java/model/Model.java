@@ -1,7 +1,7 @@
 package model;
 
 import common.FileType;
-import common.Filters.Filter;
+import common.Filters.*;
 import common.Granularity;
 import common.Metric;
 import common.Observable;
@@ -50,7 +50,12 @@ public class Model extends Service<Void> implements Observable {
     private Granularity granularity = Granularity.DAY;
     private ArrayList<FilterDate> dates = new ArrayList<>();
 
-    private HashMap<Integer, Filter> filters = new HashMap<Integer, Filter>();
+    private HashMap<Integer, AgeFilter> ageFilters = new HashMap<Integer, AgeFilter>();
+    private HashMap<Integer, ContextFilter> contextFilters = new HashMap<Integer, ContextFilter>();
+    private HashMap<Integer, GenderFilter> genderFilters = new HashMap<Integer, GenderFilter>();
+    private HashMap<Integer, IncomeFilter> incomeFilters = new HashMap<Integer, IncomeFilter>();
+    private HashMap<Integer, DateFilter> dateFilters = new HashMap<Integer, DateFilter>();
+
 
 //     public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
 //         loadFile(impressionLog, FileType.IMPRESSION_LOG);
@@ -1106,44 +1111,104 @@ public class Model extends Service<Void> implements Observable {
                 });
 
     }
-
-    //add filter
-    public void addFilter(Filter f, int filterID) {
-        filters.put(filterID, f);
+    private void filter(){
         filterData();
         setMetrics();
         notifyObservers("filter");
     }
+    //add filter
+    public void addFilter(AgeFilter f, int filterID) {
+        ageFilters.put(filterID, f);
+        filter();
+    }
+    public void addFilter(ContextFilter f, int filterID) {
+        contextFilters.put(filterID, f);
+        filter();
+    }
+    public void addFilter(DateFilter f, int filterID) {
+        dateFilters.put(filterID, f);
+        filter();
+    }
+    public void addFilter(GenderFilter f, int filterID) {
+        genderFilters.put(filterID, f);
+        filter();
+    }
+    public void addFilter(IncomeFilter f, int filterID) {
+        incomeFilters.put(filterID, f);
+        filter();
+    }
 
     //remove filter
     public void removeFilter(int filterID) {
-        filters.remove(filterID);
-        filterData();
-        setMetrics();
-        notifyObservers("filter");
+        if(ageFilters.containsKey(filterID)) {
+            ageFilters.remove(filterID);
+        }else if(contextFilters.containsKey(filterID)){
+            contextFilters.remove(filterID);
+        }else if(dateFilters.containsKey(filterID)){
+            dateFilters.remove(filterID);
+        }else if(genderFilters.containsKey(filterID)){
+            genderFilters.remove(filterID);
+        }else if(incomeFilters.containsKey(filterID)){
+            incomeFilters.remove(filterID);
+        }
+        filter();
     }
 
     private void filterData() {
         impressionLog.clear();
         rawImpressionLog.stream()
-                .filter(il ->
-                        filters.values().stream().map(f -> f.filter(il)).reduce(true, Boolean::logicalAnd))
+                .filter(il -> matchesFilter(il))
                 .forEach(il -> impressionLog.add(il));
 
         clickLog.clear();
         rawClickLog.stream()
-                .filter(cl ->
-                        filters.values().stream().map(f -> f.filter(cl)).reduce(true, Boolean::logicalAnd))
+                .filter(cl -> matchesFilter(cl))
                 .forEach(cl -> clickLog.add(cl));
 
         serverLog.clear();
         rawServerLog.stream()
-                .filter(sl ->
-                        filters.values().stream().map(f -> f.filter(sl)).reduce(true, Boolean::logicalAnd))
+                .filter(sl -> matchesFilter(sl))
                 .forEach(sl -> serverLog.add(sl));
+
         notifyObservers(FileType.IMPRESSION_LOG);
         notifyObservers(FileType.CLICK_LOG);
         notifyObservers(FileType.SERVER_LOG);
+    }
+
+    private boolean matchesFilter(Object o){
+        if(o instanceof ImpressionLog){
+            return (ageFilters.size()>0?ageFilters.values().stream().map(f -> f.filter((ImpressionLog)o)).reduce(false, Boolean::logicalOr):true)
+             &&
+             (contextFilters.size()>0?contextFilters.values().stream().map(f -> f.filter((ImpressionLog)o)).reduce(false, Boolean::logicalOr):true)
+             &&
+             (dateFilters.size()>0?dateFilters.values().stream().map(f -> f.filter((ImpressionLog)o)).reduce(false, Boolean::logicalOr):true)
+             &&
+             (genderFilters.size()>0?genderFilters.values().stream().map(f -> f.filter((ImpressionLog)o)).reduce(false, Boolean::logicalOr):true)
+             &&
+             (incomeFilters.size()>0?incomeFilters.values().stream().map(f -> f.filter((ImpressionLog)o)).reduce(false, Boolean::logicalOr):true);
+        }else if(o instanceof ClickLog){
+            return (ageFilters.size()>0?ageFilters.values().stream().map(f -> f.filter((ClickLog)o)).reduce(false, Boolean::logicalOr):true)
+                    &&
+                    (contextFilters.size()>0?contextFilters.values().stream().map(f -> f.filter((ClickLog)o)).reduce(false, Boolean::logicalOr):true)
+                    &&
+                    (dateFilters.size()>0?dateFilters.values().stream().map(f -> f.filter((ClickLog)o)).reduce(false, Boolean::logicalOr):true)
+                    &&
+                    (genderFilters.size()>0?genderFilters.values().stream().map(f -> f.filter((ClickLog)o)).reduce(false, Boolean::logicalOr):true)
+                    &&
+                    (incomeFilters.size()>0?incomeFilters.values().stream().map(f -> f.filter((ClickLog)o)).reduce(false, Boolean::logicalOr):true);
+        }else if(o instanceof ServerLog){
+            return (ageFilters.size()>0?ageFilters.values().stream().map(f -> f.filter((ServerLog)o)).reduce(false, Boolean::logicalOr):true)
+                    &&
+                    (contextFilters.size()>0?contextFilters.values().stream().map(f -> f.filter((ServerLog)o)).reduce(false, Boolean::logicalOr):true)
+                    &&
+                    (dateFilters.size()>0?dateFilters.values().stream().map(f -> f.filter((ServerLog)o)).reduce(false, Boolean::logicalOr):true)
+                    &&
+                    (genderFilters.size()>0?genderFilters.values().stream().map(f -> f.filter((ServerLog)o)).reduce(false, Boolean::logicalOr):true)
+                    &&
+                    (incomeFilters.size()>0?incomeFilters.values().stream().map(f -> f.filter((ServerLog)o)).reduce(false, Boolean::logicalOr):true);
+        }else{
+            return false;
+        }
     }
 
     @Override

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import javafx.collections.FXCollections?>
+<?import com.jfoenix.controls.JFXDatePicker?>
+<?import com.jfoenix.controls.JFXButton?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            prefHeight="400.0" prefWidth="400.0">
+    <VBox alignment="TOP_CENTER" prefHeight="400.0" prefWidth="400.0" spacing="5.0" BorderPane.alignment="CENTER">
+    <Label text="Create New Filter"/>
+    <JFXComboBox promptText="Select Filter Type" fx:id="filterTypeBox">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Age"/>
+                <String fx:value="Context"/>
+                <String fx:value="Gender"/>
+                <String fx:value="Income"/>
+                <String fx:value="Date Range"/>
+            </FXCollections>
+        </items>
+    </JFXComboBox>
+    <JFXComboBox promptText="Select Age Range" fx:id="ageBox" visible="false">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Under 25"/>
+                <String fx:value="25-34"/>
+                <String fx:value="35-44"/>
+                <String fx:value="45-54"/>
+                <String fx:value="Over 54"/>
+            </FXCollections>
+        </items>
+    </JFXComboBox>
+        <JFXComboBox promptText="Select Context" fx:id="contextBox" visible="false">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="News"/>
+                    <String fx:value="Shopping"/>
+                    <String fx:value="Social Media"/>
+                    <String fx:value="Blog"/>
+                    <String fx:value="Hobbies"/>
+                    <String fx:value="Travel"/>
+                </FXCollections>
+            </items>
+        </JFXComboBox>
+        <JFXComboBox promptText="Select Gender" fx:id="genderBox" visible="false">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Male"/>
+                    <String fx:value="Female"/>
+                </FXCollections>
+            </items>
+        </JFXComboBox>
+        <JFXComboBox promptText="Select Income" fx:id="incomeBox" visible="false">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Low"/>
+                    <String fx:value="Medium"/>
+                    <String fx:value="High"/>
+                </FXCollections>
+            </items>
+        </JFXComboBox>
+        <VBox alignment="TOP_CENTER" spacing="5.0" fx:id="dateBox" visible="false">
+            <HBox alignment="TOP_CENTER">
+                <Label text="Before Date: "/>
+                <JFXDatePicker fx:id="beforeDate" />
+            </HBox>
+            <HBox alignment="TOP_CENTER">
+                <Label text="After Date: "/>
+                <JFXDatePicker fx:id="afterDate"/>
+            </HBox>
+        </VBox>
+        <JFXButton fx:id="submitFilterButton" text="Create Filter">
+            <style>
+            <!--Style code from https://stackoverflow.com/a/30680668-->
+             -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+             -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+             -fx-background-radius: 3px, 3px, 2px, 1px;
+             -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
+            </style>
+        </JFXButton>
+    </VBox>
+</AnchorPane>

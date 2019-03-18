@@ -75,28 +75,44 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         switch (metric) {
             case CPA:
                 TimeSeries cpa = new TimeSeries("CPA");
-                model.getCPAPair().forEach(e -> cpa.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                model.getCPAPair().forEach(e -> {
+                    if(!e.getValue().isInfinite()) {
+                        cpa.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    }
+                });
                 title = "Cost per Acquisition";
                 val = "Cost /pence";
                 dataset.addSeries(cpa);
                 break;
             case CPC:
                 TimeSeries clickCost = new TimeSeries("CPC");
-                model.getClickCostPair().forEach(e -> clickCost.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                model.getClickCostPair().forEach(e -> {
+                    if(!e.getValue().isInfinite()) {
+                        clickCost.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    }
+                });
                 title = "Cost per Click";
                 val = "Cost /pence";
                 dataset.addSeries(clickCost);
                 break;
             case CPM:
                 TimeSeries cpm = new TimeSeries("CPM");
-                model.getCPMPair().forEach(e -> cpm.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                model.getCPMPair().forEach(e -> {
+                    if(!e.getValue().isInfinite()) {
+                        cpm.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    }
+                });
                 title = "Cost per 1000 Impressions";
                 val = "Cost /pence";
                 dataset.addSeries(cpm);
                 break;
             case CTR:
                 TimeSeries ctr = new TimeSeries("CTR");
-                model.getCTRPair().forEach(e -> ctr.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                model.getCTRPair().forEach(e -> {
+                    if(!e.getValue().isInfinite()) {
+                        ctr.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    }
+                });
                 title = "Click-Through Rate";
                 val = "Click-Through Rate";
                 dataset.addSeries(ctr);
@@ -110,7 +126,11 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 break;
             case BOUNCE_RATE:
                 TimeSeries bounceRate = new TimeSeries("Bounce Rate");
-                model.getBounceRatePair().forEach(e -> bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                model.getBounceRatePair().forEach(e -> {
+                    if(!e.getValue().isInfinite()) {
+                        bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    }
+                });
                 title = "Bounce Rate";
                 val = "Bounce Rate";
                 dataset.addSeries(bounceRate);

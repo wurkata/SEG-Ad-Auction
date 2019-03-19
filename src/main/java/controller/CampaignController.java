@@ -12,12 +12,14 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -117,6 +119,10 @@ public class CampaignController implements Initializable, Observer {
 //    private JFXButton filterInfo;
     @FXML
     private JFXButton removeFilter;
+
+    /* Histogram control */
+    @FXML
+    private JFXButton clickCostHistogram;
 
     public Model model;
 
@@ -225,6 +231,16 @@ public class CampaignController implements Initializable, Observer {
             removeFilter.setDisable(true);
         });
 
+        clickCostHistogram.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("histogram.fxml"));
+                Stage histogram = new Stage();
+                histogram.setTitle("Click Cost Histogram");
+                histogram.show();
+
+            }
+        });
     }
 
     public void addFilter(String filter){

@@ -16,6 +16,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
@@ -232,12 +233,17 @@ public class CampaignController implements Initializable, Observer {
         });
 
         clickCostHistogram.setOnMouseClicked(event -> {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("histogram.fxml"));
-                Parent root = (Parent) fxmlLoader.load();
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/histogram.fxml"));
+            Parent root = null;
+            try {
+                root = (Parent) fxmlLoader.load();
                 Stage histogram = new Stage();
                 histogram.setTitle("Click Cost Histogram");
                 histogram.setScene(new Scene(root));
                 histogram.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 

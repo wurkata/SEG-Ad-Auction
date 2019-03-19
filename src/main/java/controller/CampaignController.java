@@ -231,15 +231,13 @@ public class CampaignController implements Initializable, Observer {
             removeFilter.setDisable(true);
         });
 
-        clickCostHistogram.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
+        clickCostHistogram.setOnMouseClicked(event -> {
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("histogram.fxml"));
+                Parent root = (Parent) fxmlLoader.load();
                 Stage histogram = new Stage();
                 histogram.setTitle("Click Cost Histogram");
+                histogram.setScene(new Scene(root));
                 histogram.show();
-
-            }
         });
     }
 

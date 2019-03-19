@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600" prefWidth="600" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.HistogramController">
+   <children>
+      <BarChart fx:id="ClickCostHistogram" layoutX="14.0" layoutY="14.0" title="Click Cost Histogram">
+        <xAxis>
+          <CategoryAxis label="Click Cost" side="BOTTOM" fx:id="x" />
+        </xAxis>
+        <yAxis>
+          <NumberAxis fx:id="y" label="Frequency Density" side="LEFT" />
+        </yAxis>
+      </BarChart>
+   </children>
+</AnchorPane>

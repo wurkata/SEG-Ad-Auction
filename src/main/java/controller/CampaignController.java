@@ -233,13 +233,15 @@ public class CampaignController implements Initializable, Observer {
         });
 
         clickCostHistogram.setOnMouseClicked(event -> {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/histogram.fxml"));
-            Parent root = null;
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("/fxml/histogram.fxml"));
+            fxmlLoader.setController(new HistogramController(model));
+//            Parent root = null;
             try {
-                root = (Parent) fxmlLoader.load();
+//                root = (Parent) fxmlLoader.load();
                 Stage histogram = new Stage();
                 histogram.setTitle("Click Cost Histogram");
-                histogram.setScene(new Scene(root));
+                histogram.setScene(new Scene(fxmlLoader.load()));
                 histogram.show();
             } catch (Exception e) {
                 e.printStackTrace();

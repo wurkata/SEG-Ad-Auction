@@ -40,18 +40,12 @@ public class HistogramController implements Initializable {
         int classesNumber = 9;
         ArrayList<Integer> clickCostFrequency = new ArrayList<Integer>(Collections.nCopies(classesNumber, 0));
 
-        List<Double> clickCostList = new ArrayList<Double>();
-        clickCostList = model.getIndivClickCost();
-        for ( Double d : clickCostList ) {
-            clickCosts.add(d);
-
-        }
 
 
-        for ( Double clickCost : clickCosts ) {
+
+        for ( Double clickCost : model.getIndivClickCost()) {
             int classNumber = (int) Math.ceil(clickCost / classIncrement);
-            clickCostFrequency.set(classNumber-1, clickCostFrequency.get(classNumber-1)+1);
-
+            clickCostFrequency.set(classNumber, clickCostFrequency.get(classNumber) + 1);
         }
 
         ArrayList<Double> clickCostFrequencyDensity = new ArrayList<Double>();
@@ -68,7 +62,6 @@ public class HistogramController implements Initializable {
 
             else {
                 histogramSet.getData().add(new XYChart.Data(classIncrement*i + " - " + classIncrement*(i+1), clickCostFrequencyDensity.get(i)));
-
             }
         }
 

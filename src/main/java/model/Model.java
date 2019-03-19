@@ -490,6 +490,15 @@ public class Model extends Service<Void> implements Observable {
         return list;
     }
 
+    //Individual Click Costs for use in the Histogram
+    public List<Double> getIndivClickCost(){
+        ArrayList<Double> costs = new ArrayList<>();
+        clickLog.stream()
+                .mapToDouble(ClickLog::getClickCost)
+                .forEach(e->costs.add(e));
+        return costs;
+    }
+
     //Cost per 1000 impressionLog
     public double getCPM() {
         long numOfRecords = impressionLog.size();

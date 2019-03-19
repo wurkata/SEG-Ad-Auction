@@ -23,27 +23,34 @@ public class HistogramController implements Initializable {
     @FXML
     private NumberAxis y;
 
+    public Model model;
+
+    HistogramController(Model model) {
+        this.model = model;
+
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resources) {
 
         double classIncrement = 2.5;
         ArrayList<Double> clickCosts = new ArrayList<Double>();
 
-        int classesNumber = (int) ((((Collections.max(clickCosts)) / classIncrement) + (classIncrement - (classIncrement/5))) / classIncrement * classIncrement);
+//        int classesNumber = (int) ((((Collections.max(clickCosts)) / classIncrement) + (classIncrement - (classIncrement/5))) / classIncrement * classIncrement);
+        int classesNumber = 9;
         ArrayList<Integer> clickCostFrequency = new ArrayList<Integer>(Collections.nCopies(classesNumber, 0));
 
-        Model model = new Model();
-        List<Pair<Date, Double>> clickCostPairs = new ArrayList<Pair<Date, Double>>();
-        clickCostPairs = model.getClickCostPair();
-        for ( Pair<Date, Double> pair : clickCostPairs ) {
-            clickCosts.add(pair.getValue());
+        List<Double> clickCostList = new ArrayList<Double>();
+        clickCostList = model.getIndivClickCost();
+        for ( Double d : clickCostList ) {
+            clickCosts.add(d);
 
         }
 
 
         for ( Double clickCost : clickCosts ) {
             int classNumber = (int) Math.ceil(clickCost / classIncrement);
-            clickCostFrequency.set(classNumber-1, clickCostFrequency.get(classesNumber-1)+1);
+            clickCostFrequency.set(classNumber-1, clickCostFrequency.get(classNumber-1)+1);
 
         }
 
@@ -60,7 +67,7 @@ public class HistogramController implements Initializable {
                 histogramSet.getData().add(new XYChart.Data("0 - " + classIncrement, clickCostFrequencyDensity.get(0)));
 
             else {
-                histogramSet.getData().add(new XYChart.Data(classIncrement*i + " - " + classIncrement*2*i, clickCostFrequencyDensity.get(i)));
+                histogramSet.getData().add(new XYChart.Data(classIncrement*i + " - " + classIncrement*(i+1), clickCostFrequencyDensity.get(i)));
 
             }
         }

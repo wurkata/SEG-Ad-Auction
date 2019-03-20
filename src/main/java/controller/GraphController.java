@@ -8,17 +8,13 @@ import javafx.concurrent.Task;
 import model.Model;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.DateAxis;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Hour;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import java.awt.*;
-import java.text.SimpleDateFormat;
 
 public class GraphController extends Service<JFreeChart> implements Observable {
     private Model model;
@@ -67,7 +63,32 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         }
     }
 
-    private JFreeChart plotChart() {
+    private JFreeChart getChartFor(String title, String xLabel, String yLabel, TimeSeriesCollection dataset) {
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+                title,
+                xLabel,
+                yLabel,
+                dataset,
+                true,
+                true,
+                false
+        );
+
+        controller.campaignChartViewer.setVisible(true);
+        controller.chartProgress.setVisible(false);
+
+        if (controller.toggleThemeMode.isSelected()) {
+            chart.setBackgroundPaint(new Color(47, 56, 80));
+            chart.getTitle().setPaint(new Color(26, 172, 231));
+        } else {
+            chart.setBackgroundPaint(Color.white);
+            chart.getTitle().setPaint(Color.BLACK);
+        }
+
+        return chart;
+    }
+
+    private JFreeChart setChart() {
         setMetric();
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         String title = "";
@@ -76,7 +97,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
             case CPA:
                 TimeSeries cpa = new TimeSeries("CPA");
                 model.getCPAPair().forEach(e -> {
-                    if(!e.getValue().isInfinite()) {
+                    if (!e.getValue().isInfinite()) {
                         cpa.addOrUpdate(new Hour(e.getKey()), e.getValue());
                     }
                 });
@@ -87,7 +108,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
             case CPC:
                 TimeSeries clickCost = new TimeSeries("CPC");
                 model.getClickCostPair().forEach(e -> {
-                    if(!e.getValue().isInfinite()) {
+                    if (!e.getValue().isInfinite()) {
                         clickCost.addOrUpdate(new Hour(e.getKey()), e.getValue());
                     }
                 });
@@ -98,7 +119,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
             case CPM:
                 TimeSeries cpm = new TimeSeries("CPM");
                 model.getCPMPair().forEach(e -> {
-                    if(!e.getValue().isInfinite()) {
+                    if (!e.getValue().isInfinite()) {
                         cpm.addOrUpdate(new Hour(e.getKey()), e.getValue());
                     }
                 });
@@ -109,7 +130,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
             case CTR:
                 TimeSeries ctr = new TimeSeries("CTR");
                 model.getCTRPair().forEach(e -> {
-                    if(!e.getValue().isInfinite()) {
+                    if (!e.getValue().isInfinite()) {
                         ctr.addOrUpdate(new Hour(e.getKey()), e.getValue());
                     }
                 });
@@ -127,7 +148,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
             case BOUNCE_RATE:
                 TimeSeries bounceRate = new TimeSeries("Bounce Rate");
                 model.getBounceRatePair().forEach(e -> {
-                    if(!e.getValue().isInfinite()) {
+                    if (!e.getValue().isInfinite()) {
                         bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue());
                     }
                 });
@@ -172,24 +193,8 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 break;
         }
 
-        DateAxis x = new DateAxis("Date (YYYY-MM-DD HHHH)");
-        x.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd HHHH"));
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(
-                title,
-                "Date/Time",
-                val,
-                dataset,
-               true,
-               true,
-               false
-        );
-
-        controller.campaignChartViewer.setVisible(true);
-        controller.chartProgress.setVisible(false);
-
-        return chart;
+        return getChartFor(title, "Date/Time", val, dataset);
     }
-
 
     @Override
     protected Task<JFreeChart> createTask() {
@@ -199,7 +204,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 controller.campaignChartViewer.setVisible(false);
                 controller.chartProgress.setVisible(true);
 
-                return plotChart();
+                return setChart();
             }
         };
     }
@@ -209,9 +214,21 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         controller.campaignChartViewer.setChart(getValue());
         controller.chartProgress.progressProperty().unbind();
         XYPlot plot = controller.campaignChartViewer.getChart().getXYPlot();
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
-        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+
+        if (controller.toggleThemeMode.isSelected()) {
+            plot.setBackgroundPaint(new Color(47, 56, 80));
+            plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+            plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+            plot.getDomainAxis().setLabelPaint(new Color(26, 172, 231));
+            plot.getDomainAxis().setTickLabelPaint(new Color(26, 172, 231));
+            plot.getRangeAxis().setLabelPaint(new Color(26, 172, 231));
+            plot.getRangeAxis().setTickLabelPaint(new Color(26, 172, 231));
+        } else {
+            plot.setBackgroundPaint(Color.WHITE);
+            plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+            plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+        }
+
         plot.getDomainAxis().setAutoRange(true);
         plot.getRangeAxis().setAutoRange(true);
         plot.getRangeAxis().setAutoRange(true);

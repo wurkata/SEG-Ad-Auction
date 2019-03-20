@@ -1,0 +1,60 @@
+* {
+    -fx-bg-color: rgb(227, 227, 227);
+    -fx-btn-bg-new: rgb(95, 250, 180);
+    -fx-btn-bg: #42d1f4;
+    -fx-btn-inner-bg: rgb(0, 244, 217);
+    -fx-btn-text: #363e50;
+}
+
+.root {
+    -fx-font-family: "Roboto Light";
+}
+
+.titled-pane > .title {
+    -fx-pref-height: 60.0;
+    -fx-background-color: -fx-btn-bg-new;
+    -fx-font-size: 1.2em;
+    -fx-text-fill: -fx-btn-text;
+}
+
+.titled-pane > .title:hover {
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 4 0;
+    -fx-border-color: -fx-btn-text;
+}
+
+.titled-pane #acc-expanded-pane {
+    -fx-background-color: rgba(95, 250, 180, 0.15);
+}
+
+.titled-pane #acc-expanded-pane .jfx-button {
+    -jfx-button-type: RAISED;
+    -fx-pref-height: 25;
+    -fx-padding: 15 5;
+    -fx-cursor: HAND;
+    -fx-background-color: -fx-btn-bg-new;
+    -fx-font-size: 1.2em;
+    -fx-text-fill: -fx-btn-text;
+}
+
+.dashboard-menu {
+    -fx-spacing: 10;
+    -fx-background-color: -fx-bg-color;
+}
+
+.dashboard-menu > .jfx-button {
+    -jfx-button-type: RAISED;
+    -fx-pref-height: 60;
+    -fx-cursor: HAND;
+    -fx-background-color: -fx-btn-bg;
+    -fx-alignment: baseline-left;
+    -fx-padding: 0 0 0 25;
+    -fx-font-size: 1.2em;
+    -fx-text-fill: -fx-btn-text;
+}
+
+.dashboard-menu > .jfx-button:hover {
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 4 0;
+    -fx-border-color: -fx-btn-text;
+}

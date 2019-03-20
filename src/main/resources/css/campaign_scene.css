@@ -1,0 +1,51 @@
+* {
+    -fx-bg-color: rgb(255, 255, 255);
+    -fx-bg-color-left: rgb(249, 249, 249);
+    -fx-btn-bg-new: rgb(95, 250, 180);
+    -fx-btn-bg: #42d1f4;
+    -fx-btn-inner-bg: rgb(0, 244, 217);
+    text-dark: #39415a;
+    text-mid: #2e96d4;
+    text-light: #a4dbff;
+}
+
+.root {
+    -fx-font-family: "Roboto Light";
+    -fx-dark-text-color: text-dark;
+    -fx-mid-text-color: text-mid;
+    -fx-light-text-color: text-light;
+}
+
+.campaign-border-holder {
+    -fx-background-color: -fx-bg-color;
+}
+
+.campaign-holder-left {
+    -fx-background-color: -fx-bg-color-left;
+}
+
+#metricsGrid {
+    -fx-background-color: -fx-bg-color-left;
+}
+
+.jfx-slider > .track {
+    -fx-pref-height: 5px;
+}
+
+.jfx-slider > .colored-track {
+    -fx-background-color: text-mid;
+}
+
+.jfx-slider > .thumb {
+    -fx-background-color: text-mid;
+    -fx-pref-height: 20px;
+    -fx-pref-width: 20px;
+}
+
+.jfx-slider > .animated-thumb {
+    -fx-background-color: text-mid;
+}
+
+.jfx-check-box {
+    -jfx-checked-color: text-mid;
+}

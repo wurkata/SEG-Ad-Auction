@@ -196,23 +196,20 @@ public class CampaignController implements Initializable, Observer {
         BRTimeSpentM.valueProperty().addListener(e -> Platform.runLater(new BounceTimeChange()));
         BRTimeSpentS.valueProperty().addListener(e -> Platform.runLater(new BounceTimeChange()));
 
-        customBRBtn.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue) {
-                    customBRGrid.getChildren().forEach(e -> e.setDisable(false));
-                } else {
-                    customBRGrid.getChildren().forEach(e -> {
-                        if (!(e instanceof JFXCheckBox)) e.setDisable(true);
-                    });
+        customBRBtn.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                customBRGrid.getChildren().forEach(e -> e.setDisable(false));
+            } else {
+                customBRGrid.getChildren().forEach(e -> {
+                    if (!(e instanceof JFXCheckBox)) e.setDisable(true);
+                });
 
-                    BRPagesVisited.getValueFactory().setValue(0);
-                    BRTimeSpentH.getValueFactory().setValue(0);
-                    BRTimeSpentM.getValueFactory().setValue(0);
-                    BRTimeSpentS.getValueFactory().setValue(0);
+                BRPagesVisited.getValueFactory().setValue(0);
+                BRTimeSpentH.getValueFactory().setValue(0);
+                BRTimeSpentM.getValueFactory().setValue(0);
+                BRTimeSpentS.getValueFactory().setValue(0);
 
-                    Platform.runLater(new BounceTimeReset());
-                }
+                Platform.runLater(new BounceTimeReset());
             }
         });
 

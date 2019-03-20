@@ -24,7 +24,7 @@
                      </VBox.margin>
                   </JFXButton>
                   <JFXButton disable="true" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Instagram Campaign" />
-                        <JFXButton fx:id="addTestCampaign" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Directly Add Campaign (Testing)" />
+                        <JFXButton fx:id="addTestCampaign" disable="false" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Directly Add Campaign (Testing)" />
                           <TitledPane alignment="BASELINE_LEFT" animated="false" expanded="false" text="New campaign">
                               <content>
                                   <AnchorPane id="acc-expanded-pane" minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">

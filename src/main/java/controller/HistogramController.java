@@ -23,25 +23,27 @@ public class HistogramController implements Initializable {
     @FXML
     private NumberAxis y;
 
-    public Model model;
+    private Model model;
+
+    private List<Double> clickCosts;
+    private Double classIncrement;
+    private int classesNumber;
 
     HistogramController(Model model) {
         this.model = model;
+
+        this.clickCosts = new ArrayList<Double>();
+        clickCosts = model.getIndivClickCost();
+        this.classIncrement = 2.5;
+        this.classesNumber = (int) Math.ceil((Collections.max(clickCosts))/classIncrement);
+
 
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resources) {
 
-        double classIncrement = 2.5;
-        ArrayList<Double> clickCosts = new ArrayList<Double>();
-
-//        int classesNumber = (int) ((((Collections.max(clickCosts)) / classIncrement) + (classIncrement - (classIncrement/5))) / classIncrement * classIncrement);
-        int classesNumber = 9;
-        ArrayList<Integer> clickCostFrequency = new ArrayList<Integer>(Collections.nCopies(classesNumber, 0));
-
-
-
+        ArrayList<Integer> clickCostFrequency = new ArrayList<Integer>(Collections.nCopies(classesNumber+1, 0));
 
         for ( Double clickCost : model.getIndivClickCost()) {
             int classNumber = (int) Math.ceil(clickCost / classIncrement);

@@ -149,8 +149,8 @@ public class CampaignController implements Initializable, Observer {
         theme_light = getClass().getResource("/css/campaign_scene.css").toExternalForm();
         theme_dark = getClass().getResource("/css/campaign_scene-dark.css").toExternalForm();
 
-        chartProgress.setVisible(false);
         chartProgress.toFront();
+        chartProgress.setVisible(false);
 
         model.restart();
 
@@ -184,9 +184,6 @@ public class CampaignController implements Initializable, Observer {
 
 
         chartToggleGroup.selectedToggleProperty().addListener(e -> {
-                    campaignChartViewer.setVisible(false);
-                    chartProgress.setVisible(true);
-
                     chartProgress.progressProperty().bind(graphControllerService.progressProperty());
                     graphControllerService.restart();
                 }

@@ -12,6 +12,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
+import org.jfree.data.time.Day;
 
 import java.io.File;
 import java.sql.Statement;
@@ -55,6 +56,8 @@ public class Model extends Service<Void> implements Observable {
     private HashMap<Integer, GenderFilter> genderFilters = new HashMap<Integer, GenderFilter>();
     private HashMap<Integer, IncomeFilter> incomeFilters = new HashMap<Integer, IncomeFilter>();
     private HashMap<Integer, DateFilter> dateFilters = new HashMap<Integer, DateFilter>();
+    private HashMap<Integer, TimeFilter> timeFilters = new HashMap<>();
+    private HashMap<Integer, DayOfWeekFilter> dayOfWeekFilters = new HashMap<>();
 
 
 //     public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
@@ -488,6 +491,15 @@ public class Model extends Service<Void> implements Observable {
                 break;
         }
         return list;
+    }
+
+    //Individual Click Costs for use in the Histogram
+    public List<Double> getIndivClickCost(){
+        ArrayList<Double> costs = new ArrayList<>();
+        clickLog.stream()
+                .mapToDouble(ClickLog::getClickCost)
+                .forEach(e->costs.add(e));
+        return costs;
     }
 
     //Cost per 1000 impressionLog
@@ -1137,6 +1149,14 @@ public class Model extends Service<Void> implements Observable {
         incomeFilters.put(filterID, f);
         filter();
     }
+    public void addFilter(TimeFilter f, int filterID) {
+        timeFilters.put(filterID, f);
+        filter();
+    }
+    public void addFilter(DayOfWeekFilter f, int filterID) {
+        dayOfWeekFilters.put(filterID, f);
+        filter();
+    }
 
     //remove filter
     public void removeFilter(int filterID) {
@@ -1150,6 +1170,10 @@ public class Model extends Service<Void> implements Observable {
             genderFilters.remove(filterID);
         }else if(incomeFilters.containsKey(filterID)){
             incomeFilters.remove(filterID);
+        } else if (timeFilters.containsKey(filterID)) {
+            timeFilters.remove(filterID);
+        } else if (dayOfWeekFilters.containsKey(filterID)) {
+            dayOfWeekFilters.remove(filterID);
         }
         filter();
     }

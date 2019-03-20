@@ -102,11 +102,12 @@ public class DashboardController implements Initializable, Observer {
     private void createCampaign(ActionEvent event) throws Exception {
         CampaignController controller = new CampaignController(model);
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaignsScene.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
         loader.setController(controller);
         Parent root = loader.load();
 
         Scene campaignsScene = new Scene(root);
+        campaignsScene.getStylesheets().add(getClass().getResource("/css/campaign_scene.css").toExternalForm());
 
         Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
 

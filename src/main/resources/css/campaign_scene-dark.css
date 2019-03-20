@@ -73,3 +73,15 @@
 .jfx-button {
     -fx-background-color: -fx-bg-color;
 }
+
+.jfx-radio-button{
+    -jfx-selected-color: text-mid;
+}
+
+.jfx-list-view {
+    -fx-background-color: -fx-bg-color;
+    -fx-text-fill: text-light;
+    -fx-border-style: solid;
+    -fx-border-width: 2px;
+    -fx-border-color: text-light;
+}

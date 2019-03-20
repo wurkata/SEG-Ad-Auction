@@ -30,7 +30,11 @@
     <children>
         <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="accessibility-holder">
             <children>
-                <JFXToggleButton fx:id="toggleThemeMode" text="Dark mode" toggleColor="#1ec34c" toggleLineColor="#91fa99" unToggleLineColor="#f85353"/>
+            <JFXButton fx:id="printBtn" mnemonicParsing="false" text="Print">
+               <HBox.margin>
+                  <Insets right="20.0" />
+               </HBox.margin></JFXButton>
+                <JFXToggleButton fx:id="toggleThemeMode" text="Dark mode" toggleColor="#1ec34c" toggleLineColor="#91fa99" unToggleLineColor="#f85353" />
             </children>
         </HBox>
         <AnchorPane id="campaign-anchor" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
@@ -43,60 +47,60 @@
                                     <children>
                                         <BorderPane prefHeight="200.0" prefWidth="200.0" styleClass="campaign-border-holder" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <center>
-                                                <VBox alignment="CENTER_RIGHT" styleClass="campaign-border-holder" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+                                                <VBox alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" styleClass="campaign-border-holder" BorderPane.alignment="CENTER">
                                                     <children>
-                                                        <ChartViewer fx:id="campaignChartViewer" styleClass="campaign-border-holder" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="600.0"/>
-                                                        <ProgressIndicator fx:id="chartProgress" progress="0.0" scaleX="2.0" scaleY="2.0" translateY="-320.0"/>
+                                                        <ChartViewer fx:id="campaignChartViewer" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="600.0" styleClass="campaign-border-holder" />
+                                                        <ProgressIndicator fx:id="chartProgress" progress="0.0" scaleX="2.0" scaleY="2.0" translateY="-320.0" />
                                                         <GridPane fx:id="metricsGrid" alignment="CENTER_RIGHT" hgap="10.0" maxHeight="150.0" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" prefHeight="150.0" vgap="10.0" VBox.vgrow="NEVER">
                                                             <columnConstraints>
-                                                                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0"/>
-                                                                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0"/>
-                                                                <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0"/>
+                                                                <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+                                                                <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+                                                                <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
                                                             </columnConstraints>
                                                             <rowConstraints>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                             </rowConstraints>
                                                             <children>
-                                                                <Label fx:id="noImpressions" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                                                                <Label fx:id="noClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                                                                <Label fx:id="noBounces" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                                                                <Label fx:id="noUniqueClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-                                                                <Label fx:id="noConversions" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
-                                                                <Label fx:id="totalCost" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
-                                                                <Label fx:id="CTR" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
-                                                                <Label fx:id="CPC" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
-                                                                <Label fx:id="CPM" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="0"/>
-                                                                <Label fx:id="CPA" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="1"/>
-                                                                <Label fx:id="bounceRate" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="2"/>
+                                                                <Label fx:id="noImpressions" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                                <Label fx:id="noClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                <Label fx:id="noBounces" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                <Label fx:id="noUniqueClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                <Label fx:id="noConversions" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                                                <Label fx:id="totalCost" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                                                <Label fx:id="CTR" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                                                <Label fx:id="CPC" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                                                <Label fx:id="CPM" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="0" />
+                                                                <Label fx:id="CPA" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                                                                <Label fx:id="bounceRate" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="2" />
                                                                 <JFXRadioButton fx:id="noImpressionsBtn" disable="true" mnemonicParsing="false" text="No. Impressions">
                                                                     <toggleGroup>
-                                                                        <ToggleGroup fx:id="chartToggleGroup"/>
+                                                                        <ToggleGroup fx:id="chartToggleGroup" />
                                                                     </toggleGroup>
                                                                 </JFXRadioButton>
-                                                                <JFXRadioButton fx:id="noClicksBtn" disable="true" mnemonicParsing="false" text="No. Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="1"/>
-                                                                <JFXRadioButton fx:id="noBouncesBtn" disable="true" mnemonicParsing="false" text="No. Bounces" toggleGroup="$chartToggleGroup" GridPane.rowIndex="2"/>
-                                                                <JFXRadioButton fx:id="noUniqueClicksBtn" disable="true" mnemonicParsing="false" text="No. Unique Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="3"/>
-                                                                <JFXRadioButton fx:id="noConversionsBtn" disable="true" mnemonicParsing="false" text="No. Conversions" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2"/>
-                                                                <JFXRadioButton fx:id="totalCostBtn" disable="true" mnemonicParsing="false" text="Total Cost" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                                                                <JFXRadioButton fx:id="CTRBtn" disable="true" mnemonicParsing="false" text="CTR" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                                                                <JFXRadioButton fx:id="CPCBtn" disable="true" mnemonicParsing="false" text="CPC" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
-                                                                <JFXRadioButton fx:id="CPMBtn" disable="true" mnemonicParsing="false" text="CPM" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4"/>
-                                                                <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
-                                                                <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2"/>
+                                                                <JFXRadioButton fx:id="noClicksBtn" disable="true" mnemonicParsing="false" text="No. Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="1" />
+                                                                <JFXRadioButton fx:id="noBouncesBtn" disable="true" mnemonicParsing="false" text="No. Bounces" toggleGroup="$chartToggleGroup" GridPane.rowIndex="2" />
+                                                                <JFXRadioButton fx:id="noUniqueClicksBtn" disable="true" mnemonicParsing="false" text="No. Unique Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="3" />
+                                                                <JFXRadioButton fx:id="noConversionsBtn" disable="true" mnemonicParsing="false" text="No. Conversions" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" />
+                                                                <JFXRadioButton fx:id="totalCostBtn" disable="true" mnemonicParsing="false" text="Total Cost" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                                <JFXRadioButton fx:id="CTRBtn" disable="true" mnemonicParsing="false" text="CTR" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                                                <JFXRadioButton fx:id="CPCBtn" disable="true" mnemonicParsing="false" text="CPC" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                                                <JFXRadioButton fx:id="CPMBtn" disable="true" mnemonicParsing="false" text="CPM" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" />
+                                                                <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                                                <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2" />
                                                             </children>
                                                             <padding>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                             </padding>
                                                         </GridPane>
                                                     </children>
                                                     <BorderPane.margin>
-                                                        <Insets/>
+                                                        <Insets />
                                                     </BorderPane.margin>
                                                 </VBox>
                                             </center>
@@ -105,93 +109,93 @@
                                                     <children>
                                                         <Label text="Data Granularity">
                                                             <opaqueInsets>
-                                                                <Insets/>
+                                                                <Insets />
                                                             </opaqueInsets>
                                                             <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0"/>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
                                                             </VBox.margin>
                                                             <font>
-                                                                <Font name="System Bold" size="13.0"/>
+                                                                <Font name="System Bold" size="13.0" />
                                                             </font>
                                                         </Label>
                                                         <JFXSlider fx:id="chartGranularitySlider" blockIncrement="1.0" disable="true" indicatorPosition="RIGHT" majorTickUnit="1.0" max="4.0" min="1.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0">
                                                             <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0"/>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" />
                                                             </VBox.margin>
                                                         </JFXSlider>
                                                         <GridPane fx:id="customBRGrid">
                                                             <columnConstraints>
-                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0"/>
-                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0"/>
-                                                                <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="70.0"/>
+                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0" />
+                                                                <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="70.0" />
                                                             </columnConstraints>
                                                             <rowConstraints>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                             </rowConstraints>
                                                             <children>
                                                                 <JFXCheckBox fx:id="customBRBtn" disable="true" mnemonicParsing="false" text="Custom bounce rate">
                                                                     <GridPane.margin>
-                                                                        <Insets bottom="10.0"/>
+                                                                        <Insets bottom="10.0" />
                                                                     </GridPane.margin>
                                                                     <cursor>
-                                                                        <Cursor fx:constant="HAND"/>
+                                                                        <Cursor fx:constant="HAND" />
                                                                     </cursor>
                                                                     <font>
-                                                                        <Font name="System Bold" size="13.0"/>
+                                                                        <Font name="System Bold" size="13.0" />
                                                                     </font>
                                                                 </JFXCheckBox>
-                                                                <Label disable="true" maxWidth="1.7976931348623157E308" text="Pages visited" GridPane.columnSpan="2" GridPane.rowIndex="1"/>
+                                                                <Label disable="true" maxWidth="1.7976931348623157E308" text="Pages visited" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                                                                 <Spinner fx:id="BRPagesVisited" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                                                                     <cursor>
-                                                                        <Cursor fx:constant="HAND"/>
+                                                                        <Cursor fx:constant="HAND" />
                                                                     </cursor>
                                                                 </Spinner>
                                                                 <Label disable="true" layoutX="10.0" layoutY="17.0" text="Time spent" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="2">
                                                                     <GridPane.margin>
-                                                                        <Insets top="10.0"/>
+                                                                        <Insets top="10.0" />
                                                                     </GridPane.margin>
                                                                 </Label>
                                                                 <Spinner fx:id="BRTimeSpentM" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                                                     <cursor>
-                                                                        <Cursor fx:constant="HAND"/>
+                                                                        <Cursor fx:constant="HAND" />
                                                                     </cursor>
                                                                 </Spinner>
                                                                 <Spinner fx:id="BRTimeSpentS" disable="true" editable="true" layoutX="160.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="4">
                                                                     <cursor>
-                                                                        <Cursor fx:constant="HAND"/>
+                                                                        <Cursor fx:constant="HAND" />
                                                                     </cursor>
                                                                 </Spinner>
                                                                 <Spinner fx:id="BRTimeSpentH" cache="true" cacheHint="SCALE_AND_ROTATE" disable="true" editable="true" layoutX="85.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.rowIndex="4">
                                                                     <cursor>
-                                                                        <Cursor fx:constant="HAND"/>
+                                                                        <Cursor fx:constant="HAND" />
                                                                     </cursor>
                                                                 </Spinner>
-                                                                <Label disable="true" text="Hours" GridPane.halignment="CENTER" GridPane.rowIndex="3"/>
-                                                                <Label disable="true" text="Minutes" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3"/>
-                                                                <Label disable="true" text="Seconds" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3"/>
-                                                                <IntegerValidator GridPane.rowIndex="4"/>
+                                                                <Label disable="true" text="Hours" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                                <Label disable="true" text="Minutes" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                                <Label disable="true" text="Seconds" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                                                                <IntegerValidator GridPane.rowIndex="4" />
                                                             </children>
                                                             <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                             </VBox.margin>
                                                         </GridPane>
                                                         <Label text="Campaign Filters">
                                                             <opaqueInsets>
-                                                                <Insets/>
+                                                                <Insets />
                                                             </opaqueInsets>
                                                             <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0"/>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
                                                             </VBox.margin>
                                                             <font>
-                                                                <Font name="System Bold" size="13.0"/>
+                                                                <Font name="System Bold" size="13.0" />
                                                             </font>
                                                         </Label>
-                                                        <JFXComboBox fx:id="filterCampaignSelectorMenu" disable="true" promptText="Select Campaign to Filter (NYI)"/>
-                                                        <JFXListView fx:id="appliedFiltersList" disable="true" prefHeight="200"/>
+                                                        <JFXListView fx:id="appliedFiltersList" disable="true" prefHeight="200" />
+                                                        <JFXComboBox fx:id="filterCampaignSelectorMenu" disable="true" promptText="Select Campaign to Filter (NYI)" />
                                                         <HBox>
                                                             <JFXButton fx:id="addFilter" disable="true" text="New Filter">
                                                                 <style>
@@ -202,7 +206,7 @@
                                                                     -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
                                                                 </style>
                                                                 <cursor>
-                                                                    <Cursor fx:constant="HAND"/>
+                                                                    <Cursor fx:constant="HAND" />
                                                                 </cursor>
                                                             </JFXButton>
                                                             <!--<JFXButton fx:id="filterInfo" text="Details" disable="true">-->
@@ -223,26 +227,26 @@
                                                                     -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
                                                                 </style>
                                                                 <cursor>
-                                                                    <Cursor fx:constant="HAND"/>
+                                                                    <Cursor fx:constant="HAND" />
                                                                 </cursor>
                                                             </JFXButton>
                                                         </HBox>
                                                     </children>
                                                     <BorderPane.margin>
-                                                        <Insets/>
+                                                        <Insets />
                                                     </BorderPane.margin>
                                                     <opaqueInsets>
-                                                        <Insets/>
+                                                        <Insets />
                                                     </opaqueInsets>
                                                     <padding>
-                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                     </padding>
                                                 </VBox>
                                             </left>
                                         </BorderPane>
                                     </children>
                                     <opaqueInsets>
-                                        <Insets/>
+                                        <Insets />
                                     </opaqueInsets>
                                 </AnchorPane>
                             </content>

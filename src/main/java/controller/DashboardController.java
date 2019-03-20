@@ -4,7 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import common.FileType;
 import common.Observer;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -49,29 +49,31 @@ public class DashboardController implements Initializable, Observer {
 
         parserService = new Parser(model);
 
-        importImpressionLog.setOnAction(e -> {
+        importImpressionLog.setOnMouseReleased(e -> {
             inputFile = importFile(FileType.IMPRESSION_LOG);
             if (inputFile != null) {
-                parserService.setFile(importFile(FileType.IMPRESSION_LOG), FileType.IMPRESSION_LOG);
-                parserService.restart();
-            }
-        });
-        importClickLog.setOnAction(e -> {
-            inputFile = importFile(FileType.CLICK_LOG);
-            if (inputFile != null) {
-                parserService.setFile(importFile(FileType.CLICK_LOG), FileType.CLICK_LOG);
-                parserService.restart();
-            }
-        });
-        importServerLog.setOnAction(e -> {
-            inputFile = importFile(FileType.SERVER_LOG);
-            if (inputFile != null) {
-                parserService.setFile(importFile(FileType.SERVER_LOG), FileType.SERVER_LOG);
+                parserService.setFile(inputFile, FileType.IMPRESSION_LOG);
                 parserService.restart();
             }
         });
 
-        addTestCampaign.setOnAction(e -> {
+        importClickLog.setOnMouseReleased(e -> {
+            inputFile = importFile(FileType.CLICK_LOG);
+            if (inputFile != null) {
+                parserService.setFile(inputFile, FileType.CLICK_LOG);
+                parserService.restart();
+            }
+        });
+
+        importServerLog.setOnMouseReleased(e -> {
+            inputFile = importFile(FileType.SERVER_LOG);
+            if (inputFile != null) {
+                parserService.setFile(inputFile, FileType.SERVER_LOG);
+                parserService.restart();
+            }
+        });
+
+        addTestCampaign.setOnMouseReleased(e -> {
             Platform.runLater(() ->
                     parserService = new Parser(
                             model,
@@ -99,7 +101,7 @@ public class DashboardController implements Initializable, Observer {
     }
 
     @FXML
-    private void createCampaign(ActionEvent event) throws Exception {
+    private void createCampaign(Event event) throws Exception {
         CampaignController controller = new CampaignController(model);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));

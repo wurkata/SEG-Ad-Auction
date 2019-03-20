@@ -12,20 +12,20 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="800.0" prefWidth="1200.0" stylesheets="@../css/dashboard.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
+<VBox prefHeight="600.0" prefWidth="900.0" stylesheets="@../css/dashboard.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
     <children>
         <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
             <children>
                 <VBox prefHeight="200.0" prefWidth="100.0" styleClass="dashboard-menu" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                  <JFXButton maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Facebook Camapaign">
+                  <JFXButton disable="true" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Facebook Camapaign">
                      <VBox.margin>
                         <Insets />
                      </VBox.margin>
                   </JFXButton>
-                  <JFXButton layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Instagram Campaign" />
-                        <JFXButton fx:id="addTestCampaign" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Directly Add Campaign (Testing)" />
-                          <TitledPane alignment="BASELINE_LEFT" animated="false" text="New campaign">
+                  <JFXButton disable="true" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Instagram Campaign" />
+                        <JFXButton fx:id="addTestCampaign" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Directly Add Campaign (Testing)" />
+                          <TitledPane alignment="BASELINE_LEFT" animated="false" expanded="false" text="New campaign">
                               <content>
                                   <AnchorPane id="acc-expanded-pane" minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
                                       <children>

@@ -251,6 +251,7 @@ public class CampaignController implements Initializable, Observer {
 
         clickCostHistogram.setOnMouseClicked(event -> {
             FXMLLoader fxmlLoader = new FXMLLoader();
+//            fxmlLoader.getClassLoader().getResource("/fxml/histogram.fxml");
             fxmlLoader.setLocation(getClass().getResource("/fxml/histogram.fxml"));
             fxmlLoader.setController(new HistogramController(model));
 //            Parent root = null;

@@ -90,6 +90,11 @@ public class GraphController extends Service<JFreeChart> implements Observable {
 
     private JFreeChart setChart() {
         setMetric();
+        if(metric != null) {
+            controller.campaignChartViewer.setVisible(false);
+            controller.chartProgress.setVisible(true);
+
+        }
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         String title = "";
         String val = "";
@@ -201,9 +206,6 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         return new Task<JFreeChart>() {
             @Override
             protected JFreeChart call() {
-                controller.campaignChartViewer.setVisible(false);
-                controller.chartProgress.setVisible(true);
-
                 return setChart();
             }
         };

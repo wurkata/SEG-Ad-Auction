@@ -156,24 +156,23 @@ public class CampaignController implements Initializable, Observer {
 
         model.restart();
 
-        printBtn.setOnAction(a -> {
-            SwingUtilities.invokeLater(() -> {
-                PrinterJob job = PrinterJob.getPrinterJob();
-                PageFormat pf = job.defaultPage();
-                PageFormat pf2 = job.pageDialog(pf);
-                if (pf2 == pf)
-                    return;
-                ChartPanel p = new ChartPanel(campaignChartViewer.getChart());
-                job.setPrintable(p, pf2);
-                if (!job.printDialog())
-                    return;
-                try {
-                    job.print();
-                } catch (PrinterException e) {
-                    e.printStackTrace();
+        printBtn.setOnAction(a -> SwingUtilities.invokeLater(() -> {
+                    PrinterJob job = PrinterJob.getPrinterJob();
+                    PageFormat pf = job.defaultPage();
+                    PageFormat pf2 = job.pageDialog(pf);
+                    if (pf2 == pf)
+                        return;
+                    ChartPanel p = new ChartPanel(campaignChartViewer.getChart());
+                    job.setPrintable(p, pf2);
+                    if (!job.printDialog()) return;
+
+                    try {
+                        job.print();
+                    } catch (PrinterException e) {
+                        e.printStackTrace();
+                    }
                 }
-            });
-        });
+        ));
 
         chartProgress.progressProperty().unbind();
 

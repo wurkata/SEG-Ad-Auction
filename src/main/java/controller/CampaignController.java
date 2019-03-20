@@ -1,9 +1,6 @@
 package controller;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXRadioButton;
-import com.jfoenix.controls.JFXSlider;
+import com.jfoenix.controls.*;
 import common.Granularity;
 import common.Metric;
 import common.Observer;
@@ -12,27 +9,29 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
+
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
+
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import model.Model;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.fx.ChartViewer;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.chart.ChartPanel;
 
-import java.awt.*;
-import java.io.IOException;
+import org.jfree.chart.fx.ChartViewer;
+
+
+import javax.swing.*;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -116,7 +115,7 @@ public class CampaignController implements Initializable, Observer {
     private ListView<String> appliedFiltersList;
     @FXML
     private JFXButton addFilter;
-//    @FXML
+    //    @FXML
 //    private JFXButton filterInfo;
     @FXML
     private JFXButton removeFilter;
@@ -124,14 +123,21 @@ public class CampaignController implements Initializable, Observer {
     /* Histogram control */
     @FXML
     private JFXButton clickCostHistogram;
+    @FXML
+    JFXToggleButton toggleThemeMode;
+    @FXML
+    private JFXButton printBtn;
 
     public Model model;
 
     private GraphController graphControllerService;
 
-    private String selectedFilter="";
+    private String selectedFilter = "";
 
     private ObservableList<String> filters;
+
+    private String theme_light;
+    private String theme_dark;
 
     CampaignController(Model model) {
         this.model = model;
@@ -142,10 +148,32 @@ public class CampaignController implements Initializable, Observer {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        theme_light = getClass().getResource("/css/campaign_scene.css").toExternalForm();
+        theme_dark = getClass().getResource("/css/campaign_scene-dark.css").toExternalForm();
+
         chartProgress.setVisible(false);
         chartProgress.toFront();
 
         model.restart();
+
+        printBtn.setOnAction(a -> {
+            SwingUtilities.invokeLater(() -> {
+                PrinterJob job = PrinterJob.getPrinterJob();
+                PageFormat pf = job.defaultPage();
+                PageFormat pf2 = job.pageDialog(pf);
+                if (pf2 == pf)
+                    return;
+                ChartPanel p = new ChartPanel(campaignChartViewer.getChart());
+                job.setPrintable(p, pf2);
+                if (!job.printDialog())
+                    return;
+                try {
+                    job.print();
+                } catch (PrinterException e) {
+                    e.printStackTrace();
+                }
+            });
+        });
 
         chartProgress.progressProperty().unbind();
 
@@ -158,11 +186,8 @@ public class CampaignController implements Initializable, Observer {
 
 
         chartToggleGroup.selectedToggleProperty().addListener(e -> {
-
-
                     campaignChartViewer.setVisible(false);
                     chartProgress.setVisible(true);
-
 
                     chartProgress.progressProperty().bind(graphControllerService.progressProperty());
                     graphControllerService.restart();
@@ -170,9 +195,9 @@ public class CampaignController implements Initializable, Observer {
         );
 
         BRPagesVisited.valueProperty().addListener(e -> model.setBouncePageReq(BRPagesVisited.getValue()));
-        BRTimeSpentH.valueProperty().addListener( e -> Platform.runLater(new BounceTimeChange()));
-        BRTimeSpentM.valueProperty().addListener( e -> Platform.runLater(new BounceTimeChange()));
-        BRTimeSpentS.valueProperty().addListener( e -> Platform.runLater(new BounceTimeChange()));
+        BRTimeSpentH.valueProperty().addListener(e -> Platform.runLater(new BounceTimeChange()));
+        BRTimeSpentM.valueProperty().addListener(e -> Platform.runLater(new BounceTimeChange()));
+        BRTimeSpentS.valueProperty().addListener(e -> Platform.runLater(new BounceTimeChange()));
 
         customBRBtn.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
@@ -194,12 +219,12 @@ public class CampaignController implements Initializable, Observer {
             }
         });
 
-        filters= appliedFiltersList.getItems();
-        addFilter.setOnMouseClicked(e->{
+        filters = appliedFiltersList.getItems();
+        addFilter.setOnMouseClicked(e -> {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader();
                 fxmlLoader.setLocation(getClass().getResource("/fxml/filter.fxml"));
-                fxmlLoader.setController(new FilterController(model,this));
+                fxmlLoader.setController(new FilterController(model, this));
 
                 Scene scene = new Scene(fxmlLoader.load());
                 Stage stage = new Stage();
@@ -211,26 +236,24 @@ public class CampaignController implements Initializable, Observer {
             }
         });
 
-
-
-
         appliedFiltersList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                selectedFilter=newValue;
+                selectedFilter = newValue;
                 removeFilter.setDisable(false);
             }
 
         });
 
         removeFilter.setOnMouseClicked(event -> {
-            int filterID=Integer.parseInt(selectedFilter.split(":")[0]);
+            int filterID = Integer.parseInt(selectedFilter.split(":")[0]);
             model.removeFilter(filterID);
-            selectedFilter="";
+            selectedFilter = "";
             appliedFiltersList.getSelectionModel().clearSelection();
-            filters.removeIf(e->Integer.parseInt(e.split(":")[0])==filterID);
+            filters.removeIf(e -> Integer.parseInt(e.split(":")[0]) == filterID);
             removeFilter.setDisable(true);
         });
+
 
         clickCostHistogram.setOnMouseClicked(event -> {
             FXMLLoader fxmlLoader = new FXMLLoader();
@@ -247,29 +270,43 @@ public class CampaignController implements Initializable, Observer {
                 e.printStackTrace();
             }
         });
+
+        toggleThemeMode.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+            Scene scene = toggleThemeMode.getScene();
+            if (newValue) {
+                scene.getStylesheets().removeAll(scene.getStylesheets());
+                scene.getStylesheets().add(theme_dark);
+            } else {
+                scene.getStylesheets().removeAll(scene.getStylesheets());
+                scene.getStylesheets().add(theme_light);
+            }
+
+            graphControllerService.restart();
+        }));
+
     }
 
-    public void addFilter(String filter){
+    public void addFilter(String filter) {
         filters.add(filter);
     }
 
-    public int getUsableID(){
-        int[] used = filters.stream().mapToInt(e->Integer.parseInt(e.split(":")[0])).toArray();
-        int i=1;
-        do{
-            boolean found=true;
-            for(int j:used){
-                if (i==j){
-                    found=false;
+    public int getUsableID() {
+        int[] used = filters.stream().mapToInt(e -> Integer.parseInt(e.split(":")[0])).toArray();
+        int i = 1;
+        do {
+            boolean found = true;
+            for (int j : used) {
+                if (i == j) {
+                    found = false;
                     break;
                 }
             }
-            if(found){
+            if (found) {
                 return i;
-            }else{
+            } else {
                 i++;
             }
-        }while(true);
+        } while (true);
     }
 
     private void initBindings() {
@@ -354,35 +391,27 @@ public class CampaignController implements Initializable, Observer {
 
     @Override
     public void update(Object arg) {
-        if (arg instanceof TimeSeries) {
-            JFreeChart chart = campaignChartViewer.getChart();
-            XYPlot plot = chart.getXYPlot();
-            plot.getRenderer().setSeriesStroke(0, new BasicStroke(4.0f));
-            plot.setDataset(new TimeSeriesCollection((TimeSeries) arg));
-            plot.getDomainAxis().setAutoRange(true);
-        } else {
-            switch (arg.toString()) {
-                case "files":
-                    metricsGrid.getChildren().forEach(e -> {
-                        if (e instanceof RadioButton) {
-                            e.setDisable(false);
-                        }
-                    });
-
-                    initTimeSpinners();
-                    initBindings();
-                    break;
-                case "metrics":
-                    break;
-                case "filter":
-                    if (campaignChartViewer.getChart() != null) {
-                        chartProgress.progressProperty().bind(graphControllerService.progressProperty());
-                        graphControllerService.restart();
+        switch (arg.toString()) {
+            case "files":
+                metricsGrid.getChildren().forEach(e -> {
+                    if (e instanceof RadioButton) {
+                        e.setDisable(false);
                     }
-                    break;
-                default:
-                    break;
-            }
+                });
+
+                initTimeSpinners();
+                initBindings();
+                break;
+            case "metrics":
+                break;
+            case "filter":
+                if (campaignChartViewer.getChart() != null) {
+                    chartProgress.progressProperty().bind(graphControllerService.progressProperty());
+                    graphControllerService.restart();
+                }
+                break;
+            default:
+                break;
         }
     }
 

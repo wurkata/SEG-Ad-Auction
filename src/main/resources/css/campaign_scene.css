@@ -49,3 +49,7 @@
 .jfx-check-box {
     -jfx-checked-color: text-mid;
 }
+
+.jfx-radio-button{
+    -jfx-selected-color: text-mid;
+}

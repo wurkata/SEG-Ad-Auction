@@ -20,13 +20,18 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import model.Model;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.fx.ChartViewer;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -118,6 +123,8 @@ public class CampaignController implements Initializable, Observer {
 
     @FXML
     JFXToggleButton toggleThemeMode;
+    @FXML
+    private JFXButton printBtn;
 
     public Model model;
 
@@ -146,6 +153,25 @@ public class CampaignController implements Initializable, Observer {
         chartProgress.toFront();
 
         model.restart();
+
+        printBtn.setOnAction(a -> {
+            SwingUtilities.invokeLater(() -> {
+                PrinterJob job = PrinterJob.getPrinterJob();
+                PageFormat pf = job.defaultPage();
+                PageFormat pf2 = job.pageDialog(pf);
+                if (pf2 == pf)
+                    return;
+                ChartPanel p = new ChartPanel(campaignChartViewer.getChart());
+                job.setPrintable(p, pf2);
+                if (!job.printDialog())
+                    return;
+                try {
+                    job.print();
+                } catch (PrinterException e) {
+                    e.printStackTrace();
+                }
+            });
+        });
 
         chartProgress.progressProperty().unbind();
 

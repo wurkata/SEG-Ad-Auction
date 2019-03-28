@@ -12,7 +12,6 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
-import org.jfree.data.time.Day;
 
 import java.io.File;
 import java.sql.Statement;
@@ -21,7 +20,6 @@ import java.util.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Created by furqan on 27/02/2019.
@@ -488,6 +486,137 @@ public class Model extends Service<Void> implements Observable {
                 );
     }
 
+    private double getTotalCost(FilterDate d) {
+//        switch (granularity) {
+//            case HOUR:
+//                if (impressionCost) {
+//                    return impressionLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
+//                            .mapToDouble(ImpressionLog::getImpressionCost)
+//                            .sum();
+//                } else {
+//                    return clickLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
+//                            .mapToDouble(ClickLog::getClickCost)
+//                            .sum();
+//                }
+//            case DAY:
+//                if (impressionCost) {
+//                    return impressionLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
+//                            .mapToDouble(ImpressionLog::getImpressionCost)
+//                            .sum();
+//                } else {
+//                    return clickLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
+//                            .mapToDouble(ClickLog::getClickCost)
+//                            .sum();
+//                }
+//            case MONTH:
+//                if (impressionCost) {
+//                    return impressionLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
+//                            .mapToDouble(ImpressionLog::getImpressionCost)
+//                            .sum();
+//                } else {
+//                    return clickLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
+//                            .mapToDouble(ClickLog::getClickCost)
+//                            .sum();
+//                }
+//            case YEAR:
+//                if (impressionCost) {
+//                    return impressionLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
+//                            .mapToDouble(ImpressionLog::getImpressionCost)
+//                            .sum();
+//                } else {
+//                    return clickLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
+//                            .mapToDouble(ClickLog::getClickCost)
+//                            .sum();
+//                }
+//            case ToD:
+//                if (impressionCost) {
+//                    return impressionLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
+//                            .mapToDouble(ImpressionLog::getImpressionCost)
+//                            .sum();
+//                } else {
+//                    return clickLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
+//                            .mapToDouble(ClickLog::getClickCost)
+//                            .sum();
+//                }
+//            case DoW:
+                if (impressionCost) {
+                    return impressionLog.stream()
+                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
+                            .mapToDouble(ImpressionLog::getImpressionCost)
+                            .sum();
+                } else {
+                    return clickLog.stream()
+                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
+                            .mapToDouble(ClickLog::getClickCost)
+                            .sum();
+                }
+//        }
+//        return 0;
+    }
+
+    private long getNumOfBounces(FilterDate d) {
+//        switch (granularity) {
+//            case HOUR:
+//                if (bounceTime <= 0 && bouncePages <= 0) {
+//                    return serverLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
+//                            .filter(e -> e.getConversion() == 0)
+//                            .count();
+//                } else {
+//                    return serverLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
+//                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
+//                            .count();
+//                }
+//            case DAY:
+//                if (bounceTime <= 0 && bouncePages <= 0) {
+//                    return serverLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
+//                            .filter(e -> e.getConversion() == 0)
+//                            .count();
+//                } else {
+//                    return serverLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
+//                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
+//                            .count();
+//                }
+//            case MONTH:
+//                if (bounceTime <= 0 && bouncePages <= 0) {
+//                    return serverLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
+//                            .filter(e -> e.getConversion() == 0)
+//                            .count();
+//                } else {
+//                    return serverLog.stream()
+//                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
+//                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
+//                            .count();
+//                }
+//            case YEAR:
+                if (bounceTime <= 0 && bouncePages <= 0) {
+                    return serverLog.stream()
+                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
+                            .filter(e -> e.getConversion() == 0)
+                            .count();
+                } else {
+                    return serverLog.stream()
+                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
+                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
+                            .count();
+                }
+//        }
+//        return 0;
+    }
 
     private ArrayList<Pair<Date, Double>> getDoubleMetric(Function<FilterDate, Double> f){
         ArrayList<Pair<Date, Double>> list = new ArrayList<>();
@@ -511,7 +640,7 @@ public class Model extends Service<Void> implements Observable {
             case MONTH:
                 for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> filterDateEqualsDate(e, d))) {
-                        list.add(new Pair<Date, Double>(new Date(d.year, d.month+1, -1),
+                        list.add(new Pair<Date, Double>(new Date(d.year, d.month, 1),
                                 f.apply(d)));
                     }
 
@@ -520,8 +649,29 @@ public class Model extends Service<Void> implements Observable {
             case YEAR:
                 for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> filterDateEqualsDate(e, d))) {
-                        list.add(new Pair<Date, Double>(new Date(d.year, 11, 31),
+                        list.add(new Pair<Date, Double>(new Date(d.year, 0, 1),
                                 f.apply(d)));
+                    }
+                }
+                break;
+            case ToD:
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> filterDateEqualsDate(e, d))) {
+                        list.add(new Pair<Date, Double>(new Date(0,0,0,d.hours,0),
+                                f.apply(d)));
+                    }
+                }
+                break;
+            case DoW:
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> filterDateEqualsDate(e, d))) {
+                        if(d.dow==0){
+                            list.add(new Pair<Date, Double>(new Date(0,0,7),
+                                    f.apply(d)));
+                        }else {
+                            list.add(new Pair<Date, Double>(new Date(0, 0, d.dow),
+                                    f.apply(d)));
+                        }
                     }
                 }
                 break;
@@ -551,7 +701,7 @@ public class Model extends Service<Void> implements Observable {
             case MONTH:
                 for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> filterDateEqualsDate(e, d))) {
-                        list.add(new Pair<Date, Long>(new Date(d.year, d.month+1, -1),
+                        list.add(new Pair<Date, Long>(new Date(d.year, d.month, 1),
                                 f.apply(d)));
                     }
 
@@ -560,8 +710,29 @@ public class Model extends Service<Void> implements Observable {
             case YEAR:
                 for (FilterDate d : dates) {
                     if (list.stream().map(Pair::getKey).noneMatch(e -> filterDateEqualsDate(e, d))) {
-                        list.add(new Pair<Date, Long>(new Date(d.year, 11, 31),
+                        list.add(new Pair<Date, Long>(new Date(d.year, 0, 1),
                                 f.apply(d)));
+                    }
+                }
+                break;
+            case ToD:
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> filterDateEqualsDate(e, d))) {
+                        list.add(new Pair<Date, Long>(new Date(0,0,1,d.hours,0),
+                                f.apply(d)));
+                    }
+                }
+                break;
+            case DoW:
+                for (FilterDate d : dates) {
+                    if (list.stream().map(Pair::getKey).noneMatch(e -> filterDateEqualsDate(e, d))) {
+                        if(d.dow==0){
+                            list.add(new Pair<Date, Long>(new Date(0,0,7),
+                                    f.apply(d)));
+                        }else {
+                            list.add(new Pair<Date, Long>(new Date(0, 0, d.dow),
+                                    f.apply(d)));
+                        }
                     }
                 }
                 break;
@@ -569,127 +740,6 @@ public class Model extends Service<Void> implements Observable {
         return list;
     }
 
-    private double getTotalCost(FilterDate d) {
-        switch (granularity) {
-            case HOUR:
-                if (impressionCost) {
-                    return impressionLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
-                            .mapToDouble(ImpressionLog::getImpressionCost)
-                            .sum();
-                } else {
-                    return clickLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
-                            .mapToDouble(ClickLog::getClickCost)
-                            .sum();
-                }
-            case DAY:
-                if (impressionCost) {
-                    return impressionLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
-                            .mapToDouble(ImpressionLog::getImpressionCost)
-                            .sum();
-                } else {
-                    return clickLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
-                            .mapToDouble(ClickLog::getClickCost)
-                            .sum();
-                }
-            case MONTH:
-                if (impressionCost) {
-                    return impressionLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
-                            .mapToDouble(ImpressionLog::getImpressionCost)
-                            .sum();
-                } else {
-                    return clickLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
-                            .mapToDouble(ClickLog::getClickCost)
-                            .sum();
-                }
-            case YEAR:
-                if (impressionCost) {
-                    return impressionLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getImpressionDate(), d))
-                            .mapToDouble(ImpressionLog::getImpressionCost)
-                            .sum();
-                } else {
-                    return clickLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getClickDate(), d))
-                            .mapToDouble(ClickLog::getClickCost)
-                            .sum();
-                }
-        }
-        return 0;
-    }
-
-    private long getNumOfBounces(FilterDate d) {
-        switch (granularity) {
-            case HOUR:
-                if (bounceTime <= 0 && bouncePages <= 0) {
-                    return serverLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
-                            .filter(e -> e.getConversion() == 0)
-                            .count();
-                } else {
-                    return serverLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
-                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
-                            .count();
-                }
-            case DAY:
-                if (bounceTime <= 0 && bouncePages <= 0) {
-                    return serverLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
-                            .filter(e -> e.getConversion() == 0)
-                            .count();
-                } else {
-                    return serverLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
-                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
-                            .count();
-                }
-            case MONTH:
-                if (bounceTime <= 0 && bouncePages <= 0) {
-                    return serverLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
-                            .filter(e -> e.getConversion() == 0)
-                            .count();
-                } else {
-                    return serverLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
-                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
-                            .count();
-                }
-            case YEAR:
-                if (bounceTime <= 0 && bouncePages <= 0) {
-                    return serverLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
-                            .filter(e -> e.getConversion() == 0)
-                            .count();
-                } else {
-                    return serverLog.stream()
-                            .filter(e -> filterDateEqualsDate(e.getEntryDate(), d))
-                            .filter(e -> (e.getTimeSpent() < bounceTime || e.getPagesViewed() < bouncePages))
-                            .count();
-                }
-        }
-        return 0;
-    }
-
-    private boolean filterDateEqualsDate(Date d, FilterDate fd){
-        switch(granularity){
-            case HOUR:
-                return d.getHours() == fd.hours && d.getDate() == fd.day && d.getMonth() == fd.month && d.getYear() == fd.year;
-            case DAY:
-                return d.getDate() == fd.day && d.getMonth() == fd.month && d.getYear() == fd.year;
-            case MONTH:
-                return d.getMonth() == fd.month && d.getYear() == fd.year;
-            case YEAR:
-                return  d.getYear() == fd.year;
-        }
-        return false;
-    }
     //---------------------------------------------FILTERING AND GRANULARITY--------------------------------------------
 
     //sets granularity for output data.
@@ -697,6 +747,10 @@ public class Model extends Service<Void> implements Observable {
     public void setGranularity(Granularity g) {
         this.granularity = g;
         setMetrics();
+    }
+
+    public Granularity getGranularity(){
+        return granularity;
     }
 
     public void resetBounceFilters() {
@@ -718,40 +772,6 @@ public class Model extends Service<Void> implements Observable {
         this.bouncePages = pages;
         setMetrics();
         notifyObservers("filter");
-    }
-
-    //Collects dates for granularising
-    private void getDates() {
-        impressionLog.stream()
-                .map(ImpressionLog::getImpressionDate)
-                .distinct()
-                .forEach(e -> {
-                    FilterDate d = new FilterDate(e.getHours(), e.getDate(), e.getMonth(), e.getYear());
-                    if (!dates.contains(d)) {
-                        dates.add(d);
-                    }
-                });
-
-        clickLog.stream()
-                .map(ClickLog::getClickDate)
-                .distinct()
-                .forEach(e -> {
-                    FilterDate d = new FilterDate(e.getHours(), e.getDate(), e.getMonth(), e.getYear());
-                    if (!dates.contains(d)) {
-                        dates.add(d);
-                    }
-                });
-
-        serverLog.stream()
-                .map(ServerLog::getEntryDate)
-                .distinct()
-                .forEach(e -> {
-                    FilterDate d = new FilterDate(e.getHours(), e.getDate(), e.getMonth(), e.getYear());
-                    if (!dates.contains(d)) {
-                        dates.add(d);
-                    }
-                });
-
     }
 
     private void filter(){
@@ -855,21 +875,96 @@ public class Model extends Service<Void> implements Observable {
         }
     }
 
-    private static class FilterDate {
-        public int hours, day, month, year;
+    //Collects dates for granularising
+    private void getDates() {
+        impressionLog.stream()
+                .map(ImpressionLog::getImpressionDate)
+                .distinct()
+                .forEach(e -> {
+                    FilterDate d = new FilterDate(e.getHours(), e.getDate(), e.getMonth(), e.getYear(), e.getDay());
+                    if (!dates.contains(d)) {
+                        dates.add(d);
+                    }
+                });
 
-        public FilterDate(int hours, int day, int month, int year) {
+        clickLog.stream()
+                .map(ClickLog::getClickDate)
+                .distinct()
+                .forEach(e -> {
+                    FilterDate d = new FilterDate(e.getHours(), e.getDate(), e.getMonth(), e.getYear(), e.getDay());
+                    if (!dates.contains(d)) {
+                        dates.add(d);
+                    }
+                });
+
+        serverLog.stream()
+                .map(ServerLog::getEntryDate)
+                .distinct()
+                .forEach(e -> {
+                    FilterDate d = new FilterDate(e.getHours(), e.getDate(), e.getMonth(), e.getYear(), e.getDay());
+                    if (!dates.contains(d)) {
+                        dates.add(d);
+                    }
+                });
+
+    }
+
+    private boolean filterDateEqualsDate(Date d, FilterDate fd){
+        switch(granularity){
+            case HOUR:
+                return d.getHours() == fd.hours && d.getDate() == fd.day && d.getMonth() == fd.month && d.getYear() == fd.year;
+            case DAY:
+                return d.getDate() == fd.day && d.getMonth() == fd.month && d.getYear() == fd.year;
+            case MONTH:
+                return d.getMonth() == fd.month && d.getYear() == fd.year;
+            case YEAR:
+                return  d.getYear() == fd.year;
+            case ToD:
+                return d.getHours()==fd.hours;
+            case DoW:
+                return d.getDay() == fd.dow;
+        }
+        return false;
+    }
+
+    private static class FilterDate {
+        public int hours, day, month, year, dow;
+
+        public FilterDate(int hours, int day, int month, int year, int dow) {
             this.hours = hours;
             this.day = day;
             this.month = month;
             this.year = year;
+            this.dow=dow;
+//            switch(dow){
+//                case 0:
+//                    this.dow="Sun";
+//                    break;
+//                case 1:
+//                    this.dow="Mon";
+//                    break;
+//                case 2:
+//                    this.dow="Tue";
+//                    break;
+//                case 3:
+//                    this.dow="Wed";
+//                    break;
+//                case 4:
+//                    this.dow="Thu";
+//                    break;
+//                case 5:
+//                    this.dow="Fri";
+//                    break;
+//                case 6:
+//                    this.dow="Sat";
+//            }
         }
 
         @Override
         public boolean equals(Object o) {
             if (o instanceof FilterDate) {
                 FilterDate d = (FilterDate) o;
-                return this.hours == d.hours && this.day == d.day && this.month == d.month && this.year == d.year;
+                return this.hours == d.hours && this.day == d.day && this.month == d.month && this.year == d.year && this.dow == d.dow;
             }else {
                 return false;
             }

@@ -8,6 +8,7 @@ import javafx.concurrent.Task;
 import model.Model;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.time.Hour;
@@ -15,6 +16,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import java.awt.*;
+import java.text.SimpleDateFormat;
 
 public class GraphController extends Service<JFreeChart> implements Observable {
     private Model model;
@@ -73,6 +75,29 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 true,
                 false
         );
+
+        DateAxis dateAxis = (DateAxis)chart.getXYPlot().getDomainAxis();
+
+        switch(model.getGranularity()){
+            case HOUR:
+                dateAxis.setDateFormatOverride(new SimpleDateFormat("HH:59 dd/MM/yyyy"));
+                break;
+            case DAY:
+                dateAxis.setDateFormatOverride(new SimpleDateFormat("dd/MM/yyyy"));
+                break;
+            case MONTH:
+                dateAxis.setDateFormatOverride(new SimpleDateFormat("MM/yyyy"));
+                break;
+            case YEAR:
+                dateAxis.setDateFormatOverride(new SimpleDateFormat("yyyy"));
+                break;
+            case ToD:
+                dateAxis.setDateFormatOverride(new SimpleDateFormat("HH:59"));
+                break;
+            case DoW:
+                dateAxis.setDateFormatOverride(new SimpleDateFormat("EEEE"));
+                break;
+        }
 
         controller.campaignChartViewer.setVisible(true);
         controller.chartProgress.setVisible(false);

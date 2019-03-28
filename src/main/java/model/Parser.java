@@ -172,7 +172,7 @@ public class Parser extends Service<Void> implements Observable {
                     if (fileType == FileType.CLICK_LOG) readClickLog(inputFile);
                     if (fileType == FileType.SERVER_LOG) readServerLog(inputFile);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    notifyObservers(e);
                 }
 
                 return null;

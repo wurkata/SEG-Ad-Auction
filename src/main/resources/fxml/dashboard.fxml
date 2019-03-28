@@ -11,6 +11,7 @@
 <?import javafx.scene.paint.RadialGradient?>
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.control.ProgressIndicator?>
 
 <VBox prefHeight="600.0" prefWidth="900.0" stylesheets="@../css/dashboard.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
     <children>
@@ -36,6 +37,7 @@
                                                           <VBox alignment="CENTER" spacing="10.0">
                                                               <children>
                                                                   <Label text="Import Impression Log" />
+                                                                  <ProgressIndicator fx:id="impProgress" progress="-1" scaleX="5.0" scaleY="5.0" translateY="40.0" visible="false" minHeight="10.0"/>
                                                                   <JFXButton fx:id="importImpressionLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Import">
                                                                       <cursor>
                                                                           <Cursor fx:constant="HAND" />
@@ -46,6 +48,7 @@
                                                           <VBox alignment="CENTER" spacing="10.0">
                                                               <children>
                                                                   <Label text="Import Click Log" />
+                                                                  <ProgressIndicator fx:id="clickProgress" progress="-1" scaleX="5.0" scaleY="5.0" translateY="40.0" visible="false" minHeight="10.0"/>
                                                                   <JFXButton fx:id="importClickLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Import">
                                                                       <cursor>
                                                                           <Cursor fx:constant="HAND" />
@@ -56,6 +59,7 @@
                                                           <VBox alignment="CENTER" spacing="10.0">
                                                               <children>
                                                                   <Label text="Import Server Log" />
+                                                                  <ProgressIndicator fx:id="servProgress" progress="-1" scaleX="5.0" scaleY="5.0" translateY="40.0" visible="false" minHeight="10.0"/>
                                                                   <JFXButton fx:id="importServerLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Import">
                                                                       <cursor>
                                                                           <Cursor fx:constant="HAND" />

@@ -328,8 +328,14 @@ public class CampaignController implements Initializable, Observer {
                         return "Day";
                     case 3:
                         return "Month";
-                    default:
+                    case 4:
                         return "Year";
+                    case 5:
+                        return "Time";
+                    case 6:
+                        return "Day of Week";
+                    default:
+                        return "";
                 }
             }
 
@@ -342,8 +348,14 @@ public class CampaignController implements Initializable, Observer {
                         return 2d;
                     case "Month":
                         return 3d;
-                    default:
+                    case "Year":
                         return 4d;
+                    case "Time":
+                        return 5d;
+                    case "Day of Week":
+                        return 6d;
+                    default:
+                        return 0d;
                 }
             }
         });
@@ -361,6 +373,12 @@ public class CampaignController implements Initializable, Observer {
                     break;
                 case 4:
                     model.setGranularity(Granularity.YEAR);
+                    break;
+                case 5:
+                    model.setGranularity(Granularity.ToD);
+                    break;
+                case 6:
+                    model.setGranularity(Granularity.DoW);
                     break;
             }
 

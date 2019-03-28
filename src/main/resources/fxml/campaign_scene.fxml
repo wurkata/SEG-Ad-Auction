@@ -197,7 +197,7 @@
                                                         <JFXListView fx:id="appliedFiltersList" disable="true" prefHeight="200" />
                                                         <JFXComboBox fx:id="filterCampaignSelectorMenu" disable="true" promptText="Select Campaign to Filter (NYI)" />
                                                         <HBox>
-                                                            <JFXButton fx:id="addFilter" disable="true" text="New Filter">
+                                                            <JFXButton fx:id="addFilter" disable="true" text="Add Filter">
                                                                 <style>
                                                                     <!--Style code from https://stackoverflow.com/a/30680668-->
                                                                     -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;

@@ -9,8 +9,10 @@ import model.Model;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.RangeType;
 import org.jfree.data.time.Hour;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -77,6 +79,12 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         );
 
         DateAxis dateAxis = (DateAxis)chart.getXYPlot().getDomainAxis();
+
+        NumberAxis numAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
+
+        numAxis.setRangeType(RangeType.POSITIVE);
+        numAxis.setAutoRangeIncludesZero(true);
+        numAxis.configure();
 
         switch(model.getGranularity()){
             case HOUR:

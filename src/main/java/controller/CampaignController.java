@@ -61,8 +61,6 @@ public class CampaignController implements Initializable, Observer {
     private Label CPA;
     @FXML
     private Label bounceRate;
-    @FXML
-    private JFXSlider chartGranularitySlider;
 
     @FXML
     JFXSlider zoomChartX;
@@ -128,6 +126,28 @@ public class CampaignController implements Initializable, Observer {
     @FXML
     private JFXButton printBtn;
 
+    @FXML
+    private ToggleGroup granularityToggleGroup;
+
+    @FXML
+    private RadioButton hourBtn;
+
+    @FXML
+    private RadioButton dayBtn;
+
+    @FXML
+    private RadioButton monthBtn;
+
+    @FXML
+    private RadioButton yearBtn;
+
+    @FXML
+    private RadioButton todBtn;
+
+    @FXML
+    private RadioButton dowBtn;
+
+
     public Model model;
 
     private GraphController graphControllerService;
@@ -176,15 +196,21 @@ public class CampaignController implements Initializable, Observer {
 
         chartProgress.progressProperty().unbind();
 
-        setChartGranularitySliderLabels();
+//        setChartGranularitySliderLabels();
 
         customBRBtn.setDisable(false);
-        chartGranularitySlider.setDisable(false);
+//        chartGranularitySlider.setDisable(false);
         appliedFiltersList.setDisable(false);
         addFilter.setDisable(false);
 
 
         chartToggleGroup.selectedToggleProperty().addListener(e -> {
+                    chartProgress.progressProperty().bind(graphControllerService.progressProperty());
+                    graphControllerService.restart();
+                }
+        );
+
+        granularityToggleGroup.selectedToggleProperty().addListener(e -> {
                     chartProgress.progressProperty().bind(graphControllerService.progressProperty());
                     graphControllerService.restart();
                 }
@@ -278,6 +304,24 @@ public class CampaignController implements Initializable, Observer {
             graphControllerService.restart();
         }));
 
+        initGranularityGrid();
+    }
+
+    private void initGranularityGrid(){
+        hourBtn.setDisable(false);
+        dayBtn.setDisable(false);
+        monthBtn.setDisable(false);
+        yearBtn.setDisable(false);
+        todBtn.setDisable(false);
+        dowBtn.setDisable(false);
+
+        hourBtn.setOnMouseClicked(e->model.setGranularity(Granularity.HOUR));
+        dayBtn.setOnMouseClicked(e->model.setGranularity(Granularity.DAY));
+        monthBtn.setOnMouseClicked(e->model.setGranularity(Granularity.MONTH));
+        yearBtn.setOnMouseClicked(e->model.setGranularity(Granularity.YEAR));
+        todBtn.setOnMouseClicked(e->model.setGranularity(Granularity.ToD));
+        dowBtn.setOnMouseClicked(e->model.setGranularity(Granularity.DoW));
+
     }
 
     public void addFilter(String filter) {
@@ -315,79 +359,80 @@ public class CampaignController implements Initializable, Observer {
         CPC.textProperty().bind(model.metrics.MetricsProperty(Metric.CPC));
         CPM.textProperty().bind(model.metrics.MetricsProperty(Metric.CPM));
         CPA.textProperty().bind(model.metrics.MetricsProperty(Metric.CPA));
+
     }
 
-    private void setChartGranularitySliderLabels() {
-        chartGranularitySlider.setLabelFormatter(new StringConverter<Double>() {
-            @Override
-            public String toString(Double n) {
-                switch (n.intValue()) {
-                    case 1:
-                        return "Hour";
-                    case 2:
-                        return "Day";
-                    case 3:
-                        return "Month";
-                    case 4:
-                        return "Year";
-                    case 5:
-                        return "Time";
-                    case 6:
-                        return "Day of Week";
-                    default:
-                        return "";
-                }
-            }
-
-            @Override
-            public Double fromString(String s) {
-                switch (s) {
-                    case "Hour":
-                        return 1d;
-                    case "Day":
-                        return 2d;
-                    case "Month":
-                        return 3d;
-                    case "Year":
-                        return 4d;
-                    case "Time":
-                        return 5d;
-                    case "Day of Week":
-                        return 6d;
-                    default:
-                        return 0d;
-                }
-            }
-        });
-
-        chartGranularitySlider.setOnMouseReleased(e -> {
-            switch ((int) chartGranularitySlider.getValue()) {
-                case 1:
-                    model.setGranularity(Granularity.HOUR);
-                    break;
-                case 2:
-                    model.setGranularity(Granularity.DAY);
-                    break;
-                case 3:
-                    model.setGranularity(Granularity.MONTH);
-                    break;
-                case 4:
-                    model.setGranularity(Granularity.YEAR);
-                    break;
-                case 5:
-                    model.setGranularity(Granularity.ToD);
-                    break;
-                case 6:
-                    model.setGranularity(Granularity.DoW);
-                    break;
-            }
-
-            if (chartToggleGroup.getSelectedToggle() != null) {
-                chartProgress.progressProperty().bind(graphControllerService.progressProperty());
-                graphControllerService.restart();
-            }
-        });
-    }
+//    private void setChartGranularitySliderLabels() {
+//        chartGranularitySlider.setLabelFormatter(new StringConverter<Double>() {
+//            @Override
+//            public String toString(Double n) {
+//                switch (n.intValue()) {
+//                    case 1:
+//                        return "Hour";
+//                    case 2:
+//                        return "Day";
+//                    case 3:
+//                        return "Month";
+//                    case 4:
+//                        return "Year";
+//                    case 5:
+//                        return "Time";
+//                    case 6:
+//                        return "Day of Week";
+//                    default:
+//                        return "";
+//                }
+//            }
+//
+//            @Override
+//            public Double fromString(String s) {
+//                switch (s) {
+//                    case "Hour":
+//                        return 1d;
+//                    case "Day":
+//                        return 2d;
+//                    case "Month":
+//                        return 3d;
+//                    case "Year":
+//                        return 4d;
+//                    case "Time":
+//                        return 5d;
+//                    case "Day of Week":
+//                        return 6d;
+//                    default:
+//                        return 0d;
+//                }
+//            }
+//        });
+//
+//        chartGranularitySlider.setOnMouseReleased(e -> {
+//            switch ((int) chartGranularitySlider.getValue()) {
+//                case 1:
+//                    model.setGranularity(Granularity.HOUR);
+//                    break;
+//                case 2:
+//                    model.setGranularity(Granularity.DAY);
+//                    break;
+//                case 3:
+//                    model.setGranularity(Granularity.MONTH);
+//                    break;
+//                case 4:
+//                    model.setGranularity(Granularity.YEAR);
+//                    break;
+//                case 5:
+//                    model.setGranularity(Granularity.ToD);
+//                    break;
+//                case 6:
+//                    model.setGranularity(Granularity.DoW);
+//                    break;
+//            }
+//
+//            if (chartToggleGroup.getSelectedToggle() != null) {
+//                chartProgress.progressProperty().bind(graphControllerService.progressProperty());
+//                graphControllerService.restart();
+//            }
+//        });
+//    }
 
     private void initTimeSpinners() {
         BRPagesVisited.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 1000));

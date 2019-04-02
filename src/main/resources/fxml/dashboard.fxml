@@ -13,18 +13,18 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.control.ProgressIndicator?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" stylesheets="@../css/dashboard.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
+<VBox prefHeight="750.0" prefWidth="800.0" stylesheets="@../css/dashboard.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
     <children>
         <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
             <children>
                 <VBox prefHeight="200.0" prefWidth="100.0" styleClass="dashboard-menu" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                  <JFXButton disable="true" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Facebook Camapaign">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </JFXButton>
-                  <JFXButton disable="true" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Instagram Campaign" />
+                  <!--<JFXButton disable="true" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Facebook Camapaign">-->
+                     <!--<VBox.margin>-->
+                        <!--<Insets />-->
+                     <!--</VBox.margin>-->
+                  <!--</JFXButton>-->
+                  <!--<JFXButton disable="true" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Instagram Campaign" />-->
                         <JFXButton fx:id="addTestCampaign" disable="false" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Directly Add Campaign (Testing)" />
                           <TitledPane alignment="BASELINE_LEFT" animated="false" expanded="false" text="New campaign">
                               <content>

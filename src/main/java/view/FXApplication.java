@@ -18,6 +18,7 @@ public class FXApplication extends Application {
         Parent root = loader.load();
         primaryStage.setTitle("Ad Auction");
         primaryStage.setScene(new Scene(root, 1200, 800));
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 }

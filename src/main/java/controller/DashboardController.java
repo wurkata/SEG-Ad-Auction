@@ -12,7 +12,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -20,7 +19,6 @@ import model.Model;
 import model.Parser;
 
 import javax.swing.*;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -134,6 +132,7 @@ public class DashboardController implements Initializable, Observer {
         Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
         window.setScene(campaignsScene);
+        window.setResizable(false);
         window.show();
     }
 

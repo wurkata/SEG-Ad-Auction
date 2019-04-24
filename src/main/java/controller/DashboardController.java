@@ -1,6 +1,7 @@
 package controller;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import common.FileType;
 import common.Observer;
 import javafx.application.Platform;
@@ -15,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import model.DBTasks.CheckTitle;
 import model.Model;
 import model.Parser;
 
@@ -24,6 +26,10 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class DashboardController implements Initializable, Observer {
+
+    @FXML
+    private JFXTextField campaignTitle;
+
     @FXML
     private JFXButton createCampaignBtn;
 
@@ -60,6 +66,34 @@ public class DashboardController implements Initializable, Observer {
         model.addObserver(this);
 
         parserService = new Parser(model);
+
+        importImpressionLog.setDisable(true);
+        importClickLog.setDisable(true);
+        importServerLog.setDisable(true);
+
+        campaignTitle.textProperty().addListener(((observable, oldValue, newValue) -> {
+            if(newValue.length() > 2) {
+                CheckTitle checkTitle = new CheckTitle(newValue);
+                checkTitle.setOnSucceeded(e -> {
+                    if(checkTitle.getValue()) {
+                        importImpressionLog.setDisable(false);
+                        importClickLog.setDisable(false);
+                        importServerLog.setDisable(false);
+                        createCampaignBtn.setDisable(false);
+                    } else {
+                        importImpressionLog.setDisable(true);
+                        importClickLog.setDisable(true);
+                        importServerLog.setDisable(true);
+                        createCampaignBtn.setDisable(true);
+                    }
+                });
+                new Thread(checkTitle).start();
+            } else {
+                importImpressionLog.setDisable(true);
+                importClickLog.setDisable(true);
+                importServerLog.setDisable(true);
+            }
+        }));
 
         importImpressionLog.setOnMouseReleased(e -> {
             inputFile = importFile(FileType.IMPRESSION_LOG);
@@ -120,6 +154,7 @@ public class DashboardController implements Initializable, Observer {
 
     @FXML
     private void createCampaign(Event event) throws Exception {
+        model.setCampaignTitle(campaignTitle.textProperty().getValue());
         CampaignController controller = new CampaignController(model);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
@@ -207,5 +242,9 @@ public class DashboardController implements Initializable, Observer {
 
     private boolean canAddCampaign() {
         return impressionLogLoaded && clickLogLoaded && serverLogLoaded;
+    }
+
+    private void getCampaigns() {
+
     }
 }

@@ -1,0 +1,26 @@
+* {
+    -fx-font-family: "Roboto Light";
+
+    -fx-bg-color: rgb(255, 255, 255);
+    -fx-bg-color-left: rgb(224, 224, 224);
+
+    -fx-btn-bg: rgb(205, 220, 57);
+    -fx-btn-bg-new: rgb(0, 188, 212);
+    -fx-btn-inner-bg: rgb(0, 188, 212);
+
+    -fx-error: rgb(176,0,32);
+}
+
+.jfx-button {
+    -fx-light-text-color: rgb(242, 251, 255);
+    -fx-mid-text-color: rgb(38, 50, 56);
+    -fx-dark-text-color: rgb(20, 193, 179);
+
+    -fx-text-base-color: ladder(
+            -fx-background,
+            -fx-light-text-color 45%,
+            -fx-dark-text-color  46%,
+            -fx-dark-text-color  59%,
+            -fx-mid-text-color   60%
+    );
+}

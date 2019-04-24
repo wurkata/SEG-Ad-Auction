@@ -1,16 +1,16 @@
 package common.Filters;
 
-import model.SubjectLog;
+import model.User;
 
-import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by furqan on 12/03/2019.
  */
 public abstract class AudienceFilter extends Filter {
-     HashMap<String,SubjectLog> subjects;
+    List<User> users;
 
-    public AudienceFilter(HashMap<String,SubjectLog> subjects){
-        this.subjects=subjects;
+    public AudienceFilter(List<User> users){
+        this.users=users;
     }
 }

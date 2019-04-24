@@ -10,14 +10,23 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYItemRendererState;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.data.RangeType;
 import org.jfree.data.time.Hour;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.XYDataset;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
 
 public class GraphController extends Service<JFreeChart> implements Observable {
@@ -67,7 +76,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         }
     }
 
-    private JFreeChart getChartFor(String title, String xLabel, String yLabel, TimeSeriesCollection dataset) {
+    private JFreeChart getChartFor(String title, String xLabel, String yLabel, TimeSeriesCollection dataset, boolean doub) {
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
                 title,
                 xLabel,
@@ -77,7 +86,9 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 true,
                 false
         );
+        XYLineAndShapeRenderer renderer = new PercentileRenderer(dataset, 90, doub);
 
+        chart.getXYPlot().setRenderer(renderer);
         DateAxis dateAxis = (DateAxis)chart.getXYPlot().getDomainAxis();
 
         NumberAxis numAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
@@ -131,6 +142,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         String title = "";
         String val = "";
+        boolean doub=false;
         switch (metric) {
             case CPA:
                 TimeSeries cpa = new TimeSeries("CPA");
@@ -142,6 +154,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 title = "Cost per Acquisition";
                 val = "Cost /pence";
                 dataset.addSeries(cpa);
+                doub=true;
                 break;
             case CPC:
                 TimeSeries clickCost = new TimeSeries("CPC");
@@ -153,6 +166,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 title = "Cost per Click";
                 val = "Cost /pence";
                 dataset.addSeries(clickCost);
+                doub=true;
                 break;
             case CPM:
                 TimeSeries cpm = new TimeSeries("CPM");
@@ -164,6 +178,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 title = "Cost per 1000 Impressions";
                 val = "Cost /pence";
                 dataset.addSeries(cpm);
+                doub=true;
                 break;
             case CTR:
                 TimeSeries ctr = new TimeSeries("CTR");
@@ -175,6 +190,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 title = "Click-Through Rate";
                 val = "Click-Through Rate";
                 dataset.addSeries(ctr);
+                doub=true;
                 break;
             case TOTAL_COST:
                 TimeSeries totalCost = new TimeSeries("Total Cost");
@@ -182,6 +198,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 title = "Total Cost";
                 val = "Cost /pence";
                 dataset.addSeries(totalCost);
+                doub=true;
                 break;
             case BOUNCE_RATE:
                 TimeSeries bounceRate = new TimeSeries("Bounce Rate");
@@ -193,6 +210,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 title = "Bounce Rate";
                 val = "Bounce Rate";
                 dataset.addSeries(bounceRate);
+                doub=true;
                 break;
             case NUM_OF_CLICKS:
                 TimeSeries numOfClicks = new TimeSeries("Number Of Clicks");
@@ -231,7 +249,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 break;
         }
 
-        return getChartFor(title, "Date/Time", val, dataset);
+        return getChartFor(title, "Date/Time", val, dataset, doub);
     }
 
     @Override

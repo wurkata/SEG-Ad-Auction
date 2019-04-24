@@ -4,14 +4,56 @@
     -fx-bg-color: rgb(255, 255, 255);
     -fx-bg-color-left: rgb(224, 224, 224);
 
-    -fx-btn-bg: rgb(205, 220, 57);
-    -fx-btn-bg-new: rgb(0, 188, 212);
-    -fx-btn-inner-bg: rgb(0, 188, 212);
+    -fx-btn-color: rgb(205, 220, 57);
+    -fx-btn-color-new: rgb(0, 188, 212);
+    -fx-btn-inner-color: rgb(0, 188, 212);
 
     -fx-error: rgb(176,0,32);
+
+    -fx-light-text-color: rgb(242, 251, 255);
+    -fx-dark-text-color: rgb(38, 50, 56);
+    -fx-mid-text-color: rgb(20, 193, 179);
+
+}
+
+.root {
+    -fx-background-color: -fx-bg-color;
+    -fx-light-text-color: rgb(242, 251, 255);
+    -fx-mid-text-color: #616161;
+    -fx-dark-text-color: rgb(20, 193, 179);
+
+    -fx-text-fill: ladder(
+            -fx-background,
+            -fx-light-text-color 45%,
+            -fx-dark-text-color  46%,
+            -fx-dark-text-color  59%,
+            -fx-mid-text-color   60%
+    );
+}
+
+.header-holder {
+    -fx-background-color: -fx-btn-color;
+}
+
+.header-holder .label {
+    -fx-light-text-color: rgb(242, 251, 255);
+    -fx-mid-text-color: #616161;
+    -fx-dark-text-color: rgb(20, 193, 179);
+
+    -fx-text-fill: ladder(
+            -fx-background,
+            -fx-light-text-color 45%,
+            -fx-dark-text-color  46%,
+            -fx-dark-text-color  59%,
+            -fx-mid-text-color   60%
+    );
+
+    -fx-font-size: 1.4em;
 }
 
 .jfx-button {
+    -fx-background-color: -fx-btn-color;
+
     -fx-light-text-color: rgb(242, 251, 255);
     -fx-mid-text-color: rgb(38, 50, 56);
     -fx-dark-text-color: rgb(20, 193, 179);
@@ -23,4 +65,17 @@
             -fx-dark-text-color  59%,
             -fx-mid-text-color   60%
     );
+
+    -fx-border-radius: 5px;
+    -fx-cursor: HAND;
+}
+
+.inverted {
+    -fx-background-color: -fx-bg-color;
+
+    -fx-effect: dropshadow(three-pass-box, -fx-btn-color, 5, 0, 0, 0);
+}
+
+.important-input {
+    -fx-font-weight: bold;
 }

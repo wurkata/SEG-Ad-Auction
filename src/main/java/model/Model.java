@@ -99,11 +99,6 @@ public class Model extends Service<Void> implements Observable {
     public Model() {
         metrics = new Metrics();
         chartData = new ChartData();
-        try {
-            DBPool.createDataSource();
-        } catch (PropertyVetoException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

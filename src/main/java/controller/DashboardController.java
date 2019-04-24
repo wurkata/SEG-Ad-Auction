@@ -17,6 +17,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.Model;
 import model.Parser;
+import model.RawDataHolder;
 
 import javax.swing.*;
 import java.io.File;
@@ -59,7 +60,7 @@ public class DashboardController implements Initializable, Observer {
         model = new Model();
         model.addObserver(this);
 
-        parserService = new Parser(model);
+//        parserService = new Parser(new RawDataHolder());
 
         importImpressionLog.setOnMouseReleased(e -> {
             inputFile = importFile(FileType.IMPRESSION_LOG);

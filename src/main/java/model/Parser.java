@@ -23,21 +23,22 @@ public class Parser extends Service<Void> implements Observable {
 
     private File inputFile;
     private FileType fileType;
-    private Model model;
+    private RawDataHolder dataHolder = new RawDataHolder();
 
     public Parser(Model model, File imp, File click, File serv) {
-        this.model = model;
+//        this.model = model;
         try {
             readImpressionLog(imp);
             readClickLog(click);
             readServerLog(serv);
+            model.setRawDataHolder(dataHolder);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public Parser(Model model) {
-        this.model = model;
+    public Parser(RawDataHolder holder) {
+        this.dataHolder=holder;
     }
 
     public void setFile(File file, FileType fileType) {
@@ -55,7 +56,7 @@ public class Parser extends Service<Void> implements Observable {
                     .map(e -> e.split(","))
                     .forEach(s -> clickLog.add(new ClickLog(parseDate(s[0]), s[1], Double.parseDouble(s[2]))));
 
-            model.setClickLog(clickLog);
+            dataHolder.setClickLog(clickLog);
 
             return clickLog;
         } catch (Exception e) {
@@ -77,8 +78,8 @@ public class Parser extends Service<Void> implements Observable {
                         subjects.put(s[1], new SubjectLog(s[2], parseAge(s[3]), s[4]));
                     });
 
-            model.setImpressionLog(impressionLog);
-            model.setSubjects(subjects);
+            dataHolder.setImpressionLog(impressionLog);
+            dataHolder.setSubjects(subjects);
             return new Pair<>(impressionLog, subjects);
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,7 +103,7 @@ public class Parser extends Service<Void> implements Observable {
                         }
                     });
 
-            model.setServerLog(serverLog);
+            dataHolder.setServerLog(serverLog);
 
             return serverLog;
         } catch (Exception e) {

@@ -3,9 +3,10 @@ package common.Filters;
 import model.ClickLog;
 import model.ImpressionLog;
 import model.ServerLog;
-import model.SubjectLog;
+import model.User;
 
-import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by furqan on 12/03/2019.
@@ -13,25 +14,27 @@ import java.util.HashMap;
 public class GenderFilter extends AudienceFilter{
     private String gender = "";
 
-    public GenderFilter(String gender, HashMap<String,SubjectLog> subjects){
-        super(subjects);
+    public GenderFilter(String gender, List<User> users){
+        super(users);
         this.gender=gender;
     }
 
     @Override
     public boolean filter(ImpressionLog i) {
-        return subjects.get(i.getSubjectID()).getGender().equals(gender);
+        // return users.get(i.getSubjectID()).getGender().equals(gender);
+        return true;
     }
 
     @Override
     public boolean filter(ClickLog c) {
-        return subjects.get(c.getSubjectID()).getGender().equals(gender);
+        // return users.get(c.getSubjectID()).getGender().equals(gender);
+        return true;
 
     }
 
     @Override
     public boolean filter(ServerLog s) {
-        return subjects.get(s.getSubjectID()).getGender().equals(gender);
-
+        // return subjects.get(s.getSubjectID()).getGender().equals(gender);
+        return true;
     }
 }

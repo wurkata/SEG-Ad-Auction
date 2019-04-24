@@ -12,13 +12,15 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
+import model.DAO.DBPool;
+import model.DAO.UsersDAO;
 
+import java.beans.PropertyVetoException;
 import java.io.File;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.util.Date;
 import java.util.function.Function;
 
 /**
@@ -26,24 +28,25 @@ import java.util.function.Function;
  */
 
 public class Model extends Service<Void> implements Observable {
-    private Connection con;
-
     private DecimalFormat df = new DecimalFormat("#.####");
 
-    private List<ImpressionLog> impressionLog = new ArrayList<>();
-    private List<ClickLog> clickLog = new ArrayList<>();
-    private List<ServerLog> serverLog = new ArrayList<>();
+    private Connection con;
+    private int BATCH_SIZE = 1000;
+
+    List<ImpressionLog> impressionLog = new ArrayList<>();
+    List<ClickLog> clickLog = new ArrayList<>();
+    List<ServerLog> serverLog = new ArrayList<>();
 
     private List<ImpressionLog> rawImpressionLog;
     private List<ClickLog> rawClickLog;
     private List<ServerLog> rawServerLog;
 
     public Metrics metrics;
-    public ChartData chartData;
+    private ChartData chartData;
 
     private String campaignTitle;
 
-    private HashMap<String, SubjectLog> subjects;
+    private List<User> users = new ArrayList<>();
     private boolean impressionCost = true;
     private int bouncePages = 0;
     private long bounceTime = -1;
@@ -51,11 +54,11 @@ public class Model extends Service<Void> implements Observable {
     private Granularity granularity = Granularity.DAY;
     private ArrayList<FilterDate> dates = new ArrayList<>();
 
-    private HashMap<Integer, AgeFilter> ageFilters = new HashMap<Integer, AgeFilter>();
-    private HashMap<Integer, ContextFilter> contextFilters = new HashMap<Integer, ContextFilter>();
-    private HashMap<Integer, GenderFilter> genderFilters = new HashMap<Integer, GenderFilter>();
-    private HashMap<Integer, IncomeFilter> incomeFilters = new HashMap<Integer, IncomeFilter>();
-    private HashMap<Integer, DateFilter> dateFilters = new HashMap<Integer, DateFilter>();
+    private HashMap<Integer, AgeFilter> ageFilters = new HashMap<>();
+    private HashMap<Integer, ContextFilter> contextFilters = new HashMap<>();
+    private HashMap<Integer, GenderFilter> genderFilters = new HashMap<>();
+    private HashMap<Integer, IncomeFilter> incomeFilters = new HashMap<>();
+    private HashMap<Integer, DateFilter> dateFilters = new HashMap<>();
 
 
 //     public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
@@ -68,10 +71,10 @@ public class Model extends Service<Void> implements Observable {
 //     private boolean loadFile(File inputFile, FileType fileType) throws Exception{
 //         switch (fileType) {
 //             case IMPRESSION_LOG:
-//                 Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
+//                 Pair<ArrayList<ImpressionLog>, HashMap<String, User>> p = Parser.readImpressionLog(inputFile);
 //                 rawImpressionLog = p.getKey();
 //                 impressionLog.addAll(rawImpressionLog);
-//                 subjects = p.getValue();
+//                 users = p.getValue();
 //                 //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
 //                 return true;
 //             case CLICK_LOG:
@@ -89,20 +92,25 @@ public class Model extends Service<Void> implements Observable {
 //                 return false;
 
 
-    public HashMap<String, SubjectLog> getSubjects() {
-        return subjects;
+    public List<User> getUsers() {
+        return users;
     }
 
     public Model() {
         metrics = new Metrics();
         chartData = new ChartData();
+        try {
+            DBPool.createDataSource();
+        } catch (PropertyVetoException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected Task<Void> createTask() {
         return new Task<Void>() {
             @Override
-            protected Void call() throws Exception {
+            protected Void call() {
                 Platform.runLater(() -> {
             /*
             loadFile(fileImpressionLog, FileType.IMPRESSION_LOG);
@@ -133,9 +141,9 @@ public class Model extends Service<Void> implements Observable {
         try {
             switch (fileType) {
                 case IMPRESSION_LOG:
-                    Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
+                    Pair<ArrayList<ImpressionLog>, HashMap<String, User>> p = Parser.readImpressionLog(inputFile);
                     impressionLog = p.getKey();
-                    subjects = p.getValue();
+                    users = p.getValue();
                     //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
                     break;
                 case CLICK_LOG:
@@ -156,100 +164,180 @@ public class Model extends Service<Void> implements Observable {
     }
     */
 
-    public void setSubjects(HashMap<String, SubjectLog> subjects) {
-        this.subjects = subjects;
+    void setUsers(List<User> users) {
+        this.users.addAll(users);
     }
 
-    public void setImpressionLog(List<ImpressionLog> impressionLog) {
+    void setImpressionLog(List<ImpressionLog> impressionLog) {
         this.rawImpressionLog = impressionLog;
         this.impressionLog.addAll(rawImpressionLog);
         notifyObservers(FileType.IMPRESSION_LOG);
     }
 
-    public void setClickLog(List<ClickLog> clickLog) {
+    void setClickLog(List<ClickLog> clickLog) {
         this.rawClickLog = clickLog;
         this.clickLog.addAll(rawClickLog);
         notifyObservers(FileType.CLICK_LOG);
     }
 
-    public void setServerLog(List<ServerLog> serverLog) {
+    void setServerLog(List<ServerLog> serverLog) {
         this.rawServerLog = serverLog;
         this.serverLog.addAll(serverLog);
         notifyObservers(FileType.SERVER_LOG);
     }
+
     // ------ DATABASE -------------------------------------------------------------------------------------------------
-
-    public void connectToDatabase() {
+    private void setConnector() {
         try {
-            this.con = getConnector();
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            this.con = DriverManager.getConnection("jdbc:mysql://95.111.125.115:3306/seg", "remote-root", "758291Qq32@");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public Connection getConnector() {
+    Object entry;
+
+    void uploadData(FileType type) {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            if(con == null) setConnector();
+            con.setAutoCommit(false);
+            Statement stmt = con.createStatement();
 
-            Connection con = DriverManager.getConnection("jdbc:mysql://35.246.109.185:3306/ad_auction", "root", "seg-ad-auction");
-            return con;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void uploadData(FileType type) {
-        try {
-            Connection uploadCon = getConnector();
-            Statement stmt = uploadCon.createStatement();
-            String query;
-
-            // Insert table name
-            query = "INSERT INTO campaigns (CampaignTitle) " +
-                    "SELECT * FROM (SELECT \"" + this.campaignTitle + "\") AS tmp " +
-                    "WHERE NOT EXISTS (SELECT CampaignTitle FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\") LIMIT 1;";
+            // Insert table title; preserve uniqueness
+            String query = "INSERT IGNORE INTO campaigns (title) VALUES('"+ this.campaignTitle +"')";
             stmt.executeUpdate(query);
+
+            PreparedStatement pstmt;
+            int i;
 
             switch (type) {
                 case IMPRESSION_LOG:
-                    for (ImpressionLog il : this.impressionLog) {
-                        query = "INSERT INTO impression_log (CampaignID, Date, UserID, Gender, AgeID, Income, Context, ImpressionCost) VALUES(" +
-                                "(SELECT ID FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\"), \"" +
-                                il.getImpressionDate() + "\", \"" +
-                                il.getSubjectID() + "\",\"" +
-                                subjects.get(il.getSubjectID()).getGender() + "\"," +
-                                subjects.get(il.getSubjectID()).getAgeRange() + ",\"" +
-                                subjects.get(il.getSubjectID()).getIncome() + "\",\"" +
-                                il.getContext() + "\"," +
-                                il.getImpressionCost() + ");";
+                    pstmt = con.prepareStatement("INSERT INTO impression_log (campaign_id, user_id, date, context, cost) " +
+                        "VALUES (" +
+                            "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
+                            "(SELECT id FROM users WHERE user_id=? LIMIT 1), " +
+                            "?, ?, ?" +
+                        ")"
+                    );
+
+                    i = 0;
+
+                    for (ImpressionLog log : this.impressionLog) {
+                        pstmt.setString(1, this.campaignTitle);
+                        pstmt.setString(2, log.getSubjectID());
+                        pstmt.setString(3, log.getImpressionDate().toString());
+                        pstmt.setString(4, log.getContext());
+                        pstmt.setDouble(5, log.getImpressionCost());
+
+                        pstmt.addBatch();
+
+                        i++;
+
+                        if(i % BATCH_SIZE == 0) {
+                            pstmt.executeBatch();
+                            con.commit();
+                        }
+
+                        /*
+                        query = "INSERT INTO impression_log (campaign_id, user_id, date, context, cost) VALUES(" +
+                                "(SELECT id FROM campaigns WHERE title='" + this.campaignTitle + "'), " +
+                                "(SELECT id FROM users WHERE user_id='" + log.getSubjectID() + "'), " +
+                                "'" + log.getImpressionDate() + "'," +
+                                "'" + log.getContext() + "'," +
+                                log.getImpressionCost() + ");";
 
                         stmt.executeUpdate(query);
+                        */
                     }
+                    pstmt.executeBatch();
+                    con.commit();
                     break;
                 case CLICK_LOG:
-                    for (ClickLog cl : this.clickLog) {
-                        query = "INSERT INTO click_log (CampaignID, Date, UserID, ClickCost) VALUES(" +
-                                "(SELECT ID FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\"), \"" +
-                                cl.getClickDate() + "\", \"" +
-                                cl.getSubjectID() + "\"," +
-                                cl.getClickCost() + ");";
+                    pstmt = con.prepareStatement("INSERT INTO click_log(campaign_id, user_id, date, click_cost) " +
+                            "VALUES (" +
+                            "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
+                            "(SELECT id FROM users WHERE user_id=? LIMIT 1), " +
+                            "?, ?" +
+                            ")"
+                    );
+
+                    i = 0;
+
+                    for (ClickLog log : this.clickLog) {
+                        pstmt.setString(1, this.campaignTitle);
+                        pstmt.setString(2, log.getSubjectID());
+                        pstmt.setString(3, log.getClickDate().toString());
+                        pstmt.setDouble(4, log.getClickCost());
+
+                        pstmt.addBatch();
+
+                        i++;
+
+                        if(i % BATCH_SIZE == 0) {
+                            pstmt.executeBatch();
+                            con.commit();
+                        }
+
+                        /*
+                        query = "INSERT INTO click_log (campaign_id, user_id, date, click_cost) VALUES(" +
+                                "(SELECT id FROM campaigns WHERE title='" + this.campaignTitle + "'), " +
+                                "(SELECT id FROM users WHERE user_id='" + log.getSubjectID() + "'), " +
+                                "'" + log.getClickDate() + "', " +
+                                log.getClickCost() + ");";
 
                         stmt.executeUpdate(query);
+                        */
                     }
+                    pstmt.executeBatch();
+                    con.commit();
                     break;
                 case SERVER_LOG:
-                    for (ServerLog sl : this.serverLog) {
-                        query = "INSERT INTO server_log (CampaignID, EntryDate, UserID, ExitDate, NoPagesViewed, isConversion) VALUES(" +
-                                "(SELECT ID FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\"), \"" +
-                                sl.getEntryDate() + "\", \"" +
-                                sl.getSubjectID() + "\",\"" +
-                                sl.getExitDate() + "\"," +
-                                sl.getPagesViewed() + "," +
-                                sl.getConversion() + ");";
+                    pstmt = con.prepareStatement("INSERT INTO server_log (campaign_id, user_id, entry_date, exit_date, pages_viewed, conversion) " +
+                            "VALUES (" +
+                            "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
+                            "(SELECT id FROM users WHERE user_id=? LIMIT 1), " +
+                            "?, ?, ?, ?" +
+                            ")"
+                    );
+
+                    i = 0;
+
+                    for (ServerLog log : this.serverLog) {
+                        pstmt.setString(1, this.campaignTitle);
+                        pstmt.setString(2, log.getSubjectID());
+                        pstmt.setString(3, (entry = log.getEntryDate()) == null ? "null" : entry.toString());
+                        pstmt.setString(4, (entry = log.getExitDate()) == null ? "null" : entry.toString());
+                        pstmt.setInt(5, (int) (entry = log.getPagesViewed()) < 0 ? -1 : (int) entry);
+                        pstmt.setBoolean(6, log.getConversion() > 0);
+
+                        pstmt.addBatch();
+
+                        i++;
+
+
+                        System.out.println("Server: " + i);
+
+                        if(i % BATCH_SIZE == 0) {
+                            pstmt.executeBatch();
+                            con.commit();
+                        }
+
+                        /*
+                        query = "INSERT INTO server_log (campaign_id, user_id, entry_date, exit_date, pages_viewed, conversion) VALUES(" +
+                                "(SELECT id FROM campaigns WHERE title='" + this.campaignTitle + "'), " +
+                                "(SELECT id FROM users WHERE user_id='" + log.getSubjectID() + "'), " +
+                                "'" + log.getEntryDate() + "', " +
+                                "'" + log.getExitDate() + "'," +
+                                log.getPagesViewed() + "," +
+                                log.getConversion() + ");";
 
                         stmt.executeUpdate(query);
+                        */
                     }
+                    pstmt.executeBatch();
+                    con.commit();
                     break;
                 default:
                     break;
@@ -259,8 +347,30 @@ public class Model extends Service<Void> implements Observable {
         }
     }
 
+    private void addUsers() {
+        UsersDAO usersDAO = new UsersDAO(users);
+    }
+
     public void setCampaignTitle(String title) {
         this.campaignTitle = title;
+    }
+
+    public boolean checkValidTitle(String title) {
+        if (con == null) setConnector();
+        try {
+            Statement stmt = con.createStatement();
+            String query = "SELECT id FROM campaigns WHERE title='" + title + "';";
+
+            ResultSet result = stmt.executeQuery(query);
+
+            if(!result.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     //True sets class to calculate costs based om impression costs, whereas false uses click costs
@@ -448,9 +558,7 @@ public class Model extends Service<Void> implements Observable {
     }
 
     public List<Pair<Date, Long>> getNumOfBouncesPair() {
-        return getLongMetric(d ->
-                        getNumOfBounces(d)
-                );
+        return getLongMetric(this::getNumOfBounces);
     }
 
     // Get bounce rate

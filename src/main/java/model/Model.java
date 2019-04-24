@@ -34,16 +34,18 @@ public class Model extends Service<Void> implements Observable {
     private List<ClickLog> clickLog = new ArrayList<>();
     private List<ServerLog> serverLog = new ArrayList<>();
 
-    private List<ImpressionLog> rawImpressionLog;
-    private List<ClickLog> rawClickLog;
-    private List<ServerLog> rawServerLog;
+//    private List<ImpressionLog> rawImpressionLog;
+//    private List<ClickLog> rawClickLog;
+//    private List<ServerLog> rawServerLog;
+    private RawDataHolder rawDataHolder;
+
 
     public Metrics metrics;
     public ChartData chartData;
 
     private String campaignTitle;
 
-    private HashMap<String, SubjectLog> subjects;
+//    private HashMap<String, SubjectLog> subjects;
     private boolean impressionCost = true;
     private int bouncePages = 0;
     private long bounceTime = -1;
@@ -89,8 +91,16 @@ public class Model extends Service<Void> implements Observable {
 //                 return false;
 
 
+    public void setRawDataHolder(RawDataHolder rawDataHolder) {
+        this.rawDataHolder = rawDataHolder;
+        impressionLog.addAll(rawDataHolder.getImpressionLog());
+        clickLog.addAll(rawDataHolder.getClickLog());
+        serverLog.addAll(rawDataHolder.getServerLog());
+        notifyObservers();
+    }
+
     public HashMap<String, SubjectLog> getSubjects() {
-        return subjects;
+        return rawDataHolder.getSubjects();
     }
 
     public Model() {
@@ -128,55 +138,35 @@ public class Model extends Service<Void> implements Observable {
         chartData = new ChartData();
     }
 
-    /*
-    private void loadFile(File inputFile, FileType fileType) {
-        try {
-            switch (fileType) {
-                case IMPRESSION_LOG:
-                    Pair<ArrayList<ImpressionLog>, HashMap<String, SubjectLog>> p = Parser.readImpressionLog(inputFile);
-                    impressionLog = p.getKey();
-                    subjects = p.getValue();
-                    //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
-                    break;
-                case CLICK_LOG:
-                    this.clickLog = Parser.readClickLog(inputFile);
-                    //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
-                    break;
-                case SERVER_LOG:
-                    this.serverLog = Parser.readServerLog(inputFile);
-                    //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
-                    break;
-                default:
-                    System.out.println("Wrong file type!");
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    */
+    public Model(RawDataHolder dataHolder){
+        this.rawDataHolder=dataHolder;
+        metrics=new Metrics();
+        chartData = new ChartData();
 
-    public void setSubjects(HashMap<String, SubjectLog> subjects) {
-        this.subjects = subjects;
     }
 
-    public void setImpressionLog(List<ImpressionLog> impressionLog) {
-        this.rawImpressionLog = impressionLog;
-        this.impressionLog.addAll(rawImpressionLog);
-        notifyObservers(FileType.IMPRESSION_LOG);
-    }
 
-    public void setClickLog(List<ClickLog> clickLog) {
-        this.rawClickLog = clickLog;
-        this.clickLog.addAll(rawClickLog);
-        notifyObservers(FileType.CLICK_LOG);
-    }
+//    public void setSubjects(HashMap<String, SubjectLog> subjects) {
+//        this.subjects = subjects;
+//    }
 
-    public void setServerLog(List<ServerLog> serverLog) {
-        this.rawServerLog = serverLog;
-        this.serverLog.addAll(serverLog);
-        notifyObservers(FileType.SERVER_LOG);
-    }
+//    public void setImpressionLog(List<ImpressionLog> impressionLog) {
+//        this.rawImpressionLog = impressionLog;
+//        this.impressionLog.addAll(rawImpressionLog);
+//        notifyObservers(FileType.IMPRESSION_LOG);
+//    }
+//
+//    public void setClickLog(List<ClickLog> clickLog) {
+//        this.rawClickLog = clickLog;
+//        this.clickLog.addAll(rawClickLog);
+//        notifyObservers(FileType.CLICK_LOG);
+//    }
+//
+//    public void setServerLog(List<ServerLog> serverLog) {
+//        this.rawServerLog = serverLog;
+//        this.serverLog.addAll(serverLog);
+//        notifyObservers(FileType.SERVER_LOG);
+//    }
     // ------ DATABASE -------------------------------------------------------------------------------------------------
 
     public void connectToDatabase() {
@@ -218,9 +208,9 @@ public class Model extends Service<Void> implements Observable {
                                 "(SELECT ID FROM campaigns WHERE CampaignTitle=\"" + this.campaignTitle + "\"), \"" +
                                 il.getImpressionDate() + "\", \"" +
                                 il.getSubjectID() + "\",\"" +
-                                subjects.get(il.getSubjectID()).getGender() + "\"," +
-                                subjects.get(il.getSubjectID()).getAgeRange() + ",\"" +
-                                subjects.get(il.getSubjectID()).getIncome() + "\",\"" +
+                                rawDataHolder.getSubjects().get(il.getSubjectID()).getGender() + "\"," +
+                                rawDataHolder.getSubjects().get(il.getSubjectID()).getAgeRange() + ",\"" +
+                                rawDataHolder.getSubjects().get(il.getSubjectID()).getIncome() + "\",\"" +
                                 il.getContext() + "\"," +
                                 il.getImpressionCost() + ");";
 
@@ -820,17 +810,17 @@ public class Model extends Service<Void> implements Observable {
 
     private void filterData() {
         impressionLog.clear();
-        rawImpressionLog.stream()
+        rawDataHolder.getImpressionLog().stream()
                 .filter(il -> matchesFilter(il))
                 .forEach(il -> impressionLog.add(il));
 
         clickLog.clear();
-        rawClickLog.stream()
+        rawDataHolder.getClickLog().stream()
                 .filter(cl -> matchesFilter(cl))
                 .forEach(cl -> clickLog.add(cl));
 
         serverLog.clear();
-        rawServerLog.stream()
+        rawDataHolder.getServerLog().stream()
                 .filter(sl -> matchesFilter(sl))
                 .forEach(sl -> serverLog.add(sl));
 

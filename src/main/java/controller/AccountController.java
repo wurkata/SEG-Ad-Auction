@@ -56,7 +56,7 @@ public class AccountController implements Initializable {
 
         usernameField.textProperty().addListener(((observable, oldValue, newValue) -> {
             CheckAccount checkAccount = new CheckAccount();
-            checkAccount.setOnSucceeded( -> {
+            checkAccount.setOnSucceeded(e -> {
                 boolean res = checkAccount.getValue();
 
                 signBtn.setDisable(!res);

@@ -4,11 +4,19 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.stage.Stage;
 import model.DBTasks.CheckAccount;
+import model.DBTasks.Insert;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class AccountController implements Initializable {
@@ -25,6 +33,12 @@ public class AccountController implements Initializable {
     JFXButton goToBtn;
 
     @FXML
+    Label feedbackMsg;
+
+    @FXML
+    ProgressIndicator signProgress;
+
+    @FXML
     Label STATE;
 
     private String _STATE;
@@ -33,57 +47,113 @@ public class AccountController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        _STATE = STATE.textProperty().toString();
+        signProgress.setVisible(false);
+
+        _STATE = STATE.textProperty().getValue();
         isValidInputUser = false;
         isValidInputPwd = false;
 
-        signBtn.setOnMouseReleased(e -> {
-            switch (_STATE) {
-                case "Login":
-                    CheckAccount checkAccount = new CheckAccount();
-                    checkAccount.setUser(usernameField.textProperty().toString());
-                    checkAccount.setPassword(passwordField.textProperty().toString());
-                    new Thread(checkAccount).start();
-                    break;
-                case "Register":
-                    // TODO: Load register.fxml;
-                    break;
-                default:
-                    System.err.println("Got lost in the Space-Time Continuum.");
-                    break;
-            }
-        });
+        feedbackMsg.textProperty().setValue("");
 
         usernameField.textProperty().addListener(((observable, oldValue, newValue) -> {
-            CheckAccount checkAccount = new CheckAccount();
-            checkAccount.setOnSucceeded(e -> {
-                boolean res = checkAccount.getValue();
-
-                signBtn.setDisable(!res);
-                isValidInputUser = res;
-
-                if(res && isValidInputPwd) signBtn.setDisable(false);
-            });
-
-            if(newValue.length() > 2) {
-                checkAccount.setUser(newValue);
-            } else {
-                isValidInputUser = false;
-                signBtn.setDisable(true);
-            }
-
-            new Thread(checkAccount).start();
+            isValidInputUser = newValue.length() > 2;
+            signBtn.setDisable(!(isValidInputUser && isValidInputPwd));
         }));
 
         passwordField.textProperty().addListener(((observable, oldValue, newValue) -> {
-            if(newValue.length() > 2) {
-                isValidInputPwd = true;
-
-                if(isValidInputUser) signBtn.setDisable(false);
-            } else {
-                isValidInputPwd = false;
-                signBtn.setDisable(true);
-            }
+            isValidInputPwd = newValue.length() > 2;
+            signBtn.setDisable(!(isValidInputUser && isValidInputPwd));
         }));
+
+        signBtn.setOnMouseReleased(e -> {
+            signProgress.setVisible(true);
+            signBtn.setDisable(true);
+
+            if (_STATE.equals("Login")) {
+                CheckAccount checkAccount = new CheckAccount();
+                checkAccount.setOnSucceeded(a -> {
+                    boolean res = checkAccount.getValue();
+
+                    if (res) {
+                        signProgress.setVisible(false);
+
+                        feedbackMsg.textProperty().setValue("Login successful. Taking you to Dashboard...");
+
+                        try {
+                            Thread.sleep(1000);
+                            goTo("dashboard");
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    } else {
+                        feedbackMsg.textProperty().setValue("Wrong username or password.");
+                        signProgress.setVisible(false);
+                        signBtn.setDisable(false);
+                    }
+                });
+                checkAccount.setUser(usernameField.textProperty().getValue());
+                checkAccount.setPassword(passwordField.textProperty().getValue());
+                new Thread(checkAccount).start();
+            } else if (_STATE.equals("Register")) {
+                Map<String, String> params = new HashMap<>();
+                params.put("username", usernameField.textProperty().getValue());
+                params.put("password", passwordField.textProperty().getValue());
+
+                Insert insertTask = new Insert();
+                insertTask.setACTION("ACCOUNT");
+                insertTask.setParams(params);
+
+                insertTask.setOnSucceeded(a -> {
+                    boolean res = insertTask.getValue();
+
+                    if (res) {
+                        signProgress.setVisible(false);
+
+                        feedbackMsg.textProperty().setValue("Successfully registered. Taking you to Login...");
+
+                        try {
+                            Thread.sleep(1000);
+                            goTo("login");
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    } else {
+                        feedbackMsg.textProperty().setValue("Username is taken.");
+                        // feedbackMsg.textProperty().setValue("Error in Database. Contact System Administrator!");
+                        signProgress.setVisible(false);
+                        signBtn.setDisable(false);
+                    }
+                });
+
+                insertTask.setOnFailed(a -> {
+                    feedbackMsg.textProperty().setValue("Error in Database. Contact System Administrator!");
+                    signProgress.setVisible(false);
+                    signBtn.setDisable(false);
+                });
+
+                new Thread(insertTask).start();
+            }
+        });
+
+        goToBtn.setOnMouseReleased(e -> {
+            try {
+                if (_STATE.equals("Login"))
+                    goTo("register");
+                else
+                    goTo("login");
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+    }
+
+    private void goTo(String scene) throws IOException {
+        Scene campaignsScene = new Scene(new FXMLLoader(getClass().getResource("/fxml/" + scene + ".fxml")).load());
+
+        Stage window = (Stage) goToBtn.getScene().getWindow();
+
+        window.setScene(campaignsScene);
+        window.setResizable(false);
+        window.show();
     }
 }

@@ -29,7 +29,14 @@ public class CheckAccount extends Task<Boolean> {
 
         try {
             Statement stmt = con.createStatement();
-            String query = "SELECT * FROM accounts WHERE username='" + user + "';";
+            String query;
+
+            if (pwd != null) {
+                query = "SELECT * FROM clients WHERE username='" + user + "' AND password='" + pwd + "';";
+                pwd = null;
+            } else {
+                query = "SELECT * FROM clients WHERE username='" + user + "';";
+            }
 
             ResultSet result = stmt.executeQuery(query);
 

@@ -12,10 +12,8 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
-import model.DAO.DBPool;
 import model.DAO.UsersDAO;
 
-import java.beans.PropertyVetoException;
 import java.io.File;
 import java.sql.*;
 import java.text.DecimalFormat;
@@ -27,15 +25,15 @@ import java.util.function.Function;
  * Created by furqan on 27/02/2019.
  */
 
-public class Model extends Service<Void> implements Observable {
+public class Model extends Task<Void> implements Observable {
     private DecimalFormat df = new DecimalFormat("#.####");
 
     private Connection con;
     private int BATCH_SIZE = 1000;
 
-    List<ImpressionLog> impressionLog = new ArrayList<>();
-    List<ClickLog> clickLog = new ArrayList<>();
-    List<ServerLog> serverLog = new ArrayList<>();
+    private List<ImpressionLog> impressionLog = new ArrayList<>();
+    private List<ClickLog> clickLog = new ArrayList<>();
+    private List<ServerLog> serverLog = new ArrayList<>();
 
     private List<ImpressionLog> rawImpressionLog;
     private List<ClickLog> rawClickLog;
@@ -60,40 +58,9 @@ public class Model extends Service<Void> implements Observable {
     private HashMap<Integer, IncomeFilter> incomeFilters = new HashMap<>();
     private HashMap<Integer, DateFilter> dateFilters = new HashMap<>();
 
-
-//     public Model(File impressionLog, File clickLog, File serverLog) throws Exception{
-//         loadFile(impressionLog, FileType.IMPRESSION_LOG);
-//         loadFile(clickLog, FileType.CLICK_LOG);
-//         loadFile(serverLog, FileType.SERVER_LOG);
-//         getDates();
-//     }
-
-//     private boolean loadFile(File inputFile, FileType fileType) throws Exception{
-//         switch (fileType) {
-//             case IMPRESSION_LOG:
-//                 Pair<ArrayList<ImpressionLog>, HashMap<String, User>> p = Parser.readImpressionLog(inputFile);
-//                 rawImpressionLog = p.getKey();
-//                 impressionLog.addAll(rawImpressionLog);
-//                 users = p.getValue();
-//                 //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
-//                 return true;
-//             case CLICK_LOG:
-//                 rawClickLog = Parser.readClickLog(inputFile);
-//                 clickLog.addAll(rawClickLog);
-//                 //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
-//                 return true;
-//             case SERVER_LOG:
-//                 rawServerLog = Parser.readServerLog(inputFile);
-//                 serverLog.addAll(rawServerLog);
-//                 //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
-//                 return true;
-//             default:
-//                 System.out.println("Wrong file type!");
-//                 return false;
-
-
-    public List<User> getUsers() {
-        return users;
+    public Model(File fileImpressionLog, File fileClickLog, File fileServerLog) {
+        metrics = new Metrics();
+        chartData = new ChartData();
     }
 
     public Model() {
@@ -102,62 +69,20 @@ public class Model extends Service<Void> implements Observable {
     }
 
     @Override
-    protected Task<Void> createTask() {
-        return new Task<Void>() {
-            @Override
-            protected Void call() {
-                Platform.runLater(() -> {
-            /*
-            loadFile(fileImpressionLog, FileType.IMPRESSION_LOG);
-            loadFile(fileClickLog, FileType.CLICK_LOG);
-            loadFile(fileServerLog, FileType.SERVER_LOG);
-            */
+    protected Void call() {
+        getDates();
+        setMetrics();
+        return null;
+    }
 
-                    getDates();
-                    setMetrics();
-                });
-                return null;
-            }
-        };
+    public List<User> getUsers() {
+        return users;
     }
 
     @Override
     protected void succeeded() {
         notifyObservers("files");
     }
-
-    public Model(File fileImpressionLog, File fileClickLog, File fileServerLog) {
-        metrics = new Metrics();
-        chartData = new ChartData();
-    }
-
-    /*
-    private void loadFile(File inputFile, FileType fileType) {
-        try {
-            switch (fileType) {
-                case IMPRESSION_LOG:
-                    Pair<ArrayList<ImpressionLog>, HashMap<String, User>> p = Parser.readImpressionLog(inputFile);
-                    impressionLog = p.getKey();
-                    users = p.getValue();
-                    //impressionLog.sort(Comparator.comparing(ImpressionLog::getImpressionDate));
-                    break;
-                case CLICK_LOG:
-                    this.clickLog = Parser.readClickLog(inputFile);
-                    //clickLog.sort(Comparator.comparing(ClickLog::getClickDate));
-                    break;
-                case SERVER_LOG:
-                    this.serverLog = Parser.readServerLog(inputFile);
-                    //serverLog.sort(Comparator.comparing(ServerLog::getEntryDate));
-                    break;
-                default:
-                    System.out.println("Wrong file type!");
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    */
 
     void setUsers(List<User> users) {
         this.users.addAll(users);

@@ -9,9 +9,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class getCampaigns extends Task<List<String>> {
+public class getCampaignsForClient extends Task<List<String>> {
 
     Connection con;
+    private String client;
+
+    public getCampaignsForClient(String client) {
+        this.client= client;
+    }
 
     @Override
     protected List<String> call() throws Exception {
@@ -21,7 +26,8 @@ public class getCampaigns extends Task<List<String>> {
         ResultSet resultSet;
         List<String> res = new ArrayList<>();
 
-        resultSet = stmt.executeQuery("SELECT title FROM campaigns");
+        resultSet = stmt.executeQuery("SELECT title FROM campaigns WHERE client_id=" +
+                "(SELECT id FROM clients WHERE username='" + client + "' LIMIT 1)");
 
         while (resultSet.next()) {
             res.add(resultSet.getString("title"));

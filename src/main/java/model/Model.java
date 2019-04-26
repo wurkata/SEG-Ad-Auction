@@ -6,9 +6,7 @@ import common.Granularity;
 import common.Metric;
 import common.Observable;
 import common.Observer;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
@@ -30,6 +28,7 @@ public class Model extends Task<Void> implements Observable {
 
     private Connection con;
     private int BATCH_SIZE = 1000;
+    private String client;
 
     private List<ImpressionLog> impressionLog = new ArrayList<>();
     private List<ClickLog> clickLog = new ArrayList<>();
@@ -104,6 +103,14 @@ public class Model extends Task<Void> implements Observable {
         this.rawServerLog = serverLog;
         this.serverLog.addAll(serverLog);
         notifyObservers(FileType.SERVER_LOG);
+    }
+
+    public void setClient(String client) {
+        this.client = client;
+    }
+
+    public String getClient() {
+        return client;
     }
 
     // ------ DATABASE -------------------------------------------------------------------------------------------------

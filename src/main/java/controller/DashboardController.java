@@ -20,7 +20,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.DBTasks.CheckTitle;
-import model.DBTasks.getCampaigns;
+import model.DBTasks.getCampaignsForClient;
 import model.Model;
 import model.Parser;
 
@@ -66,9 +66,12 @@ public class DashboardController implements Initializable, Observer {
 
     private File inputFile;
 
+    public DashboardController(Model model) {
+        this.model = model;
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        model = new Model();
         model.addObserver(this);
 
         getCampaigns();
@@ -77,7 +80,7 @@ public class DashboardController implements Initializable, Observer {
         importClickLog.setDisable(true);
         importServerLog.setDisable(true);
 
-
+        createCampaignBtn.setOnMouseReleased(e -> createCampaign(e));
 
         campaignTitle.textProperty().addListener(((observable, oldValue, newValue) -> {
             if (newValue.length() > 2) {
@@ -254,7 +257,7 @@ public class DashboardController implements Initializable, Observer {
     }
 
     private void getCampaigns() {
-        getCampaigns getCampaignsTask = new getCampaigns();
+        getCampaignsForClient getCampaignsTask = new getCampaignsForClient(model.getClient());
         getCampaignsTask.setOnSucceeded(e -> {
             ObservableList<String> campaigns = FXCollections.observableArrayList(getCampaignsTask.getValue());
 

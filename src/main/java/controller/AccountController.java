@@ -6,12 +6,14 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
 import model.DBTasks.CheckAccount;
 import model.DBTasks.Insert;
+import model.Model;
 
 import java.io.IOException;
 import java.net.URL;
@@ -41,12 +43,15 @@ public class AccountController implements Initializable {
     @FXML
     Label STATE;
 
+    private Model model;
     private String _STATE;
     private boolean isValidInputPwd;
     private boolean isValidInputUser;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        model = new Model();
+
         signProgress.setVisible(false);
 
         _STATE = STATE.textProperty().getValue();
@@ -76,8 +81,8 @@ public class AccountController implements Initializable {
 
                     if (res) {
                         signProgress.setVisible(false);
-
                         feedbackMsg.textProperty().setValue("Login successful. Taking you to Dashboard...");
+                        model.setClient(usernameField.textProperty().getValue());
 
                         try {
                             Thread.sleep(1000);
@@ -148,7 +153,13 @@ public class AccountController implements Initializable {
     }
 
     private void goTo(String scene) throws IOException {
-        Scene campaignsScene = new Scene(new FXMLLoader(getClass().getResource("/fxml/" + scene + ".fxml")).load());
+        DashboardController controller = new DashboardController(model);
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/" + scene + ".fxml"));
+        loader.setController(controller);
+        Parent root = loader.load();
+
+        Scene campaignsScene = new Scene(root);
 
         Stage window = (Stage) goToBtn.getScene().getWindow();
 

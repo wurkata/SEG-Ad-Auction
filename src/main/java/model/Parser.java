@@ -3,7 +3,6 @@ package model;
 import common.FileType;
 import common.Observable;
 import common.Observer;
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import model.DAO.UsersDAO;
 
@@ -18,7 +17,7 @@ import java.util.stream.Stream;
 /**
  * Created by furqan on 26/02/2019.
  */
-public class Parser extends Service<Void> implements Observable {
+public class Parser extends Task<Boolean> implements Observable {
 
     private File inputFile;
     private FileType fileType;
@@ -43,69 +42,6 @@ public class Parser extends Service<Void> implements Observable {
         this.inputFile = file;
         this.fileType = fileType;
     }
-
-    /*
-    private void readClickLog(File file) throws Exception {
-        ArrayList<ClickLog> clickLog = new ArrayList<>();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-
-            Stream<String> lines = reader.lines();
-            lines.skip(1)
-                    .map(e -> e.split(","))
-                    .forEach(s -> clickLog.add(new ClickLog(parseDate(s[0]), s[1], Double.parseDouble(s[2]))));
-
-            model.setClickLog(clickLog);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("Error reading click log: \nPlease check the file is in the correct format and try again.");
-        }
-    }
-
-    private void readImpressionLog(File file) throws Exception {
-        ArrayList<ImpressionLog> impressionLog = new ArrayList<>();
-        HashMap<String, User> subjects = new HashMap<>();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            reader.lines()
-                    .skip(1)
-                    .map(e -> e.split(","))
-                    .forEach(s -> {
-                        impressionLog.add(new ImpressionLog(parseDate(s[0]), s[1], s[5], Double.parseDouble(s[6])));
-                        subjects.put(s[1], new User(s[2], parseAge(s[3]), s[4]));
-                    });
-
-            model.setImpressionLog(impressionLog);
-            model.setUsers(subjects);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("Error reading impression log: \nPlease check the file is in the correct format and try again.");
-        }
-    }
-
-    private void readServerLog(File file) throws Exception {
-        ArrayList<ServerLog> serverLog = new ArrayList<>();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-
-            Stream<String> lines = reader.lines();
-            lines.skip(1)
-                    .map(e -> e.split(","))
-                    .forEach(s -> {
-                        if (s[2].equals("n/a")) {
-                            serverLog.add(new ServerLog(parseDate(s[0]), s[1], Integer.parseInt(s[3]), parseBool(s[4])));
-                        } else {
-                            serverLog.add(new ServerLog(parseDate(s[0]), s[1], parseDate(s[2]), Integer.parseInt(s[3]), parseBool(s[4])));
-                        }
-                    });
-
-            model.setServerLog(serverLog);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("Error reading server log: \nPlease check the file is in the correct format and try again.");
-        }
-    }
-    */
 
     private void readClickLog(File file) throws Exception {
         ArrayList<ClickLog> clickLog = new ArrayList<>();
@@ -225,21 +161,12 @@ public class Parser extends Service<Void> implements Observable {
     */
 
     @Override
-    protected Task<Void> createTask() {
-        return new Task<Void>() {
-            @Override
-            protected Void call() {
-                try {
-                    if (fileType == FileType.IMPRESSION_LOG) readImpressionLog(inputFile);
-                    if (fileType == FileType.CLICK_LOG) readClickLog(inputFile);
-                    if (fileType == FileType.SERVER_LOG) readServerLog(inputFile);
-                } catch (Exception e) {
-                    notifyObservers(e);
-                }
+    protected Boolean call() throws Exception {
+        if (fileType == FileType.IMPRESSION_LOG) readImpressionLog(inputFile);
+        if (fileType == FileType.CLICK_LOG) readClickLog(inputFile);
+        if (fileType == FileType.SERVER_LOG) readServerLog(inputFile);
 
-                return null;
-            }
-        };
+        return true;
     }
 
     @Override

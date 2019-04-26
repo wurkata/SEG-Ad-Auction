@@ -2,7 +2,7 @@
 
 .titled-pane > .title {
     -fx-pref-height: 60.0;
-    -fx-background-color: -fx-btn-bg-new;
+    -fx-background-color: -fx-btn-color-new;
     -fx-font-size: 1.2em;
 }
 
@@ -20,7 +20,7 @@
     -fx-pref-height: 25;
     -fx-padding: 15 5;
     -fx-cursor: HAND;
-    -fx-background-color: -fx-btn-bg-new;
+    -fx-background-color: -fx-btn-color-new;
     -fx-font-size: 1.2em;
 }
 
@@ -34,7 +34,7 @@
     -jfx-button-type: RAISED;
     -fx-pref-height: 60;
     -fx-cursor: HAND;
-    -fx-background-color: -fx-btn-bg;
+    -fx-background-color: -fx-btn-color;
     -fx-alignment: baseline-left;
     -fx-padding: 0 0 0 25;
     -fx-font-size: 1.2em;

@@ -174,7 +174,7 @@ public class CampaignController implements Initializable, Observer {
         chartProgress.toFront();
         chartProgress.setVisible(false);
 
-        model.restart();
+        new Thread(model).start();
 
         printBtn.setOnAction(a -> SwingUtilities.invokeLater(() -> {
                     PrinterJob job = PrinterJob.getPrinterJob();

@@ -5,6 +5,8 @@ import com.jfoenix.controls.JFXTextField;
 import common.FileType;
 import common.Observer;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -13,10 +15,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.DBTasks.CheckTitle;
+import model.DBTasks.getCampaigns;
 import model.Model;
 import model.Parser;
 
@@ -52,12 +56,14 @@ public class DashboardController implements Initializable, Observer {
     @FXML
     private ProgressIndicator servProgress;
 
+    @FXML
+    private ListView<String> campaignsList;
+
     private Model model;
     private boolean impressionLogLoaded = false;
     private boolean clickLogLoaded = false;
     private boolean serverLogLoaded = false;
 
-    private Parser parserService;
     private File inputFile;
 
     @Override
@@ -65,17 +71,19 @@ public class DashboardController implements Initializable, Observer {
         model = new Model();
         model.addObserver(this);
 
-        parserService = new Parser(model);
+        getCampaigns();
 
         importImpressionLog.setDisable(true);
         importClickLog.setDisable(true);
         importServerLog.setDisable(true);
 
+
+
         campaignTitle.textProperty().addListener(((observable, oldValue, newValue) -> {
-            if(newValue.length() > 2) {
+            if (newValue.length() > 2) {
                 CheckTitle checkTitle = new CheckTitle(newValue);
                 checkTitle.setOnSucceeded(e -> {
-                    if(checkTitle.getValue()) {
+                    if (checkTitle.getValue()) {
                         importImpressionLog.setDisable(false);
                         importClickLog.setDisable(false);
                         importServerLog.setDisable(false);
@@ -96,53 +104,50 @@ public class DashboardController implements Initializable, Observer {
         }));
 
         importImpressionLog.setOnMouseReleased(e -> {
+            Parser parser = new Parser(model);
             inputFile = importFile(FileType.IMPRESSION_LOG);
             if (inputFile != null) {
-                parserService.setFile(inputFile, FileType.IMPRESSION_LOG);
+                parser.setFile(inputFile, FileType.IMPRESSION_LOG);
                 impProgress.setVisible(true);
                 importImpressionLog.setVisible(false);
-                parserService.restart();
+                new Thread(parser).start();
             }
         });
 
         importClickLog.setOnMouseReleased(e -> {
+            Parser parser = new Parser(model);
             inputFile = importFile(FileType.CLICK_LOG);
             if (inputFile != null) {
-                parserService.setFile(inputFile, FileType.CLICK_LOG);
+                parser.setFile(inputFile, FileType.CLICK_LOG);
                 clickProgress.setVisible(true);
                 importClickLog.setVisible(false);
-                parserService.restart();
+                new Thread(parser).start();
             }
         });
 
         importServerLog.setOnMouseReleased(e -> {
+            Parser parser = new Parser(model);
             inputFile = importFile(FileType.SERVER_LOG);
             if (inputFile != null) {
-                parserService.setFile(inputFile, FileType.SERVER_LOG);
+                parser.setFile(inputFile, FileType.SERVER_LOG);
                 servProgress.setVisible(true);
                 importServerLog.setVisible(false);
-                parserService.restart();
+                new Thread(parser).start();
             }
         });
 
         addTestCampaign.setOnMouseReleased(e -> {
-            Platform.runLater(() ->
-                    parserService = new Parser(
-                            model,
-                            new File("input/impression_log.csv"),
-                            new File("input/click_log.csv"),
-                            new File("input/server_log.csv"
-                            ))
-            );
-            // Platform.runLater(new Parser(model, new File("input/impression_log.csv"), FileType.IMPRESSION_LOG));
-            // Platform.runLater(new Parser(model, new File("input/click_log.csv"), FileType.CLICK_LOG));
-            // Platform.runLater(new Parser(model, new File("input/server_log.csv"), FileType.SERVER_LOG));
-
-            try {
-                createCampaign(e);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            Parser parser = new Parser(
+                model,
+                new File("input/impression_log_small.csv"),
+                new File("input/click_log_small.csv"),
+                new File("input/server_log_small.csv"
+            ));
+            parser.setOnSucceeded(a -> {
+                if (parser.getValue()) {
+                    createCampaign(a);
+                }
+            });
         });
     }
 
@@ -153,22 +158,26 @@ public class DashboardController implements Initializable, Observer {
     }
 
     @FXML
-    private void createCampaign(Event event) throws Exception {
-        model.setCampaignTitle(campaignTitle.textProperty().getValue());
-        CampaignController controller = new CampaignController(model);
+    private void createCampaign(Event event) {
+        try {
+            model.setCampaignTitle(campaignTitle.textProperty().getValue());
+            CampaignController controller = new CampaignController(model);
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
-        loader.setController(controller);
-        Parent root = loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
+            loader.setController(controller);
+            Parent root = loader.load();
 
-        Scene campaignsScene = new Scene(root);
-        campaignsScene.getStylesheets().add(getClass().getResource("/css/campaign_scene.css").toExternalForm());
+            Scene campaignsScene = new Scene(root);
+            campaignsScene.getStylesheets().add(getClass().getResource("/css/campaign_scene.css").toExternalForm());
 
-        Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-        window.setScene(campaignsScene);
-        window.setResizable(false);
-        window.show();
+            window.setScene(campaignsScene);
+            window.setResizable(false);
+            window.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -206,7 +215,7 @@ public class DashboardController implements Initializable, Observer {
                 serverLogLoaded = true;
             });
         }
-        if(arg instanceof Exception){
+        if (arg instanceof Exception) {
 //            Alert err = new Alert(Alert.AlertType.ERROR);
 //            err.setTitle("File Import Error");
 //            err.setHeaderText(null);
@@ -214,19 +223,19 @@ public class DashboardController implements Initializable, Observer {
 //            err.showAndWait();
             String m = ((Exception) arg).getMessage();
             JOptionPane.showMessageDialog(new JFXPanel(), m, "File Import Error", JOptionPane.ERROR_MESSAGE);
-            if(m.contains("impression")){
+            if (m.contains("impression")) {
                 importImpressionLog.setVisible(true);
                 impProgress.setVisible(false);
                 importImpressionLog.setText("Import");
                 importImpressionLog.setStyle("-fx-background-color: #5ffab4");
                 impressionLogLoaded = false;
-            }else if(m.contains("click")){
+            } else if (m.contains("click")) {
                 importClickLog.setVisible(true);
                 clickProgress.setVisible(false);
                 importClickLog.setText("Import");
                 importClickLog.setStyle("-fx-background-color: #5ffab4");
                 clickLogLoaded = false;
-            }else if(m.contains("server")){
+            } else if (m.contains("server")) {
                 importServerLog.setVisible(true);
                 servProgress.setVisible(false);
                 importServerLog.setText("Import");
@@ -245,6 +254,13 @@ public class DashboardController implements Initializable, Observer {
     }
 
     private void getCampaigns() {
+        getCampaigns getCampaignsTask = new getCampaigns();
+        getCampaignsTask.setOnSucceeded(e -> {
+            ObservableList<String> campaigns = FXCollections.observableArrayList(getCampaignsTask.getValue());
 
+            campaignsList.setItems(campaigns);
+        });
+
+        new Thread(getCampaignsTask).start();
     }
 }

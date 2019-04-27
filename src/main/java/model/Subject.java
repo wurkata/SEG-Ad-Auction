@@ -3,14 +3,14 @@ package model;
 /**
  * Created by furqan on 04/03/2019.
  */
-public class User {
+public class Subject {
     private String id;
     private String gender;
     private String age;
     private String income;
 
 
-    public User(String id, String gender, String age, String income) {
+    public Subject(String id, String gender, String age, String income) {
         this.id = id;
         this.gender = gender;
         this.age = age;

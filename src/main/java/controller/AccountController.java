@@ -82,7 +82,7 @@ public class AccountController implements Initializable {
                     if (res) {
                         signProgress.setVisible(false);
                         feedbackMsg.textProperty().setValue("Login successful. Taking you to Dashboard...");
-                        model.setClient(usernameField.textProperty().getValue());
+                        model.setUser(usernameField.textProperty().getValue());
 
                         try {
                             Thread.sleep(1000);
@@ -102,10 +102,10 @@ public class AccountController implements Initializable {
             } else if (_STATE.equals("Register")) {
                 Map<String, String> params = new HashMap<>();
                 params.put("username", usernameField.textProperty().getValue());
-                params.put("password", passwordField.textProperty().getValue());
+                params.put("pwd", passwordField.textProperty().getValue());
 
                 Insert insertTask = new Insert();
-                insertTask.setACTION("ACCOUNT");
+                insertTask.setTable("users");
                 insertTask.setParams(params);
 
                 insertTask.setOnSucceeded(a -> {
@@ -156,7 +156,7 @@ public class AccountController implements Initializable {
         DashboardController controller = new DashboardController(model);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/" + scene + ".fxml"));
-        loader.setController(controller);
+        if (!scene.equals("register") && !scene.equals("login")) loader.setController(controller);
         Parent root = loader.load();
 
         Scene campaignsScene = new Scene(root);

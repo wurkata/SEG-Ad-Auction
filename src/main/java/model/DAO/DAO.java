@@ -8,5 +8,5 @@ public interface DAO {
             "&rewriteBatchedStatements=true";
     String DRIVER = "com.mysql.cj.jdbc.Driver";
     String USER = "remote-root";
-    String PASS = "758291Qq32@";
+    String PASS = "soton-seg";
 }

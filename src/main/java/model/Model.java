@@ -10,7 +10,8 @@ import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
-import model.DAO.UsersDAO;
+import model.DAO.SubjectsDAO;
+import model.DBTasks.Insert;
 
 import java.io.File;
 import java.sql.*;
@@ -28,7 +29,7 @@ public class Model extends Task<Void> implements Observable {
 
     private Connection con;
     private int BATCH_SIZE = 1000;
-    private String client;
+    private String user;
 
     private List<ImpressionLog> impressionLog = new ArrayList<>();
     private List<ClickLog> clickLog = new ArrayList<>();
@@ -43,7 +44,7 @@ public class Model extends Task<Void> implements Observable {
 
     private String campaignTitle;
 
-    private List<User> users = new ArrayList<>();
+    private List<Subject> subjects = new ArrayList<>();
     private boolean impressionCost = true;
     private int bouncePages = 0;
     private long bounceTime = -1;
@@ -74,8 +75,8 @@ public class Model extends Task<Void> implements Observable {
         return null;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<Subject> getSubjects() {
+        return subjects;
     }
 
     @Override
@@ -83,8 +84,8 @@ public class Model extends Task<Void> implements Observable {
         notifyObservers("files");
     }
 
-    void setUsers(List<User> users) {
-        this.users.addAll(users);
+    void setSubjects(List<Subject> subjects) {
+        this.subjects.addAll(subjects);
     }
 
     void setImpressionLog(List<ImpressionLog> impressionLog) {
@@ -105,12 +106,12 @@ public class Model extends Task<Void> implements Observable {
         notifyObservers(FileType.SERVER_LOG);
     }
 
-    public void setClient(String client) {
-        this.client = client;
+    public void setUser(String user) {
+        this.user = user;
     }
 
-    public String getClient() {
-        return client;
+    public String getUser() {
+        return user;
     }
 
     // ------ DATABASE -------------------------------------------------------------------------------------------------
@@ -141,10 +142,10 @@ public class Model extends Task<Void> implements Observable {
 
             switch (type) {
                 case IMPRESSION_LOG:
-                    pstmt = con.prepareStatement("INSERT INTO impression_log (campaign_id, user_id, date, context, cost) " +
+                    pstmt = con.prepareStatement("INSERT INTO impression_log (campaign_id, subject_id, date, context, cost) " +
                         "VALUES (" +
                             "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
-                            "(SELECT id FROM users WHERE user_id=? LIMIT 1), " +
+                            "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
                             "?, ?, ?" +
                         ")"
                     );
@@ -166,26 +167,15 @@ public class Model extends Task<Void> implements Observable {
                             pstmt.executeBatch();
                             con.commit();
                         }
-
-                        /*
-                        query = "INSERT INTO impression_log (campaign_id, user_id, date, context, cost) VALUES(" +
-                                "(SELECT id FROM campaigns WHERE title='" + this.campaignTitle + "'), " +
-                                "(SELECT id FROM users WHERE user_id='" + log.getSubjectID() + "'), " +
-                                "'" + log.getImpressionDate() + "'," +
-                                "'" + log.getContext() + "'," +
-                                log.getImpressionCost() + ");";
-
-                        stmt.executeUpdate(query);
-                        */
                     }
                     pstmt.executeBatch();
                     con.commit();
                     break;
                 case CLICK_LOG:
-                    pstmt = con.prepareStatement("INSERT INTO click_log(campaign_id, user_id, date, click_cost) " +
+                    pstmt = con.prepareStatement("INSERT INTO click_log(campaign_id, subject_id, date, click_cost) " +
                             "VALUES (" +
                             "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
-                            "(SELECT id FROM users WHERE user_id=? LIMIT 1), " +
+                            "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
                             "?, ?" +
                             ")"
                     );
@@ -206,25 +196,15 @@ public class Model extends Task<Void> implements Observable {
                             pstmt.executeBatch();
                             con.commit();
                         }
-
-                        /*
-                        query = "INSERT INTO click_log (campaign_id, user_id, date, click_cost) VALUES(" +
-                                "(SELECT id FROM campaigns WHERE title='" + this.campaignTitle + "'), " +
-                                "(SELECT id FROM users WHERE user_id='" + log.getSubjectID() + "'), " +
-                                "'" + log.getClickDate() + "', " +
-                                log.getClickCost() + ");";
-
-                        stmt.executeUpdate(query);
-                        */
                     }
                     pstmt.executeBatch();
                     con.commit();
                     break;
                 case SERVER_LOG:
-                    pstmt = con.prepareStatement("INSERT INTO server_log (campaign_id, user_id, entry_date, exit_date, pages_viewed, conversion) " +
+                    pstmt = con.prepareStatement("INSERT INTO server_log (campaign_id, subject_id, entry_date, exit_date, pages_viewed, conversion) " +
                             "VALUES (" +
                             "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
-                            "(SELECT id FROM users WHERE user_id=? LIMIT 1), " +
+                            "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
                             "?, ?, ?, ?" +
                             ")"
                     );
@@ -250,18 +230,6 @@ public class Model extends Task<Void> implements Observable {
                             pstmt.executeBatch();
                             con.commit();
                         }
-
-                        /*
-                        query = "INSERT INTO server_log (campaign_id, user_id, entry_date, exit_date, pages_viewed, conversion) VALUES(" +
-                                "(SELECT id FROM campaigns WHERE title='" + this.campaignTitle + "'), " +
-                                "(SELECT id FROM users WHERE user_id='" + log.getSubjectID() + "'), " +
-                                "'" + log.getEntryDate() + "', " +
-                                "'" + log.getExitDate() + "'," +
-                                log.getPagesViewed() + "," +
-                                log.getConversion() + ");";
-
-                        stmt.executeUpdate(query);
-                        */
                     }
                     pstmt.executeBatch();
                     con.commit();
@@ -274,12 +242,14 @@ public class Model extends Task<Void> implements Observable {
         }
     }
 
-    private void addUsers() {
-        UsersDAO usersDAO = new UsersDAO(users);
+    private void addSubjects() {
+        SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
     }
 
     public void setCampaignTitle(String title) {
         this.campaignTitle = title;
+        Insert insertTask = new Insert();
+        insertTask.setTable("campaigns");
     }
 
     public boolean checkValidTitle(String title) {

@@ -1,6 +1,6 @@
 package common.Filters;
 
-import model.User;
+import model.Subject;
 
 import java.util.List;
 
@@ -8,9 +8,9 @@ import java.util.List;
  * Created by furqan on 12/03/2019.
  */
 public abstract class AudienceFilter extends Filter {
-    List<User> users;
+    List<Subject> subjects;
 
-    public AudienceFilter(List<User> users){
-        this.users=users;
+    public AudienceFilter(List<Subject> subjects){
+        this.subjects = subjects;
     }
 }

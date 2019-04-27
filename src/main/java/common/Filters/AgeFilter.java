@@ -3,18 +3,16 @@ package common.Filters;
 import model.ClickLog;
 import model.ImpressionLog;
 import model.ServerLog;
-import model.User;
+import model.Subject;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AgeFilter extends AudienceFilter {
 
     private int ageRange;
 
-    public AgeFilter(int ageRange, List<User> users) {
-        super(users);
+    public AgeFilter(int ageRange, List<Subject> subjects) {
+        super(subjects);
         this.ageRange = ageRange;
     }
 

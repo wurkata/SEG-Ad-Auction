@@ -32,10 +32,10 @@ public class CheckAccount extends Task<Boolean> {
             String query;
 
             if (pwd != null) {
-                query = "SELECT * FROM clients WHERE username='" + user + "' AND password='" + pwd + "';";
+                query = "SELECT * FROM users WHERE username='" + user + "' AND pwd='" + pwd + "';";
                 pwd = null;
             } else {
-                query = "SELECT * FROM clients WHERE username='" + user + "';";
+                query = "SELECT * FROM users WHERE username='" + user + "';";
             }
 
             ResultSet result = stmt.executeQuery(query);

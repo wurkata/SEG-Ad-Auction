@@ -10,28 +10,26 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Insert extends Task<Boolean> {
-    private String ACTION;
+    private String table;
     private Connection con;
 
     private Map<String, String> params;
 
     @Override
     protected Boolean call() throws Exception {
-        if(ACTION.equals("ACCOUNT")) {
-            con = DBPool.getConnection();
+        con = DBPool.getConnection();
 
-            try {
-                Statement stmt = con.createStatement();
-                String fields = getFields();
-                String values = getValues();
-                String query = "INSERT INTO clients (" + fields + ") VALUES (" + values + ");";
+        try {
+            Statement stmt = con.createStatement();
+            String fields = getFields();
+            String values = getValues();
+            String query = "INSERT INTO " + table + "(" + fields + ") VALUES (" + values + ");";
 
-                stmt.executeUpdate(query);
+            stmt.executeUpdate(query);
 
-                return true;
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return false;
     }
@@ -56,8 +54,8 @@ public class Insert extends Task<Boolean> {
         }
     }
 
-    public void setACTION(String ACTION) {
-        this.ACTION = ACTION;
+    public void setTable(String table) {
+        this.table = table;
     }
 
     public void setParams(Map<String, String> params) {
@@ -68,10 +66,10 @@ public class Insert extends Task<Boolean> {
         StringBuilder stringBuilder = new StringBuilder();
         Iterator<String> itr = params.keySet().iterator();
 
-        while(itr.hasNext()) {
+        while (itr.hasNext()) {
             stringBuilder.append(itr.next());
 
-            if(itr.hasNext()) stringBuilder.append(",");
+            if (itr.hasNext()) stringBuilder.append(",");
         }
 
         return stringBuilder.toString();
@@ -81,10 +79,10 @@ public class Insert extends Task<Boolean> {
         StringBuilder stringBuilder = new StringBuilder();
         Iterator<String> itr = params.keySet().iterator();
 
-        while(itr.hasNext()) {
+        while (itr.hasNext()) {
             stringBuilder.append("'" + params.get(itr.next()) + "'");
 
-            if(itr.hasNext()) stringBuilder.append(",");
+            if (itr.hasNext()) stringBuilder.append(",");
         }
 
         return stringBuilder.toString();

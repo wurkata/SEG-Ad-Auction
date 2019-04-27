@@ -3,7 +3,7 @@ package common.Filters;
 import model.ClickLog;
 import model.ImpressionLog;
 import model.ServerLog;
-import model.User;
+import model.Subject;
 
 import java.util.List;
 
@@ -13,15 +13,15 @@ import java.util.List;
 public class IncomeFilter extends AudienceFilter {
 
     private String income="";
-    public IncomeFilter(String income, List<User> users){
-        super(users);
+    public IncomeFilter(String income, List<Subject> subjects){
+        super(subjects);
         this.income=income;
     }
 
 
     @Override
     public boolean filter(ImpressionLog i) {
-        // return users.get(i.getSubjectID()).getIncome().equals(income);
+        // return subjects.get(i.getSubjectID()).getIncome().equals(income);
         return true;
     }
 

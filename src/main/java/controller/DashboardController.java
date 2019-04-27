@@ -15,11 +15,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TitledPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import model.DBTasks.CheckTitle;
 import model.DBTasks.getCampaignsForUser;
 import model.Model;
 import model.Parser;
@@ -27,79 +28,111 @@ import model.Parser;
 import javax.swing.*;
 import java.io.File;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 public class DashboardController implements Initializable, Observer {
 
     @FXML
+    @SuppressWarnings("unused")
+    private Label feedbackMsg;
+
+    @FXML
+    @SuppressWarnings("unused")
     private JFXTextField campaignTitle;
 
     @FXML
+    @SuppressWarnings("unused")
     private JFXButton createCampaignBtn;
 
     @FXML
+    @SuppressWarnings("unused")
     private JFXButton importImpressionLog;
+
     @FXML
+    @SuppressWarnings("unused")
     private JFXButton importClickLog;
+
     @FXML
+    @SuppressWarnings("unused")
     private JFXButton importServerLog;
 
     @FXML
+    @SuppressWarnings("unused")
     private JFXButton addTestCampaign;
 
     @FXML
+    @SuppressWarnings("unused")
+    private TitledPane newCampaignPane;
+
+    @FXML
+    @SuppressWarnings("unused")
     private ProgressIndicator impProgress;
 
     @FXML
+    @SuppressWarnings("unused")
     private ProgressIndicator clickProgress;
 
     @FXML
+    @SuppressWarnings("unused")
     private ProgressIndicator servProgress;
 
     @FXML
+    @SuppressWarnings("unused")
     private ListView<String> campaignsList;
+
+    @FXML
+    @SuppressWarnings("unused")
+    private JFXButton loadCampaignBtn;
 
     private Model model;
     private boolean impressionLogLoaded = false;
     private boolean clickLogLoaded = false;
     private boolean serverLogLoaded = false;
 
+    private Set<String> campaignsSet;
+
     private File inputFile;
 
-    public DashboardController(Model model) {
+    DashboardController(Model model) {
         this.model = model;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        campaignsSet = new HashSet<>();
         model.addObserver(this);
 
         getCampaigns();
+
+        loadCampaignBtn.setDisable(true);
+
+        feedbackMsg.textProperty().setValue("");
 
         importImpressionLog.setDisable(true);
         importClickLog.setDisable(true);
         importServerLog.setDisable(true);
 
-        createCampaignBtn.setOnMouseReleased(e -> createCampaign(e));
+        createCampaignBtn.setOnMouseReleased(this::createCampaign);
 
         campaignTitle.textProperty().addListener(((observable, oldValue, newValue) -> {
             if (newValue.length() > 2) {
-                CheckTitle checkTitle = new CheckTitle(newValue);
-                checkTitle.setOnSucceeded(e -> {
-                    if (checkTitle.getValue()) {
-                        importImpressionLog.setDisable(false);
-                        importClickLog.setDisable(false);
-                        importServerLog.setDisable(false);
-                        createCampaignBtn.setDisable(false);
-                    } else {
-                        importImpressionLog.setDisable(true);
-                        importClickLog.setDisable(true);
-                        importServerLog.setDisable(true);
-                        createCampaignBtn.setDisable(true);
-                    }
-                });
-                new Thread(checkTitle).start();
+                if (!campaignsSet.contains(newValue)) {
+                    feedbackMsg.textProperty().setValue("");
+                    importImpressionLog.setDisable(false);
+                    importClickLog.setDisable(false);
+                    importServerLog.setDisable(false);
+                    createCampaignBtn.setDisable(false);
+                } else {
+                    feedbackMsg.textProperty().setValue("Campaign with such name already exists.");
+                    importImpressionLog.setDisable(true);
+                    importClickLog.setDisable(true);
+                    importServerLog.setDisable(true);
+                    createCampaignBtn.setDisable(true);
+                }
             } else {
+                feedbackMsg.textProperty().setValue("Campaign title should contain at least 3 characters.");
                 importImpressionLog.setDisable(true);
                 importClickLog.setDisable(true);
                 importServerLog.setDisable(true);
@@ -141,16 +174,29 @@ public class DashboardController implements Initializable, Observer {
 
         addTestCampaign.setOnMouseReleased(e -> {
             Parser parser = new Parser(
-                model,
-                new File("input/impression_log_small.csv"),
-                new File("input/click_log_small.csv"),
-                new File("input/server_log_small.csv"
-            ));
+                    model,
+                    new File("input/impression_log_small.csv"),
+                    new File("input/click_log_small.csv"),
+                    new File("input/server_log_small.csv"
+                    ));
             parser.setOnSucceeded(a -> {
                 if (parser.getValue()) {
                     createCampaign(a);
                 }
             });
+        });
+
+        newCampaignPane.setOnMouseReleased(e -> {
+            if (newCampaignPane.isExpanded())
+                campaignsList.translateYProperty().setValue(230);
+            else
+                campaignsList.translateYProperty().setValue(15);
+        });
+
+        campaignsList.getSelectionModel().selectedItemProperty().addListener(e -> {
+            loadCampaignBtn.setDisable(false);
+
+            
         });
     }
 
@@ -259,7 +305,8 @@ public class DashboardController implements Initializable, Observer {
     private void getCampaigns() {
         getCampaignsForUser getCampaignsTask = new getCampaignsForUser(model.getUser());
         getCampaignsTask.setOnSucceeded(e -> {
-            ObservableList<String> campaigns = FXCollections.observableArrayList(getCampaignsTask.getValue());
+            campaignsSet = getCampaignsTask.getValue();
+            ObservableList<String> campaigns = FXCollections.observableArrayList(campaignsSet);
 
             campaignsList.setItems(campaigns);
         });

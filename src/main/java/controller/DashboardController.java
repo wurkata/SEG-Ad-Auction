@@ -47,7 +47,7 @@ public class DashboardController implements Initializable, Observer {
     @FXML
     private ProgressIndicator servProgress;
 
-    private Model model;
+//    private Model model;
     private boolean impressionLogLoaded = false;
     private boolean clickLogLoaded = false;
     private boolean serverLogLoaded = false;
@@ -57,10 +57,12 @@ public class DashboardController implements Initializable, Observer {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        model = new Model();
-        model.addObserver(this);
+//        model = new Model();
+//        model.addObserver(this);
+        RawDataHolder dataHolder = new RawDataHolder();
+        dataHolder.addObserver(this);
 
-//        parserService = new Parser(new RawDataHolder());
+        parserService = new Parser(dataHolder);
 
         importImpressionLog.setOnMouseReleased(e -> {
             inputFile = importFile(FileType.IMPRESSION_LOG);
@@ -95,7 +97,7 @@ public class DashboardController implements Initializable, Observer {
         addTestCampaign.setOnMouseReleased(e -> {
             Platform.runLater(() ->
                     parserService = new Parser(
-                            model,
+//                            model,
                             new File("input/impression_log.csv"),
                             new File("input/click_log.csv"),
                             new File("input/server_log.csv"
@@ -121,6 +123,9 @@ public class DashboardController implements Initializable, Observer {
 
     @FXML
     private void createCampaign(Event event) throws Exception {
+        Model model = new Model();
+        model.addObserver(this);
+        model.setRawDataHolder(parserService.getRawDataHolder());
         CampaignController controller = new CampaignController(model);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));

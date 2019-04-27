@@ -1,7 +1,7 @@
 @import "common.css";
 
 .titled-pane > .title {
-    -fx-pref-height: 60.0;
+    -fx-pref-height: 40.0;
     -fx-background-color: -fx-btn-color-new;
     -fx-font-size: 1.2em;
 }
@@ -15,10 +15,19 @@
     -fx-background-color: -fx-bg-color;
 }
 
+.titled-pane #acc-expanded-pane HBox > VBox {
+    -fx-pref-width: 150;
+}
+
+.titled-pane #acc-expanded-pane .progress-indicator:indeterminate {
+    -fx-pref-height: 20;
+    -fx-pref-width: 20;
+}
+
 .titled-pane #acc-expanded-pane .jfx-button {
     -jfx-button-type: RAISED;
     -fx-pref-height: 25;
-    -fx-padding: 15 5;
+    -fx-padding: 5;
     -fx-cursor: HAND;
     -fx-background-color: -fx-btn-color-new;
     -fx-font-size: 1.2em;
@@ -32,7 +41,7 @@
 
 .dashboard-menu > .jfx-button {
     -jfx-button-type: RAISED;
-    -fx-pref-height: 60;
+    -fx-pref-height: 40;
     -fx-cursor: HAND;
     -fx-background-color: -fx-btn-color;
     -fx-alignment: baseline-left;

@@ -24,7 +24,7 @@
       <JFXPasswordField fx:id="passwordField" layoutX="195.0" layoutY="176.0" prefHeight="26.0" prefWidth="210.0" promptText="Password" styleClass="important-input" />
       <JFXButton fx:id="goToBtn" contentDisplay="CENTER" layoutX="195.0" layoutY="227.0" prefHeight="35.0" prefWidth="100.0" styleClass="inverted" text="Register" />
       <JFXButton fx:id="signBtn" contentDisplay="CENTER" disable="true" layoutX="305.0" layoutY="227.0" prefHeight="35.0" prefWidth="100.0" text="Login" />
-      <Label fx:id="feedbackMsg" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="195.0" layoutY="275.0" prefHeight="104.0" prefWidth="210.0" text="Feedback message" wrapText="true" />
+      <Label fx:id="feedbackMsg" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="195.0" layoutY="275.0" prefHeight="104.0" prefWidth="210.0" styleClass="feedbackMsg" text="Feedback message" wrapText="true" />
       <ProgressIndicator fx:id="signProgress" layoutX="418.0" layoutY="232.0" prefHeight="25.0" prefWidth="25.0" />
    </children>
 </AnchorPane>

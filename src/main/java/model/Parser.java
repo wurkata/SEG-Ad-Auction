@@ -4,7 +4,7 @@ import common.FileType;
 import common.Observable;
 import common.Observer;
 import javafx.concurrent.Task;
-import model.DAO.UsersDAO;
+import model.DAO.SubjectsDAO;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,7 +45,7 @@ public class Parser extends Task<Boolean> implements Observable {
 
     private void readClickLog(File file) throws Exception {
         ArrayList<ClickLog> clickLog = new ArrayList<>();
-        List<User> users = new ArrayList<>();
+        List<Subject> subjects = new ArrayList<>();
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -55,13 +55,13 @@ public class Parser extends Task<Boolean> implements Observable {
                     .map(e -> e.split(","))
                     .forEach(s -> {
                         clickLog.add(new ClickLog(parseDate(s[0]), s[1], Double.parseDouble(s[2])));
-                        users.add(new User(s[1], null, null, null));
+                        subjects.add(new Subject(s[1], null, null, null));
                     });
 
             model.setClickLog(clickLog);
-            model.setUsers(users);
-            UsersDAO usersDAO = new UsersDAO(users);
-            new Thread(usersDAO).start();
+            model.setSubjects(subjects);
+            SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
+            new Thread(subjectsDAO).start();
             // model.uploadData(FileType.CLICK_LOG);
         } catch (Exception e) {
             e.printStackTrace();
@@ -71,7 +71,7 @@ public class Parser extends Task<Boolean> implements Observable {
 
     private void readImpressionLog(File file) throws Exception {
         ArrayList<ImpressionLog> impressionLog = new ArrayList<>();
-        List<User> users = new ArrayList<>();
+        List<Subject> subjects = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             reader.lines()
@@ -79,13 +79,13 @@ public class Parser extends Task<Boolean> implements Observable {
                     .map(e -> e.split(","))
                     .forEach(s -> {
                         impressionLog.add(new ImpressionLog(parseDate(s[0]), s[1], s[5], Double.parseDouble(s[6])));
-                        users.add(new User(s[1], s[2], (s[3]), s[4]));
+                        subjects.add(new Subject(s[1], s[2], (s[3]), s[4]));
                     });
 
             model.setImpressionLog(impressionLog);
-            model.setUsers(users);
-            UsersDAO usersDAO = new UsersDAO(users);
-            new Thread(usersDAO).start();
+            model.setSubjects(subjects);
+            SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
+            new Thread(subjectsDAO).start();
             // model.uploadData(FileType.IMPRESSION_LOG);
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,7 +95,7 @@ public class Parser extends Task<Boolean> implements Observable {
 
     private void readServerLog(File file) throws Exception {
         ArrayList<ServerLog> serverLog = new ArrayList<>();
-        List<User> users = new ArrayList<>();
+        List<Subject> subjects = new ArrayList<>();
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -110,13 +110,13 @@ public class Parser extends Task<Boolean> implements Observable {
                             serverLog.add(new ServerLog(parseDate(s[0]), s[1], parseDate(s[2]), Integer.parseInt(s[3]), parseBool(s[4])));
                         }
 
-                        users.add(new User(s[1], null, null, null));
+                        subjects.add(new Subject(s[1], null, null, null));
                     });
 
             model.setServerLog(serverLog);
-            model.setUsers(users);
-            UsersDAO usersDAO = new UsersDAO(users);
-            new Thread(usersDAO).start();
+            model.setSubjects(subjects);
+            SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
+            new Thread(subjectsDAO).start();
             model.uploadData(FileType.SERVER_LOG);
         } catch (Exception e) {
             e.printStackTrace();

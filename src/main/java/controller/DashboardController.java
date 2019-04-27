@@ -20,7 +20,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.DBTasks.CheckTitle;
-import model.DBTasks.getCampaignsForClient;
+import model.DBTasks.getCampaignsForUser;
 import model.Model;
 import model.Parser;
 
@@ -257,7 +257,7 @@ public class DashboardController implements Initializable, Observer {
     }
 
     private void getCampaigns() {
-        getCampaignsForClient getCampaignsTask = new getCampaignsForClient(model.getClient());
+        getCampaignsForUser getCampaignsTask = new getCampaignsForUser(model.getUser());
         getCampaignsTask.setOnSucceeded(e -> {
             ObservableList<String> campaigns = FXCollections.observableArrayList(getCampaignsTask.getValue());
 

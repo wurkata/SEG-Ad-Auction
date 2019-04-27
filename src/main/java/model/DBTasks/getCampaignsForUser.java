@@ -9,13 +9,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class getCampaignsForClient extends Task<List<String>> {
+public class getCampaignsForUser extends Task<List<String>> {
 
     Connection con;
-    private String client;
+    private String user;
 
-    public getCampaignsForClient(String client) {
-        this.client= client;
+    public getCampaignsForUser(String user) {
+        this.user = user;
     }
 
     @Override
@@ -26,8 +26,9 @@ public class getCampaignsForClient extends Task<List<String>> {
         ResultSet resultSet;
         List<String> res = new ArrayList<>();
 
-        resultSet = stmt.executeQuery("SELECT title FROM campaigns WHERE client_id=" +
-                "(SELECT id FROM clients WHERE username='" + client + "' LIMIT 1)");
+        resultSet = stmt.executeQuery("SELECT title FROM " +
+                "(campaign_users INNER JOIN campaigns ON campaigns.id=campaign_id) " +
+                "WHERE user_id=(SELECT id FROM users WHERE username='" + user + "' LIMIT 1))");
 
         while (resultSet.next()) {
             res.add(resultSet.getString("title"));

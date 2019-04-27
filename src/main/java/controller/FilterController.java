@@ -88,13 +88,13 @@ public class FilterController implements Initializable {
             switch(filterTypeBox.getSelectionModel().getSelectedItem()){
                 case "Age":
                     System.out.println(ageBox.getSelectionModel().getSelectedItem()+" "+ageBox.getSelectionModel().getSelectedIndex());
-                    model.addFilter(new AgeFilter(ageBox.getSelectionModel().getSelectedIndex()+1, model.getUsers()), id);
+                    model.addFilter(new AgeFilter(ageBox.getSelectionModel().getSelectedIndex()+1, model.getSubjects()), id);
                     controller.addFilter(id+": Age Filter - "+ageBox.getSelectionModel().getSelectedItem());
 
                     break;
                 case "Gender":
                     System.out.println(genderBox.getSelectionModel().getSelectedItem());
-                    model.addFilter(new GenderFilter(genderBox.getSelectionModel().getSelectedItem(), model.getUsers()), id);
+                    model.addFilter(new GenderFilter(genderBox.getSelectionModel().getSelectedItem(), model.getSubjects()), id);
                     controller.addFilter(id+": Gender Filter - "+genderBox.getSelectionModel().getSelectedItem());
                     break;
                 case "Context":
@@ -104,7 +104,7 @@ public class FilterController implements Initializable {
                     break;
                 case "Income":
                     System.out.println(incomeBox.getSelectionModel().getSelectedItem());
-                    model.addFilter(new IncomeFilter(incomeBox.getSelectionModel().getSelectedItem(), model.getUsers()), id);
+                    model.addFilter(new IncomeFilter(incomeBox.getSelectionModel().getSelectedItem(), model.getSubjects()), id);
                     controller.addFilter(id+": Income Filter - "+incomeBox.getSelectionModel().getSelectedItem());
                     break;
                 case "Date Range":

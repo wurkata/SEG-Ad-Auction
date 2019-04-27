@@ -1,25 +1,25 @@
 package model.DAO;
 
 import javafx.concurrent.Task;
-import model.User;
+import model.Subject;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-public class UsersDAO extends Task<Void> implements DAO {
-    private List<User> users;
+public class SubjectsDAO extends Task<Void> implements DAO {
+    private List<Subject> subjects;
 
-    public UsersDAO(List<User> users) {
-        this.users = users;
+    public SubjectsDAO(List<Subject> subjects) {
+        this.subjects = subjects;
     }
 
     @Override
     protected Void call() throws Exception {
         Connection con = DBPool.getConnection();
 
-        PreparedStatement stmt = con.prepareStatement("INSERT INTO users (user_id, gender, age, income) " +
+        PreparedStatement stmt = con.prepareStatement("INSERT INTO subjects (subject_id, gender, age, income) " +
                 "VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
                 "gender = COALESCE(?, gender), " +
                 "age = COALESCE(?, age), " +
@@ -31,7 +31,7 @@ public class UsersDAO extends Task<Void> implements DAO {
         String age;
         String income;
 
-        for (User u : users) {
+        for (Subject u : subjects) {
             gender = u.getGender();
             age = u.getAge();
             income = u.getIncome();

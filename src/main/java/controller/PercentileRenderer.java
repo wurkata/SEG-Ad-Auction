@@ -31,7 +31,7 @@ public class PercentileRenderer extends XYLineAndShapeRenderer {
             lowerDubBounds = new double[list.size()];
             int i = 0;
             for (TimeSeries s : list) {
-                this.setSeriesPaint(i, new Color(rng.nextInt(255), rng.nextInt(255), rng.nextInt(255)));
+//                this.setSeriesPaint(i, new Color(rng.nextInt(255), rng.nextInt(255), rng.nextInt(255)));
 
                 List<TimeSeriesDataItem> items = s.getItems();
                 ArrayList<Double> sortedValues = new ArrayList<>();
@@ -55,7 +55,7 @@ public class PercentileRenderer extends XYLineAndShapeRenderer {
             lowerLongBounds = new long[list.size()];
             int i = 0;
             for (TimeSeries s : list) {
-                this.setSeriesPaint(i, new Color(rng.nextInt(255), rng.nextInt(255), rng.nextInt(255)));
+//                this.setSeriesPaint(i, new Color(rng.nextInt(255), rng.nextInt(255), rng.nextInt(255)));
                 List<TimeSeriesDataItem> items = s.getItems();
                 ArrayList<Long> sortedValues = new ArrayList<>();
                 items.stream()

@@ -3,7 +3,6 @@ package model;
 import common.FileType;
 import common.Observable;
 import common.Observer;
-import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.util.Pair;
@@ -25,13 +24,12 @@ public class Parser extends Service<Void> implements Observable {
     private FileType fileType;
     private RawDataHolder dataHolder = new RawDataHolder();
 
-    public Parser(Model model, File imp, File click, File serv) {
+    public Parser(File imp, File click, File serv) {
 //        this.model = model;
         try {
             readImpressionLog(imp);
             readClickLog(click);
             readServerLog(serv);
-            model.setRawDataHolder(dataHolder);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -44,6 +42,10 @@ public class Parser extends Service<Void> implements Observable {
     public void setFile(File file, FileType fileType) {
         this.inputFile = file;
         this.fileType = fileType;
+    }
+
+    public RawDataHolder getRawDataHolder() {
+        return dataHolder;
     }
 
     public ArrayList<ClickLog> readClickLog(File file) throws Exception {

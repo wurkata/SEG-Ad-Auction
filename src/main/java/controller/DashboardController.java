@@ -10,6 +10,7 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -17,7 +18,7 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.Campaign;
@@ -26,6 +27,7 @@ import model.Parser;
 import model.RawDataHolder;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -60,7 +62,7 @@ public class DashboardController implements Initializable, Observer {
     private JFXButton drawCmapaigns;
 
     @FXML
-    private Accordion accordion;
+    private VBox verticalBox;
 
 //    private Model model;
     private boolean impressionLogLoaded = false;
@@ -135,10 +137,31 @@ public class DashboardController implements Initializable, Observer {
         });
 
         createCampaignBtn.setOnMouseReleased(e-> {
-            AnchorPane newCampaign = new AnchorPane();
-            newCampaign.getChildren().add(new Label(campaignTitle.getText()));
-            TitledPane pane = new TitledPane(campaignTitle.getText(), newCampaign);
-            accordion.getPanes().add(pane);
+            Campaign newCampaign = new Campaign(campaignTitle.getText(), );
+            AnchorPane newCampaignPane = new AnchorPane();
+            TitledPane pane = new TitledPane(campaignTitle.getText(), newCampaignPane);
+            verticalBox.getChildren().add(pane);
+            HBox hBox = new HBox();
+            JFXButton remove = new JFXButton("Remove");
+            JFXButton export = new JFXButton("Export");
+            remove.setStyle("-fx-background-color: #ff6961");
+            export.setStyle("-fx-background-color: #77dd77");
+            remove.setRipplerFill(javafx.scene.paint.Paint.valueOf("#ff6900"));
+            export.setRipplerFill(javafx.scene.paint.Paint.valueOf("#77dd00"));
+            remove.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
+            export.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
+            remove.setPrefSize(200, 50);
+            export.setPrefSize(200, 50);
+            remove.setPadding(new Insets(20,20,20,20));
+            export.setPadding(new Insets(20,20,20,20));
+            hBox.getChildren().add(remove);
+            hBox.getChildren().add(export);
+            remove.setOnMouseReleased(f-> {
+               verticalBox.getChildren().remove(pane);
+               campaigns.remove(newCampaign)
+            });
+            export.setDisable(true);
+            newCampaignPane.getChildren().add(hBox);
         });
     }
 
@@ -153,7 +176,6 @@ public class DashboardController implements Initializable, Observer {
         Model model = new Model();
         model.addObserver(this);
         RawDataHolder rdh = parserService.getRawDataHolder();
-        Campaign campaign = new Campaign (campaignTitle.getText(), rdh, model);
         model.setRawDataHolder(rdh);
         CampaignController controller = new CampaignController(model);
 

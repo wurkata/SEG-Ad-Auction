@@ -31,9 +31,7 @@
         <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="accessibility-holder">
             <children>
             <JFXButton fx:id="printBtn" mnemonicParsing="false" text="Print">
-               <HBox.margin>
-                  <Insets right="20.0" />
-               </HBox.margin></JFXButton>
+               </JFXButton>
                 <JFXToggleButton fx:id="toggleThemeMode" text="Dark mode" toggleColor="#1ec34c" toggleLineColor="#91fa99" unToggleLineColor="#f85353" />
             </children>
         </HBox>
@@ -94,26 +92,18 @@
                                                                 <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                                                                 <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2" />
                                                             </children>
-                                                            <padding>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                            </padding>
+
                                                         </GridPane>
                                                     </children>
-                                                    <BorderPane.margin>
-                                                        <Insets />
-                                                    </BorderPane.margin>
+
                                                 </VBox>
                                             </center>
                                             <left>
                                                 <VBox alignment="TOP_CENTER" prefHeight="738.0" prefWidth="256.0" spacing="5.0" styleClass="campaign-holder-left" BorderPane.alignment="CENTER">
                                                     <children>
                                                         <Label text="Data Granularity">
-                                                            <opaqueInsets>
-                                                                <Insets />
-                                                            </opaqueInsets>
-                                                            <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
-                                                            </VBox.margin>
+
+
                                                             <font>
                                                                 <Font name="System Bold" size="13.0" />
                                                             </font>
@@ -149,9 +139,7 @@
                                                                 <JFXRadioButton fx:id="todBtn" disable="true" mnemonicParsing="false" toggleGroup="$granularityToggleGroup" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                                                 <JFXRadioButton fx:id="dowBtn" disable="true" mnemonicParsing="false" toggleGroup="$granularityToggleGroup" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                                                 </children>
-                                                            <padding>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                            </padding>
+
                                                         </GridPane>
                                                         <GridPane fx:id="customBRGrid">
                                                             <columnConstraints>
@@ -168,9 +156,7 @@
                                                             </rowConstraints>
                                                             <children>
                                                                 <JFXCheckBox fx:id="customBRBtn" disable="true" mnemonicParsing="false" text="Custom bounce rate">
-                                                                    <GridPane.margin>
-                                                                        <Insets bottom="10.0" />
-                                                                    </GridPane.margin>
+
                                                                     <cursor>
                                                                         <Cursor fx:constant="HAND" />
                                                                     </cursor>
@@ -185,9 +171,7 @@
                                                                     </cursor>
                                                                 </Spinner>
                                                                 <Label disable="true" layoutX="10.0" layoutY="17.0" text="Time spent" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-                                                                    <GridPane.margin>
-                                                                        <Insets top="10.0" />
-                                                                    </GridPane.margin>
+
                                                                 </Label>
                                                                 <Spinner fx:id="BRTimeSpentM" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                                                     <cursor>
@@ -209,17 +193,11 @@
                                                                 <Label disable="true" text="Seconds" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                                                                 <IntegerValidator GridPane.rowIndex="4" />
                                                             </children>
-                                                            <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                            </VBox.margin>
+
                                                         </GridPane>
                                                         <Label text="Campaign Filters">
-                                                            <opaqueInsets>
-                                                                <Insets />
-                                                            </opaqueInsets>
-                                                            <VBox.margin>
-                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
-                                                            </VBox.margin>
+
+
                                                             <font>
                                                                 <Font name="System Bold" size="13.0" />
                                                             </font>
@@ -271,22 +249,13 @@
                                                             -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
                                                         </style>
                                                     </JFXButton>
-                                                    <BorderPane.margin>
-                                                        <Insets />
-                                                    </BorderPane.margin>
-                                                    <opaqueInsets>
-                                                        <Insets />
-                                                    </opaqueInsets>
-                                                    <padding>
-                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                    </padding>
+
+
                                                 </VBox>
                                             </left>
                                         </BorderPane>
                                     </children>
-                                    <opaqueInsets>
-                                        <Insets />
-                                    </opaqueInsets>
+
                                 </AnchorPane>
                             </content>
                         </Tab>

@@ -14,95 +14,106 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="750.0" prefWidth="800.0" stylesheets="@../css/dashboard.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
-    <children>
-        <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-            <children>
-                <VBox prefHeight="200.0" prefWidth="100.0" styleClass="dashboard-menu" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <children>
-                  <!--<JFXButton disable="true" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Facebook Camapaign">-->
-                     <!--<VBox.margin>-->
-                        <!--<Insets />-->
-                     <!--</VBox.margin>-->
-                  <!--</JFXButton>-->
-                  <!--<JFXButton disable="true" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Instagram Campaign" />-->
-                        <JFXButton fx:id="addTestCampaign" disable="false" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Directly Add Campaign (Testing)" />
-                          <TitledPane alignment="BASELINE_LEFT" animated="false" expanded="false" text="New campaign">
-                              <content>
-                                  <AnchorPane id="acc-expanded-pane" minHeight="0.0" minWidth="0.0" prefHeight="323.0" prefWidth="798.0">
-                                      <children>
-                                          <VBox alignment="TOP_CENTER" layoutX="32.4" layoutY="10.4" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="385.0" prefWidth="756.0" spacing="20.0" AnchorPane.bottomAnchor="-385.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0">
-                                              <children>
-                                    <JFXTextField fx:id="campaignTitle" alignment="CENTER" promptText="Enter Cmapaign Title Here: " />
-                                                  <HBox alignment="CENTER" spacing="20.0">
-                                                      <children>
-                                                          <VBox alignment="CENTER" spacing="10.0">
-                                                              <children>
-                                                                  <Label text="Import Impression Log" />
-                                                                  <ProgressIndicator fx:id="impProgress" minHeight="10.0" minWidth="10.0" prefHeight="10.0" prefWidth="10.0" progress="-1" scaleX="5.0" scaleY="5.0" translateY="40.0" visible="false" />
-                                                                  <JFXButton fx:id="importImpressionLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Import">
-                                                                      <cursor>
-                                                                          <Cursor fx:constant="HAND" />
-                                                                      </cursor>
-                                                                  </JFXButton>
-                                                              </children>
-                                                          </VBox>
-                                                          <VBox alignment="CENTER" spacing="10.0">
-                                                              <children>
-                                                                  <Label text="Import Click Log" />
-                                                                  <ProgressIndicator fx:id="clickProgress" minHeight="10.0" minWidth="10.0" prefHeight="10.0" prefWidth="10.0" progress="-1" scaleX="5.0" scaleY="5.0" translateY="40.0" visible="false" />
-                                                                  <JFXButton fx:id="importClickLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Import">
-                                                                      <cursor>
-                                                                          <Cursor fx:constant="HAND" />
-                                                                      </cursor>
-                                                                  </JFXButton>
-                                                              </children>
-                                                          </VBox>
-                                                          <VBox alignment="CENTER" spacing="10.0">
-                                                              <children>
-                                                                  <Label text="Import Server Log" />
-                                                                  <ProgressIndicator fx:id="servProgress" minHeight="10.0" minWidth="10.0" prefHeight="10.0" prefWidth="10.0" progress="-1" scaleX="5.0" scaleY="5.0" translateY="40.0" visible="false" />
-                                                                  <JFXButton fx:id="importServerLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Import">
-                                                                      <cursor>
-                                                                          <Cursor fx:constant="HAND" />
-                                                                      </cursor>
-                                                                  </JFXButton>
-                                                              </children>
-                                                          </VBox>
-                                                      </children>
-                                                      <padding>
-                                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                      </padding>
-                                                  </HBox>
-                                                  <JFXButton fx:id="createCampaignBtn" alignment="CENTER" disable="true" prefHeight="60.0" prefWidth="300.0" text="Done" textFill="#535353">
-                                                      <font>
-                                                          <Font name="System Bold" size="25.0" />
-                                                      </font>
-                                                      <cursor>
-                                                          <Cursor fx:constant="HAND" />
-                                                      </cursor>
-                                                      <ripplerFill>
-                                                          <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
-                                                              <stops>
-                                                                  <Stop color="#46bfda" />
-                                                                  <Stop color="#66e3ff" offset="1.0" />
-                                                              </stops>
-                                                          </RadialGradient>
-                                                      </ripplerFill>
-                                                  </JFXButton>
-                                              </children>
-                                          </VBox>
-                                      </children>
-                                  </AnchorPane>
-                              </content>
-                     <cursor>
-                        <Cursor fx:constant="HAND" />
-                     </cursor>
-                          </TitledPane>
-                    </children>
-                </VBox>
-            </children>
-        </AnchorPane>
-      <JFXButton fx:id="drawCmapaigns" buttonType="RAISED" disable="true" mnemonicParsing="false" onAction="#createCampaign" prefHeight="27.0" prefWidth="800.0" ripplerFill="#2be189" text="Draw Charts" textAlignment="CENTER" />
-    </children>
-</VBox>
+<AnchorPane prefHeight="751.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
+   <children>
+      <VBox prefHeight="751.0" prefWidth="1000.0" stylesheets="@../css/dashboard.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+          <children>
+              <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="729.0" prefWidth="833.0">
+                  <children>
+                      <VBox fx:id="verticalBox" prefHeight="734.0" prefWidth="1212.0" styleClass="dashboard-menu">
+                          <children>
+                        <!--<JFXButton disable="true" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Facebook Camapaign">-->
+                           <!--<VBox.margin>-->
+                              <!--<Insets />-->
+                           <!--</VBox.margin>-->
+                        <!--</JFXButton>-->
+                        <!--<JFXButton disable="true" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Instagram Campaign" />-->
+                              <JFXButton fx:id="addTestCampaign" disable="false" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Directly Add Campaign (Testing)" />
+                                <TitledPane alignment="BASELINE_LEFT" animated="false" expanded="false" text="New campaign">
+                                    <content>
+                                        <AnchorPane id="acc-expanded-pane" minHeight="0.0" minWidth="0.0" prefHeight="323.0" prefWidth="798.0">
+                                            <children>
+                                                <VBox alignment="TOP_CENTER" layoutX="32.4" layoutY="10.4" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="385.0" prefWidth="756.0" spacing="20.0" AnchorPane.bottomAnchor="-385.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0">
+                                                    <children>
+                                          <JFXTextField fx:id="campaignTitle" alignment="CENTER" promptText="Enter Cmapaign Title Here: " />
+                                                        <HBox alignment="CENTER" spacing="20.0">
+                                                            <children>
+                                                                <VBox alignment="CENTER" spacing="10.0">
+                                                                    <children>
+                                                                        <Label text="Import Impression Log" />
+                                                                        <ProgressIndicator fx:id="impProgress" minHeight="10.0" minWidth="10.0" prefHeight="10.0" prefWidth="10.0" progress="-1" scaleX="5.0" scaleY="5.0" translateY="40.0" visible="false" />
+                                                                        <JFXButton fx:id="importImpressionLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Import">
+                                                                            <cursor>
+                                                                                <Cursor fx:constant="HAND" />
+                                                                            </cursor>
+                                                                        </JFXButton>
+                                                                    </children>
+                                                                </VBox>
+                                                                <VBox alignment="CENTER" spacing="10.0">
+                                                                    <children>
+                                                                        <Label text="Import Click Log" />
+                                                                        <ProgressIndicator fx:id="clickProgress" minHeight="10.0" minWidth="10.0" prefHeight="10.0" prefWidth="10.0" progress="-1" scaleX="5.0" scaleY="5.0" translateY="40.0" visible="false" />
+                                                                        <JFXButton fx:id="importClickLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Import">
+                                                                            <cursor>
+                                                                                <Cursor fx:constant="HAND" />
+                                                                            </cursor>
+                                                                        </JFXButton>
+                                                                    </children>
+                                                                </VBox>
+                                                                <VBox alignment="CENTER" spacing="10.0">
+                                                                    <children>
+                                                                        <Label text="Import Server Log" />
+                                                                        <ProgressIndicator fx:id="servProgress" minHeight="10.0" minWidth="10.0" prefHeight="10.0" prefWidth="10.0" progress="-1" scaleX="5.0" scaleY="5.0" translateY="40.0" visible="false" />
+                                                                        <JFXButton fx:id="importServerLog" buttonType="RAISED" maxWidth="1.7976931348623157E308" prefWidth="150.0" text="Import">
+                                                                            <cursor>
+                                                                                <Cursor fx:constant="HAND" />
+                                                                            </cursor>
+                                                                        </JFXButton>
+                                                                    </children>
+                                                                </VBox>
+                                                            </children>
+                                                            <padding>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                                            </padding>
+                                                        </HBox>
+                                                        <JFXButton fx:id="createCampaignBtn" alignment="CENTER" disable="true" prefHeight="60.0" prefWidth="300.0" text="Done" textFill="#535353">
+                                                            <font>
+                                                                <Font name="System Bold" size="25.0" />
+                                                            </font>
+                                                            <cursor>
+                                                                <Cursor fx:constant="HAND" />
+                                                            </cursor>
+                                                            <ripplerFill>
+                                                                <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
+                                                                    <stops>
+                                                                        <Stop color="#46bfda" />
+                                                                        <Stop color="#66e3ff" offset="1.0" />
+                                                                    </stops>
+                                                                </RadialGradient>
+                                                            </ripplerFill>
+                                                        </JFXButton>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </AnchorPane>
+                                    </content>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                                </TitledPane>
+                          </children>
+                      </VBox>
+                  </children>
+              </AnchorPane>
+            <JFXButton fx:id="drawCmapaigns" alignment="CENTER" buttonType="RAISED" mnemonicParsing="false" onAction="#createCampaign" prefHeight="39.0" prefWidth="1280.0" ripplerFill="#2be189" style="-fx-background-color: #40B5BC;" text="Draw Charts" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </JFXButton>
+          </children>
+      </VBox>
+   </children>
+</AnchorPane>

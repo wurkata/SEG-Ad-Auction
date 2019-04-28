@@ -117,7 +117,7 @@ public class Parser extends Task<Boolean> implements Observable {
             model.setSubjects(subjects);
             SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
             new Thread(subjectsDAO).start();
-            model.uploadData(FileType.SERVER_LOG);
+            // model.uploadData(FileType.SERVER_LOG);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("Error reading server log: \nPlease check the file is in the correct format and try again.");

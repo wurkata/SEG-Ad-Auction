@@ -32,6 +32,10 @@
     -fx-text-fill: rgb(255, 50, 65);
 }
 
+.jfx-progress-bar > .bar {
+    -fx-background-color: -fx-btn-color;
+}
+
 .header-holder {
     -fx-background-color: -fx-btn-color;
 }

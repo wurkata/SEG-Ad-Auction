@@ -4,10 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
@@ -21,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class AccountController implements Initializable {
+public class AccountController extends GlobalController implements Initializable {
     @FXML
     JFXTextField usernameField;
 
@@ -43,14 +40,18 @@ public class AccountController implements Initializable {
     @FXML
     Label STATE;
 
-    private Model model;
     private String _STATE;
     private boolean isValidInputPwd;
     private boolean isValidInputUser;
 
+    protected static Model model;
+
+    public AccountController() {
+        model = new Model();
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        model = new Model();
 
         signProgress.setVisible(false);
 
@@ -86,7 +87,7 @@ public class AccountController implements Initializable {
 
                         try {
                             Thread.sleep(1000);
-                            goTo("dashboard");
+                            goTo("dashboard", (Stage) signBtn.getScene().getWindow(), new DashboardController(model));
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -118,7 +119,7 @@ public class AccountController implements Initializable {
 
                         try {
                             Thread.sleep(1000);
-                            goTo("login");
+                            goTo("login", (Stage) signBtn.getScene().getWindow(), null);
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -143,28 +144,12 @@ public class AccountController implements Initializable {
         goToBtn.setOnMouseReleased(e -> {
             try {
                 if (_STATE.equals("Login"))
-                    goTo("register");
+                    goTo("register", (Stage) goToBtn.getScene().getWindow(), null);
                 else
-                    goTo("login");
+                    goTo("login", (Stage) goToBtn.getScene().getWindow(), null);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
         });
-    }
-
-    private void goTo(String scene) throws IOException {
-        DashboardController controller = new DashboardController(model);
-
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/" + scene + ".fxml"));
-        if (!scene.equals("register") && !scene.equals("login")) loader.setController(controller);
-        Parent root = loader.load();
-
-        Scene campaignsScene = new Scene(root);
-
-        Stage window = (Stage) goToBtn.getScene().getWindow();
-
-        window.setScene(campaignsScene);
-        window.setResizable(false);
-        window.show();
     }
 }

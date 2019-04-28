@@ -1,6 +1,7 @@
 package controller;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
 import common.FileType;
 import common.Observer;
 import javafx.application.Platform;
@@ -12,9 +13,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Accordion;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TitledPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import model.Campaign;
 import model.Model;
 import model.Parser;
 import model.RawDataHolder;
@@ -27,6 +33,9 @@ import java.util.ResourceBundle;
 public class DashboardController implements Initializable, Observer {
     @FXML
     private JFXButton createCampaignBtn;
+
+    @FXML
+    private JFXTextField campaignTitle;
 
     @FXML
     private JFXButton importImpressionLog;
@@ -47,10 +56,17 @@ public class DashboardController implements Initializable, Observer {
     @FXML
     private ProgressIndicator servProgress;
 
+    @FXML
+    private JFXButton drawCmapaigns;
+
+    @FXML
+    private Accordion accordion;
+
 //    private Model model;
     private boolean impressionLogLoaded = false;
     private boolean clickLogLoaded = false;
     private boolean serverLogLoaded = false;
+    private boolean hasName = false;
 
     private Parser parserService;
     private File inputFile;
@@ -113,6 +129,17 @@ public class DashboardController implements Initializable, Observer {
                 ex.printStackTrace();
             }
         });
+
+        campaignTitle.setOnKeyTyped(e -> {
+                update(campaignTitle.getText());
+        });
+
+        createCampaignBtn.setOnMouseReleased(e-> {
+            AnchorPane newCampaign = new AnchorPane();
+            newCampaign.getChildren().add(new Label(campaignTitle.getText()));
+            TitledPane pane = new TitledPane(campaignTitle.getText(), newCampaign);
+            accordion.getPanes().add(pane);
+        });
     }
 
     private File importFile(FileType fileType) {
@@ -125,7 +152,9 @@ public class DashboardController implements Initializable, Observer {
     private void createCampaign(Event event) throws Exception {
         Model model = new Model();
         model.addObserver(this);
-        model.setRawDataHolder(parserService.getRawDataHolder());
+        RawDataHolder rdh = parserService.getRawDataHolder();
+        Campaign campaign = new Campaign (campaignTitle.getText(), rdh, model);
+        model.setRawDataHolder(rdh);
         CampaignController controller = new CampaignController(model);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
@@ -177,6 +206,16 @@ public class DashboardController implements Initializable, Observer {
                 serverLogLoaded = true;
             });
         }
+
+        if(arg instanceof String){
+            if (campaignTitle.getText().trim().isEmpty()) {
+                hasName = false;
+            }
+            else {
+                hasName = true;
+            }
+        }
+
         if(arg instanceof Exception){
 //            Alert err = new Alert(Alert.AlertType.ERROR);
 //            err.setTitle("File Import Error");
@@ -212,6 +251,6 @@ public class DashboardController implements Initializable, Observer {
     }
 
     private boolean canAddCampaign() {
-        return impressionLogLoaded && clickLogLoaded && serverLogLoaded;
+        return impressionLogLoaded && clickLogLoaded && serverLogLoaded && hasName;
     }
 }

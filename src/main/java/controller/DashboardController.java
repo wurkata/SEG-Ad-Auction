@@ -7,6 +7,7 @@ import common.Observer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -21,72 +22,68 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TitledPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import jdk.nashorn.internal.objects.Global;
+import model.DAO.DBPool;
 import model.DBTasks.getCampaignsForUser;
+import model.ImpressionLog;
 import model.Model;
 import model.Parser;
 
+import javax.annotation.PostConstruct;
 import javax.swing.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-public class DashboardController implements Initializable, Observer {
+@SuppressWarnings("unused")
+public class DashboardController extends GlobalController implements Initializable, Observer {
 
     @FXML
-    @SuppressWarnings("unused")
     private Label feedbackMsg;
 
     @FXML
-    @SuppressWarnings("unused")
     private JFXTextField campaignTitle;
 
     @FXML
-    @SuppressWarnings("unused")
     private JFXButton createCampaignBtn;
 
     @FXML
-    @SuppressWarnings("unused")
     private JFXButton importImpressionLog;
 
     @FXML
-    @SuppressWarnings("unused")
     private JFXButton importClickLog;
 
     @FXML
-    @SuppressWarnings("unused")
     private JFXButton importServerLog;
 
     @FXML
-    @SuppressWarnings("unused")
     private JFXButton addTestCampaign;
 
     @FXML
-    @SuppressWarnings("unused")
     private TitledPane newCampaignPane;
 
     @FXML
-    @SuppressWarnings("unused")
     private ProgressIndicator impProgress;
 
     @FXML
-    @SuppressWarnings("unused")
     private ProgressIndicator clickProgress;
 
     @FXML
-    @SuppressWarnings("unused")
     private ProgressIndicator servProgress;
 
     @FXML
-    @SuppressWarnings("unused")
     private ListView<String> campaignsList;
 
     @FXML
-    @SuppressWarnings("unused")
     private JFXButton loadCampaignBtn;
 
     private Model model;
+
     private boolean impressionLogLoaded = false;
     private boolean clickLogLoaded = false;
     private boolean serverLogLoaded = false;
@@ -95,7 +92,7 @@ public class DashboardController implements Initializable, Observer {
 
     private File inputFile;
 
-    DashboardController(Model model) {
+    public DashboardController(Model model) {
         this.model = model;
     }
 
@@ -193,10 +190,19 @@ public class DashboardController implements Initializable, Observer {
                 campaignsList.translateYProperty().setValue(15);
         });
 
-        campaignsList.getSelectionModel().selectedItemProperty().addListener(e -> {
-            loadCampaignBtn.setDisable(false);
+        campaignsList.getSelectionModel().selectedItemProperty().addListener(e -> loadCampaignBtn.setDisable(false));
 
-            
+        loadCampaignBtn.setOnMouseReleased(e -> {
+            LoadCampaign loadCampaignTask = new LoadCampaign();
+            loadCampaignTask.setOnSucceeded(a -> {
+                try {
+                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(model));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            });
+
+            new Thread(loadCampaignTask).start();
         });
     }
 
@@ -210,6 +216,7 @@ public class DashboardController implements Initializable, Observer {
     private void createCampaign(Event event) {
         try {
             model.setCampaignTitle(campaignTitle.textProperty().getValue());
+            model.uploadData();
             CampaignController controller = new CampaignController(model);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
@@ -312,5 +319,39 @@ public class DashboardController implements Initializable, Observer {
         });
 
         new Thread(getCampaignsTask).start();
+    }
+
+    class LoadCampaign extends Task<Boolean> {
+        Connection con;
+
+        @Override
+        protected Boolean call() throws Exception {
+            con = DBPool.getConnection();
+
+            try {
+                Statement stmt = con.createStatement();
+                String query = "SELECT * FROM impression_log WHERE campaign_id=" +
+                        "(SELECT id FROM campaigns WHERE title='" + campaignsList.getSelectionModel().getSelectedItem() + "')";
+
+                ResultSet resultSet = stmt.executeQuery(query);
+                List<ImpressionLog> impressionLog = new ArrayList<>();
+
+                while (resultSet.next()) {
+                    impressionLog.add(new ImpressionLog(
+                            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(resultSet.getString("date")),
+                            resultSet.getString("subject_id"),
+                            resultSet.getString("context"),
+                            resultSet.getDouble("cost")
+                    ));
+                }
+
+                model.setImpressionLog(impressionLog);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
     }
 }

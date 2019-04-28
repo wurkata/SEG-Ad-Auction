@@ -5,8 +5,6 @@ import common.Granularity;
 import common.Metric;
 import common.Observer;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
@@ -20,7 +18,6 @@ import javafx.scene.control.Label;
 
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import model.Model;
 import org.jfree.chart.ChartPanel;
 
@@ -35,7 +32,8 @@ import java.awt.print.PrinterJob;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class CampaignController implements Initializable, Observer {
+@SuppressWarnings("unused")
+public class CampaignController extends GlobalController implements Initializable, Observer {
     @FXML
     private GridPane metricsGrid;
 
@@ -255,13 +253,9 @@ public class CampaignController implements Initializable, Observer {
             }
         });
 
-        appliedFiltersList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                selectedFilter = newValue;
-                removeFilter.setDisable(false);
-            }
-
+        appliedFiltersList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            selectedFilter = newValue;
+            removeFilter.setDisable(false);
         });
 
         removeFilter.setOnMouseClicked(event -> {
@@ -307,7 +301,7 @@ public class CampaignController implements Initializable, Observer {
         initGranularityGrid();
     }
 
-    private void initGranularityGrid(){
+    private void initGranularityGrid() {
         hourBtn.setDisable(false);
         dayBtn.setDisable(false);
         monthBtn.setDisable(false);
@@ -315,20 +309,20 @@ public class CampaignController implements Initializable, Observer {
         todBtn.setDisable(false);
         dowBtn.setDisable(false);
 
-        hourBtn.setOnMouseClicked(e->model.setGranularity(Granularity.HOUR));
-        dayBtn.setOnMouseClicked(e->model.setGranularity(Granularity.DAY));
-        monthBtn.setOnMouseClicked(e->model.setGranularity(Granularity.MONTH));
-        yearBtn.setOnMouseClicked(e->model.setGranularity(Granularity.YEAR));
-        todBtn.setOnMouseClicked(e->model.setGranularity(Granularity.ToD));
-        dowBtn.setOnMouseClicked(e->model.setGranularity(Granularity.DoW));
+        hourBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.HOUR));
+        dayBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.DAY));
+        monthBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.MONTH));
+        yearBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.YEAR));
+        todBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.ToD));
+        dowBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.DoW));
 
     }
 
-    public void addFilter(String filter) {
+    void addFilter(String filter) {
         filters.add(filter);
     }
 
-    public int getUsableID() {
+    int getUsableID() {
         int[] used = filters.stream().mapToInt(e -> Integer.parseInt(e.split(":")[0])).toArray();
         int i = 1;
         do {

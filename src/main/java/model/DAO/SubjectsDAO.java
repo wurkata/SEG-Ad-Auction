@@ -47,7 +47,6 @@ public class SubjectsDAO extends Task<Void> implements DAO {
             stmt.addBatch();
 
             i++;
-            System.out.println(i);
 
             if(i % BATCH_SIZE == 0) {
                 try {

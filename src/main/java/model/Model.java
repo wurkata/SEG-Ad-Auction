@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
+import model.DAO.DBPool;
 import model.DAO.SubjectsDAO;
 import model.DBTasks.Insert;
 
@@ -19,6 +20,8 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.Date;
 import java.util.function.Function;
+
+import static common.FileType.*;
 
 /**
  * Created by furqan on 27/02/2019.
@@ -88,19 +91,19 @@ public class Model extends Task<Void> implements Observable {
         this.subjects.addAll(subjects);
     }
 
-    void setImpressionLog(List<ImpressionLog> impressionLog) {
+    public void setImpressionLog(List<ImpressionLog> impressionLog) {
         this.rawImpressionLog = impressionLog;
         this.impressionLog.addAll(rawImpressionLog);
-        notifyObservers(FileType.IMPRESSION_LOG);
+        notifyObservers(IMPRESSION_LOG);
     }
 
-    void setClickLog(List<ClickLog> clickLog) {
+    public void setClickLog(List<ClickLog> clickLog) {
         this.rawClickLog = clickLog;
         this.clickLog.addAll(rawClickLog);
         notifyObservers(FileType.CLICK_LOG);
     }
 
-    void setServerLog(List<ServerLog> serverLog) {
+    public void setServerLog(List<ServerLog> serverLog) {
         this.rawServerLog = serverLog;
         this.serverLog.addAll(serverLog);
         notifyObservers(FileType.SERVER_LOG);
@@ -114,131 +117,155 @@ public class Model extends Task<Void> implements Observable {
         return user;
     }
 
-    // ------ DATABASE -------------------------------------------------------------------------------------------------
-    private void setConnector() {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+    Object entry;
 
-            this.con = DriverManager.getConnection("jdbc:mysql://95.111.125.115:3306/seg", "remote-root", "758291Qq32@");
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void uploadData() {
+        if(impressionLog != null) {
+            UploadData uploadDataTask = new UploadData(IMPRESSION_LOG);
+            new Thread(uploadDataTask).start();
+        }
+        if(clickLog != null) {
+            UploadData uploadDataTask = new UploadData(SERVER_LOG);
+            new Thread(uploadDataTask).start();
+        }
+        if(impressionLog != null) {
+            UploadData uploadDataTask = new UploadData(CLICK_LOG);
+            new Thread(uploadDataTask).start();
         }
     }
 
-    Object entry;
+    public class UploadData extends Task<List<Object>> {
 
-    void uploadData(FileType type) {
-        try {
-            if(con == null) setConnector();
-            con.setAutoCommit(false);
-            Statement stmt = con.createStatement();
+        private FileType type;
 
-            // Insert table title; preserve uniqueness
-            String query = "INSERT IGNORE INTO campaigns (title) VALUES('"+ this.campaignTitle +"')";
-            stmt.executeUpdate(query);
+        public UploadData(FileType type) {
+            this.type = type;
+        }
 
-            PreparedStatement pstmt;
-            int i;
+        @Override
+        protected List<Object> call() {
+            try {
+                con = DBPool.getConnection();
+                Statement stmt1 = con.createStatement();
 
-            switch (type) {
-                case IMPRESSION_LOG:
-                    pstmt = con.prepareStatement("INSERT INTO impression_log (campaign_id, subject_id, date, context, cost) " +
-                        "VALUES (" +
-                            "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
-                            "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
-                            "?, ?, ?" +
-                        ")"
-                    );
+                // Insert table title; preserve uniqueness
+                String query = "INSERT INTO campaigns (title) VALUES('"+ campaignTitle +"');";
+                System.out.println(query);
+                stmt1.executeQuery(query);
+                ResultSet res = stmt1.getGeneratedKeys();
+                res.next();
 
-                    i = 0;
+                query = "INSERT INTO campaign_users (campaign_id, user_id) VALUES(" +
+                         res.getLong(1) + "," +
+                        "(SELECT id FROM users WHERE username='"+ user +"' LIMIT 1));";
 
-                    for (ImpressionLog log : this.impressionLog) {
-                        pstmt.setString(1, this.campaignTitle);
-                        pstmt.setString(2, log.getSubjectID());
-                        pstmt.setString(3, log.getImpressionDate().toString());
-                        pstmt.setString(4, log.getContext());
-                        pstmt.setDouble(5, log.getImpressionCost());
+                System.out.println("Uploaded campaign");
 
-                        pstmt.addBatch();
+                PreparedStatement pstmt;
+                int i;
 
-                        i++;
+                switch (type) {
+                    case IMPRESSION_LOG:
+                        pstmt = con.prepareStatement("INSERT INTO impression_log (campaign_id, subject_id, date, context, cost) " +
+                                "VALUES (" +
+                                "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
+                                "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
+                                "?, ?, ?" +
+                                ")"
+                        );
 
-                        if(i % BATCH_SIZE == 0) {
-                            pstmt.executeBatch();
-                            con.commit();
+                        i = 0;
+
+                        for (ImpressionLog log : impressionLog) {
+                            pstmt.setString(1, campaignTitle);
+                            pstmt.setString(2, log.getSubjectID());
+                            pstmt.setString(3, log.getImpressionDate().toString());
+                            pstmt.setString(4, log.getContext());
+                            pstmt.setDouble(5, log.getImpressionCost());
+
+                            pstmt.addBatch();
+
+                            i++;
+                            System.out.println(i);
+
+                            if(i % BATCH_SIZE == 0) {
+                                pstmt.executeBatch();
+                                con.commit();
+                            }
                         }
-                    }
-                    pstmt.executeBatch();
-                    con.commit();
-                    break;
-                case CLICK_LOG:
-                    pstmt = con.prepareStatement("INSERT INTO click_log(campaign_id, subject_id, date, click_cost) " +
-                            "VALUES (" +
-                            "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
-                            "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
-                            "?, ?" +
-                            ")"
-                    );
+                        pstmt.executeBatch();
+                        DBPool.closeConnection(con);
+                        break;
+                    case CLICK_LOG:
+                        pstmt = con.prepareStatement("INSERT INTO click_log(campaign_id, subject_id, date, click_cost) " +
+                                "VALUES (" +
+                                "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
+                                "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
+                                "?, ?" +
+                                ")"
+                        );
 
-                    i = 0;
+                        i = 0;
 
-                    for (ClickLog log : this.clickLog) {
-                        pstmt.setString(1, this.campaignTitle);
-                        pstmt.setString(2, log.getSubjectID());
-                        pstmt.setString(3, log.getClickDate().toString());
-                        pstmt.setDouble(4, log.getClickCost());
+                        for (ClickLog log : clickLog) {
+                            pstmt.setString(1, campaignTitle);
+                            pstmt.setString(2, log.getSubjectID());
+                            pstmt.setString(3, log.getClickDate().toString());
+                            pstmt.setDouble(4, log.getClickCost());
 
-                        pstmt.addBatch();
+                            pstmt.addBatch();
 
-                        i++;
+                            i++;
 
-                        if(i % BATCH_SIZE == 0) {
-                            pstmt.executeBatch();
-                            con.commit();
+                            if(i % BATCH_SIZE == 0) {
+                                pstmt.executeBatch();
+                                con.commit();
+                            }
                         }
-                    }
-                    pstmt.executeBatch();
-                    con.commit();
-                    break;
-                case SERVER_LOG:
-                    pstmt = con.prepareStatement("INSERT INTO server_log (campaign_id, subject_id, entry_date, exit_date, pages_viewed, conversion) " +
-                            "VALUES (" +
-                            "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
-                            "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
-                            "?, ?, ?, ?" +
-                            ")"
-                    );
+                        pstmt.executeBatch();
+                        con.commit();
+                        break;
+                    case SERVER_LOG:
+                        pstmt = con.prepareStatement("INSERT INTO server_log (campaign_id, subject_id, entry_date, exit_date, pages_viewed, conversion) " +
+                                "VALUES (" +
+                                "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
+                                "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
+                                "?, ?, ?, ?" +
+                                ")"
+                        );
 
-                    i = 0;
+                        i = 0;
 
-                    for (ServerLog log : this.serverLog) {
-                        pstmt.setString(1, this.campaignTitle);
-                        pstmt.setString(2, log.getSubjectID());
-                        pstmt.setString(3, (entry = log.getEntryDate()) == null ? "null" : entry.toString());
-                        pstmt.setString(4, (entry = log.getExitDate()) == null ? "null" : entry.toString());
-                        pstmt.setInt(5, (int) (entry = log.getPagesViewed()) < 0 ? -1 : (int) entry);
-                        pstmt.setBoolean(6, log.getConversion() > 0);
+                        for (ServerLog log : serverLog) {
+                            pstmt.setString(1, campaignTitle);
+                            pstmt.setString(2, log.getSubjectID());
+                            pstmt.setString(3, (entry = log.getEntryDate()) == null ? "null" : entry.toString());
+                            pstmt.setString(4, (entry = log.getExitDate()) == null ? "null" : entry.toString());
+                            pstmt.setInt(5, (int) (entry = log.getPagesViewed()) < 0 ? -1 : (int) entry);
+                            pstmt.setBoolean(6, log.getConversion() > 0);
 
-                        pstmt.addBatch();
+                            pstmt.addBatch();
 
-                        i++;
+                            i++;
 
 
-                        System.out.println("Server: " + i);
+                            System.out.println("Server: " + i);
 
-                        if(i % BATCH_SIZE == 0) {
-                            pstmt.executeBatch();
-                            con.commit();
+                            if(i % BATCH_SIZE == 0) {
+                                pstmt.executeBatch();
+                                con.commit();
+                            }
                         }
-                    }
-                    pstmt.executeBatch();
-                    con.commit();
-                    break;
-                default:
-                    break;
+                        pstmt.executeBatch();
+                        con.commit();
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
     }
 
@@ -250,24 +277,6 @@ public class Model extends Task<Void> implements Observable {
         this.campaignTitle = title;
         Insert insertTask = new Insert();
         insertTask.setTable("campaigns");
-    }
-
-    public boolean checkValidTitle(String title) {
-        if (con == null) setConnector();
-        try {
-            Statement stmt = con.createStatement();
-            String query = "SELECT id FROM campaigns WHERE title='" + title + "';";
-
-            ResultSet result = stmt.executeQuery(query);
-
-            if(!result.next()) {
-                return true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
     }
 
     //True sets class to calculate costs based om impression costs, whereas false uses click costs
@@ -839,7 +848,7 @@ public class Model extends Task<Void> implements Observable {
                 .filter(sl -> matchesFilter(sl))
                 .forEach(sl -> serverLog.add(sl));
 
-        notifyObservers(FileType.IMPRESSION_LOG);
+        notifyObservers(IMPRESSION_LOG);
         notifyObservers(FileType.CLICK_LOG);
         notifyObservers(FileType.SERVER_LOG);
     }

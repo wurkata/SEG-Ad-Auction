@@ -30,6 +30,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class DashboardController implements Initializable, Observer {
@@ -64,7 +66,7 @@ public class DashboardController implements Initializable, Observer {
     @FXML
     private VBox verticalBox;
 
-//    private Model model;
+    private Model model = new Model();
     private boolean impressionLogLoaded = false;
     private boolean clickLogLoaded = false;
     private boolean serverLogLoaded = false;
@@ -137,10 +139,16 @@ public class DashboardController implements Initializable, Observer {
         });
 
         createCampaignBtn.setOnMouseReleased(e-> {
-            Campaign newCampaign = new Campaign(campaignTitle.getText(), );
+            Campaign newCampaign = new Campaign(campaignTitle.getText(), new RawDataHolder());
+            model.addCampaign(newCampaign);
             AnchorPane newCampaignPane = new AnchorPane();
-            TitledPane pane = new TitledPane(campaignTitle.getText(), newCampaignPane);
+            TitledPane pane = new TitledPane("",newCampaignPane);
+            Label nameLabel = new Label(campaignTitle.getText());
+            nameLabel.setPrefSize(300, 55);
+            nameLabel.setStyle("-fx-font-size:20px;");
+            pane.setGraphic(nameLabel);
             verticalBox.getChildren().add(pane);
+            pane.setPadding(new Insets(0,0,0,0));
             HBox hBox = new HBox();
             JFXButton remove = new JFXButton("Remove");
             JFXButton export = new JFXButton("Export");
@@ -150,15 +158,14 @@ public class DashboardController implements Initializable, Observer {
             export.setRipplerFill(javafx.scene.paint.Paint.valueOf("#77dd00"));
             remove.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
             export.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
-            remove.setPrefSize(200, 50);
-            export.setPrefSize(200, 50);
+            remove.setPrefSize(200, 60);
+            export.setPrefSize(200, 60);
             remove.setPadding(new Insets(20,20,20,20));
             export.setPadding(new Insets(20,20,20,20));
-            hBox.getChildren().add(remove);
-            hBox.getChildren().add(export);
+            hBox.getChildren().addAll(remove, export);
             remove.setOnMouseReleased(f-> {
                verticalBox.getChildren().remove(pane);
-               campaigns.remove(newCampaign)
+               model.getCampaigns().remove(newCampaign);
             });
             export.setDisable(true);
             newCampaignPane.getChildren().add(hBox);
@@ -173,10 +180,14 @@ public class DashboardController implements Initializable, Observer {
 
     @FXML
     private void createCampaign(Event event) throws Exception {
-        Model model = new Model();
+
         model.addObserver(this);
-        RawDataHolder rdh = parserService.getRawDataHolder();
-        model.setRawDataHolder(rdh);
+
+        for (Campaign campaign: model.getCampaigns()
+             ) {
+            RawDataHolder rdh = campaign.getRdh();
+            model.getRawDataHolders().add(rdh);
+        }
         CampaignController controller = new CampaignController(model);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));

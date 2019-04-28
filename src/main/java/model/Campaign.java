@@ -8,16 +8,20 @@ public class Campaign {
 
     private String name;
     private RawDataHolder rdh;
-    private Model model;
 
-    public Campaign (String name, RawDataHolder rdh, Model model) {
+    public Campaign (String name, RawDataHolder rdh) {
         this.name = name;
         this.rdh = rdh;
-        this.model = model;
     }
+
+    public String getName () {return this.name;}
 
     public void setName (String name) {
         this.name = name;
     }
+
+    public RawDataHolder getRdh () {return this.rdh;}
+
+    public void setRdh (RawDataHolder rdh) {this.rdh = rdh;}
 
 }

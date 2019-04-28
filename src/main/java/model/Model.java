@@ -34,11 +34,13 @@ public class Model extends Service<Void> implements Observable {
     private List<ClickLog> clickLog = new ArrayList<>();
     private List<ServerLog> serverLog = new ArrayList<>();
 
-//    private List<ImpressionLog> rawImpressionLog;
+    //    private List<ImpressionLog> rawImpressionLog;
 //    private List<ClickLog> rawClickLog;
 //    private List<ServerLog> rawServerLog;
-    private RawDataHolder rawDataHolder;
+    private RawDataHolder rawDataHolder = new RawDataHolder();
+    private List<RawDataHolder> rawDataHolders = new ArrayList<RawDataHolder>();
 
+    private List<Campaign> campaigns = new ArrayList<Campaign>();
 
     public Metrics metrics;
     public ChartData chartData;
@@ -1058,6 +1060,32 @@ public class Model extends Service<Void> implements Observable {
                 campaignSeries.setName("Cost-per-acquisition");
                 chartData.setChartData(FXCollections.observableArrayList(campaignSeries));
                 break;
+        }
+    }
+
+    //-------------------CAMPAIGN CONTROLS---------------------------------------
+    public List<Campaign> getCampaigns() {
+        return campaigns;
+    }
+
+    public void setCampaigns(List<Campaign> campaigns) {
+        this.campaigns = campaigns;
+    }
+
+    public List<RawDataHolder> getRawDataHolders() {
+        return rawDataHolders;
+    }
+
+    public void setRawDataHolders(List<RawDataHolder> rawDataHolders) {
+        this.rawDataHolders = rawDataHolders;
+    }
+
+    public void addCampaign (Campaign c) {
+        if (campaigns!=null){
+            campaigns.add(c);
+        }
+        else {
+            campaigns = new ArrayList<Campaign>(Arrays.asList(c));
         }
     }
 }

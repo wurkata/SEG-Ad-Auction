@@ -20,7 +20,7 @@
           <children>
               <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="729.0" prefWidth="833.0">
                   <children>
-                      <VBox fx:id="verticalBox" prefHeight="734.0" prefWidth="1212.0" styleClass="dashboard-menu">
+                      <VBox fx:id="verticalBox" layoutX="1.0" prefHeight="734.0" prefWidth="1212.0" styleClass="dashboard-menu">
                           <children>
                         <!--<JFXButton disable="true" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Facebook Camapaign">-->
                            <!--<VBox.margin>-->
@@ -105,7 +105,7 @@
                       </VBox>
                   </children>
               </AnchorPane>
-            <JFXButton fx:id="drawCmapaigns" alignment="CENTER" buttonType="RAISED" mnemonicParsing="false" onAction="#createCampaign" prefHeight="39.0" prefWidth="1280.0" ripplerFill="#2be189" style="-fx-background-color: #40B5BC;" text="Draw Charts" textAlignment="CENTER">
+            <JFXButton fx:id="drawCmapaigns" alignment="CENTER" buttonType="RAISED" mnemonicParsing="false" onAction="#createCampaign" prefHeight="103.0" prefWidth="1212.0" ripplerFill="#2be189" style="-fx-background-color: #40B5BC;" text="Draw Chart" textAlignment="CENTER">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>

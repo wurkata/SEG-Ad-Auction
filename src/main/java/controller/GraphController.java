@@ -28,16 +28,17 @@ import org.jfree.data.xy.XYDataset;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 public class GraphController extends Service<JFreeChart> implements Observable {
-    private Model model;
+    private List<Model> models;
     private CampaignController controller;
 
     private Metric metric;
 
-    GraphController(CampaignController controller, Model model) {
+    GraphController(CampaignController controller, List<Model> models) {
         this.controller = controller;
-        this.model = model;
+        this.models = models;
     }
 
     private void setMetric() {
@@ -97,7 +98,10 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         numAxis.setAutoRangeIncludesZero(true);
         numAxis.configure();
 
-        switch(model.getGranularity()){
+        for (Model model: models) {
+
+
+        switch(model.getGranularity()) {
             case HOUR:
                 dateAxis.setDateFormatOverride(new SimpleDateFormat("HH:59 dd/MM/yyyy"));
                 break;
@@ -117,6 +121,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 dateAxis.setDateFormatOverride(new SimpleDateFormat("EEEE"));
                 break;
         }
+        }
 
         controller.campaignChartViewer.setVisible(true);
         controller.chartProgress.setVisible(false);
@@ -132,122 +137,171 @@ public class GraphController extends Service<JFreeChart> implements Observable {
         return chart;
     }
 
+    //Updated for multiple
     private JFreeChart setChart() {
-        setMetric();
-        if(metric != null) {
-            controller.campaignChartViewer.setVisible(false);
-            controller.chartProgress.setVisible(true);
+            setMetric();
+            if(metric != null) {
+                controller.campaignChartViewer.setVisible(false);
+                controller.chartProgress.setVisible(true);
 
-        }
-        TimeSeriesCollection dataset = new TimeSeriesCollection();
-        String title = "";
-        String val = "";
-        boolean doub=false;
-        switch (metric) {
-            case CPA:
-                TimeSeries cpa = new TimeSeries("CPA");
-                model.getCPAPair().forEach(e -> {
-                    if (!e.getValue().isInfinite()) {
-                        cpa.addOrUpdate(new Hour(e.getKey()), e.getValue());
+            }
+            TimeSeriesCollection dataset = new TimeSeriesCollection();
+            String title = "";
+            String val = "";
+            boolean doub = false;
+
+            switch (metric) {
+
+                case CPA:
+                    title = "Cost per Acquisition";
+                    val = "Cost /pence";
+                    doub = true;
+                    for (Model model : models) {
+
+                        TimeSeries cpa = new TimeSeries(model.getName());
+                        model.getCPAPair().forEach(e -> {
+                            if (!e.getValue().isInfinite()) {
+                                cpa.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                            }
+                        });
+
+                        dataset.addSeries(cpa);
                     }
-                });
-                title = "Cost per Acquisition";
-                val = "Cost /pence";
-                dataset.addSeries(cpa);
-                doub=true;
-                break;
-            case CPC:
-                TimeSeries clickCost = new TimeSeries("CPC");
-                model.getClickCostPair().forEach(e -> {
-                    if (!e.getValue().isInfinite()) {
-                        clickCost.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    break;
+
+                case CPC:
+                    title = "Cost per Click";
+                    val = "Cost /pence";
+                    doub = true;
+                    for (Model model : models) {
+
+                        TimeSeries clickCost = new TimeSeries(model.getName());
+                        model.getClickCostPair().forEach(e -> {
+                            if (!e.getValue().isInfinite()) {
+                                clickCost.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                            }
+                        });
+
+                        dataset.addSeries(clickCost);
                     }
-                });
-                title = "Cost per Click";
-                val = "Cost /pence";
-                dataset.addSeries(clickCost);
-                doub=true;
-                break;
-            case CPM:
-                TimeSeries cpm = new TimeSeries("CPM");
-                model.getCPMPair().forEach(e -> {
-                    if (!e.getValue().isInfinite()) {
-                        cpm.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    break;
+
+                case CPM:
+                    title = "Cost per 1000 Impressions";
+                    val = "Cost /pence";
+                    doub = true;
+                    for (Model model : models) {
+
+                        TimeSeries cpm = new TimeSeries(model.getName());
+                        model.getCPMPair().forEach(e -> {
+                            if (!e.getValue().isInfinite()) {
+                                cpm.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                            }
+                        });
+                        dataset.addSeries(cpm);
                     }
-                });
-                title = "Cost per 1000 Impressions";
-                val = "Cost /pence";
-                dataset.addSeries(cpm);
-                doub=true;
-                break;
-            case CTR:
-                TimeSeries ctr = new TimeSeries("CTR");
-                model.getCTRPair().forEach(e -> {
-                    if (!e.getValue().isInfinite()) {
-                        ctr.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    break;
+
+                case CTR:
+                    title = "Click-Through Rate";
+                    val = "Click-Through Rate";
+                    doub = true;
+                    for (Model model : models) {
+
+                        TimeSeries ctr = new TimeSeries(model.getName());
+                        model.getCTRPair().forEach(e -> {
+                            if (!e.getValue().isInfinite()) {
+                                ctr.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                            }
+                        });
+                        dataset.addSeries(ctr);
                     }
-                });
-                title = "Click-Through Rate";
-                val = "Click-Through Rate";
-                dataset.addSeries(ctr);
-                doub=true;
-                break;
-            case TOTAL_COST:
-                TimeSeries totalCost = new TimeSeries("Total Cost");
-                model.getTotalCostPair().forEach(e -> totalCost.addOrUpdate(new Hour(e.getKey()), e.getValue()));
-                title = "Total Cost";
-                val = "Cost /pence";
-                dataset.addSeries(totalCost);
-                doub=true;
-                break;
-            case BOUNCE_RATE:
-                TimeSeries bounceRate = new TimeSeries("Bounce Rate");
-                model.getBounceRatePair().forEach(e -> {
-                    if (!e.getValue().isInfinite()) {
-                        bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                    break;
+
+                case TOTAL_COST:
+                    title = "Total Cost";
+                    val = "Cost /pence";
+                    doub = true;
+                    for (Model model : models) {
+
+                        TimeSeries totalCost = new TimeSeries(model.getName());
+                        model.getTotalCostPair().forEach(e -> totalCost.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                        dataset.addSeries(totalCost);
                     }
-                });
-                title = "Bounce Rate";
-                val = "Bounce Rate";
-                dataset.addSeries(bounceRate);
-                doub=true;
-                break;
-            case NUM_OF_CLICKS:
-                TimeSeries numOfClicks = new TimeSeries("Number Of Clicks");
-                model.getNumOfClicksPair().forEach(e -> numOfClicks.addOrUpdate(new Hour(e.getKey()), e.getValue()));
-                title = "Number of Clicks";
-                val = "Number of Clicks";
-                dataset.addSeries(numOfClicks);
-                break;
-            case NUM_OF_BOUNCES:
-                TimeSeries bp = new TimeSeries("Number Of Bounces");
-                model.getNumOfBouncesPair().forEach(e -> bp.addOrUpdate(new Hour(e.getKey()), e.getValue()));
-                title = "Number of Bounces";
-                val = "Bounces";
-                dataset.addSeries(bp);
-                break;
-            case NUM_OF_CONVERSIONS:
-                TimeSeries conversion = new TimeSeries("Number Of Conversions");
-                model.getNumOfConversionsPair().forEach(e -> conversion.addOrUpdate(new Hour(e.getKey()), e.getValue()));
-                title = "Number of Conversions";
-                val = "Conversions";
-                dataset.addSeries(conversion);
-                break;
-            case NUM_OF_IMPRESSIONS:
-                TimeSeries imp = new TimeSeries("Number Of Impressions");
-                model.getNumOfImpressionsPair().forEach(e -> imp.addOrUpdate(new Hour(e.getKey()), e.getValue()));
-                title = "Number of Impressions";
-                val = "Impressions";
-                dataset.addSeries(imp);
-                break;
-            case NUM_OF_UNIQUE_CLICKS:
-                TimeSeries uclick = new TimeSeries("Number Of Unique Clicks");
-                model.getNumOfUniqueClicksPair().forEach(e -> uclick.addOrUpdate(new Hour(e.getKey()), e.getValue()));
-                title = "Number of Unique Clicks";
-                val = "Unique Clicks";
-                dataset.addSeries(uclick);
-                break;
-        }
+                    break;
+
+                case BOUNCE_RATE:
+                    title = "Bounce Rate";
+                    val = "Bounce Rate";
+                    doub = true;
+                    for (Model model : models) {
+
+                        TimeSeries bounceRate = new TimeSeries(model.getName());
+                        model.getBounceRatePair().forEach(e -> {
+                            if (!e.getValue().isInfinite()) {
+                                bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue());
+                            }
+                        });
+
+                        dataset.addSeries(bounceRate);
+                    }
+                    break;
+
+                case NUM_OF_CLICKS:
+                    title = "Number of Clicks";
+                    val = "Number of Clicks";
+                    for (Model model: models) {
+
+                        TimeSeries numOfClicks = new TimeSeries(model.getName());
+                        model.getNumOfClicksPair().forEach(e -> numOfClicks.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                        dataset.addSeries(numOfClicks);
+                    }
+                    break;
+
+                case NUM_OF_BOUNCES:
+                    title = "Number of Bounces";
+                    val = "Bounces";
+                    for (Model model: models) {
+
+                        TimeSeries bp = new TimeSeries(model.getName());
+                        model.getNumOfBouncesPair().forEach(e -> bp.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                        dataset.addSeries(bp);
+                    }
+                    break;
+
+                case NUM_OF_CONVERSIONS:
+                    title = "Number of Conversions";
+                    val = "Conversions";
+                    for (Model model: models) {
+
+                        TimeSeries conversion = new TimeSeries(model.getName());
+                        model.getNumOfConversionsPair().forEach(e -> conversion.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                        dataset.addSeries(conversion);
+                    }
+                    break;
+
+                case NUM_OF_IMPRESSIONS:
+                    title = "Number of Impressions";
+                    val = "Impressions";
+                    for (Model model: models) {
+
+                        TimeSeries imp = new TimeSeries(model.getName());
+                        model.getNumOfImpressionsPair().forEach(e -> imp.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                        dataset.addSeries(imp);
+                    }
+                    break;
+
+                case NUM_OF_UNIQUE_CLICKS:
+                    title = "Number of Unique Clicks";
+                    val = "Unique Clicks";
+                    for (Model model: models) {
+
+                        TimeSeries uclick = new TimeSeries(model.getName());
+                        model.getNumOfUniqueClicksPair().forEach(e -> uclick.addOrUpdate(new Hour(e.getKey()), e.getValue()));
+                        dataset.addSeries(uclick);
+                    }
+                    break;
+            }
 
         return getChartFor(title, "Date/Time", val, dataset, doub);
     }

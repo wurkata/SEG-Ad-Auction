@@ -18,7 +18,7 @@ public class TestDataGenerator {
     //--------------------------------Change these values to change amount of data generated---------------------------
     private static int minImpressionsPerHour = 5;
     private static int maxImpressionsPerHour=100;
-    private static int numOfDays = 365*2;
+    private static int numOfDays = 365;
     //--------------------------------------------------------------------------------------------------------------
 
     //Files generated into "input" folder with other logs
@@ -118,12 +118,14 @@ public class TestDataGenerator {
 
     private static void writeOutput(ArrayList<String> arrayList, String filename, String header){
         File out = new File("input/"+filename);
-
+        File dir = new File("input");
+        dir.mkdir();
 
         if(!out.exists()){
             try {
                 out.createNewFile();
             } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         try {

@@ -19,7 +19,7 @@ public class Subject {
         return gender;
     }
 
-    public String getAge() {
+    public String getAgeRange() {
         return age;
     }
 

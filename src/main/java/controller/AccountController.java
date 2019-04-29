@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class AccountController extends GlobalController implements Initializable {
+    public static boolean online=true;
+
     @FXML
     JFXTextField usernameField;
 
@@ -48,11 +50,7 @@ public class AccountController extends GlobalController implements Initializable
     private boolean isValidInputPwd;
     private boolean isValidInputUser;
 
-    protected static Model model;
-
-    public AccountController() {
-        model = new Model();
-    }
+    public static User user;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -67,7 +65,8 @@ public class AccountController extends GlobalController implements Initializable
 
         useOfflineBtn.setOnMouseReleased(e -> {
             try {
-                goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController(model));
+                online=false;
+                goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController(online));
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -95,11 +94,11 @@ public class AccountController extends GlobalController implements Initializable
                     if (res != null) {
                         signProgress.setVisible(false);
                         feedbackMsg.textProperty().setValue("Login successful. Taking you to Dashboard...");
-                        model.setUser(res);
+                        user = res;
 
                         try {
                             Thread.sleep(1000);
-                            goTo("dashboard", (Stage) signBtn.getScene().getWindow(), new DashboardController(model));
+                            goTo("dashboard", (Stage) signBtn.getScene().getWindow(), new DashboardController());
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }

@@ -1,6 +1,9 @@
 package controller;
 
 import com.jfoenix.controls.*;
+import common.Filter;
+import common.Filters.AgeFilter;
+import common.Filters.AudienceFilter;
 import common.Granularity;
 import common.Metric;
 import common.Observer;
@@ -16,6 +19,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import model.Model;
@@ -30,6 +35,8 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
 import java.util.ResourceBundle;
 
 @SuppressWarnings("unused")
@@ -146,7 +153,10 @@ public class CampaignController extends GlobalController implements Initializabl
     private RadioButton dowBtn;
 
 
-    public Model model;
+    @FXML
+    private JFXListView campaignsList;
+
+    public List<Model> models;
 
     private GraphController graphControllerService;
 
@@ -157,23 +167,19 @@ public class CampaignController extends GlobalController implements Initializabl
     private String theme_light;
     private String theme_dark;
 
-    CampaignController(Model model) {
-        this.model = model;
+    CampaignController(List<Model> models) {
+        this.models = models;
 
-        graphControllerService = new GraphController(this, model);
+
+        graphControllerService = new GraphController(this, models);
         graphControllerService.addObserver(this);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         theme_light = getClass().getResource("/css/campaign_scene.css").toExternalForm();
         theme_dark = getClass().getResource("/css/campaign_scene-dark.css").toExternalForm();
-
-        chartProgress.toFront();
-        chartProgress.setVisible(false);
-
-        new Thread(model).start();
-
         printBtn.setOnAction(a -> SwingUtilities.invokeLater(() -> {
                     PrinterJob job = PrinterJob.getPrinterJob();
                     PageFormat pf = job.defaultPage();
@@ -192,12 +198,18 @@ public class CampaignController extends GlobalController implements Initializabl
                 }
         ));
 
+        chartProgress.toFront();
+        chartProgress.setVisible(false);
         chartProgress.progressProperty().unbind();
 
-//        setChartGranularitySliderLabels();
+        for (Model model: models) {
+            new Thread(model).start();
+            campaignsList.getItems().add(model.getName());
+            model.addObserver(this);
+
+        }
 
         customBRBtn.setDisable(false);
-//        chartGranularitySlider.setDisable(false);
         appliedFiltersList.setDisable(false);
         addFilter.setDisable(false);
 
@@ -214,7 +226,7 @@ public class CampaignController extends GlobalController implements Initializabl
                 }
         );
 
-        BRPagesVisited.valueProperty().addListener(e -> model.setBouncePageReq(BRPagesVisited.getValue()));
+        BRPagesVisited.valueProperty().addListener(e -> getSelectedModel().setBouncePageReq(BRPagesVisited.getValue()));
         BRTimeSpentH.valueProperty().addListener(e -> Platform.runLater(new BounceTimeChange()));
         BRTimeSpentM.valueProperty().addListener(e -> Platform.runLater(new BounceTimeChange()));
         BRTimeSpentS.valueProperty().addListener(e -> Platform.runLater(new BounceTimeChange()));
@@ -241,7 +253,7 @@ public class CampaignController extends GlobalController implements Initializabl
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader();
                 fxmlLoader.setLocation(getClass().getResource("/fxml/filter.fxml"));
-                fxmlLoader.setController(new FilterController(model, this));
+                fxmlLoader.setController(new FilterController(getSelectedModel(), this));
 
                 Scene scene = new Scene(fxmlLoader.load());
                 Stage stage = new Stage();
@@ -260,7 +272,7 @@ public class CampaignController extends GlobalController implements Initializabl
 
         removeFilter.setOnMouseClicked(event -> {
             int filterID = Integer.parseInt(selectedFilter.split(":")[0]);
-            model.removeFilter(filterID);
+            getSelectedModel().removeFilter(filterID);
             selectedFilter = "";
             appliedFiltersList.getSelectionModel().clearSelection();
             filters.removeIf(e -> Integer.parseInt(e.split(":")[0]) == filterID);
@@ -270,12 +282,9 @@ public class CampaignController extends GlobalController implements Initializabl
 
         clickCostHistogram.setOnMouseClicked(event -> {
             FXMLLoader fxmlLoader = new FXMLLoader();
-//            fxmlLoader.getClassLoader().getResource("/fxml/histogram.fxml");
             fxmlLoader.setLocation(getClass().getResource("/fxml/histogram.fxml"));
-            fxmlLoader.setController(new HistogramController(model));
-//            Parent root = null;
+            fxmlLoader.setController(new HistogramController(getSelectedModel()));
             try {
-//                root = (Parent) fxmlLoader.load();
                 Stage histogram = new Stage();
                 histogram.setTitle("Click Cost Histogram");
                 histogram.setScene(new Scene(fxmlLoader.load()));
@@ -299,6 +308,17 @@ public class CampaignController extends GlobalController implements Initializabl
         }));
 
         initGranularityGrid();
+
+        campaignsList.setOnMouseReleased(e->{
+            String selected = campaignsList.getSelectionModel().getSelectedItem().toString();
+            for(Model model:models){
+                if(model.getName().equals(selected)){
+                    updateMetrics(model);
+                    updateFilterList(model);
+                }
+            }
+        });
+
     }
 
     private void initGranularityGrid() {
@@ -309,124 +329,76 @@ public class CampaignController extends GlobalController implements Initializabl
         todBtn.setDisable(false);
         dowBtn.setDisable(false);
 
-        hourBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.HOUR));
-        dayBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.DAY));
-        monthBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.MONTH));
-        yearBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.YEAR));
-        todBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.ToD));
-        dowBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.DoW));
+        for (Model model: models) {
 
+            hourBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.HOUR));
+            dayBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.DAY));
+            monthBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.MONTH));
+            yearBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.YEAR));
+            todBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.ToD));
+            dowBtn.setOnMouseClicked(e -> model.setGranularity(Granularity.DoW));
+        }
     }
 
-    void addFilter(String filter) {
-        filters.add(filter);
-    }
-
-    int getUsableID() {
-        int[] used = filters.stream().mapToInt(e -> Integer.parseInt(e.split(":")[0])).toArray();
-        int i = 1;
-        do {
-            boolean found = true;
-            for (int j : used) {
-                if (i == j) {
-                    found = false;
-                    break;
-                }
-            }
-            if (found) {
-                return i;
-            } else {
-                i++;
-            }
-        } while (true);
-    }
-
-    private void initBindings() {
-        noImpressions.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_IMPRESSIONS));
-        noClicks.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_CLICKS));
-        noUniqueClicks.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_UNIQUE_CLICKS));
-        noConversions.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_CONVERSIONS));
-        noBounces.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_BOUNCES));
-        bounceRate.textProperty().bind(model.metrics.MetricsProperty(Metric.BOUNCE_RATE));
-        totalCost.textProperty().bind(model.metrics.MetricsProperty(Metric.TOTAL_COST));
-        CTR.textProperty().bind(model.metrics.MetricsProperty(Metric.CTR));
-        CPC.textProperty().bind(model.metrics.MetricsProperty(Metric.CPC));
-        CPM.textProperty().bind(model.metrics.MetricsProperty(Metric.CPM));
-        CPA.textProperty().bind(model.metrics.MetricsProperty(Metric.CPA));
-
-    }
-
-//    private void setChartGranularitySliderLabels() {
-//        chartGranularitySlider.setLabelFormatter(new StringConverter<Double>() {
-//            @Override
-//            public String toString(Double n) {
-//                switch (n.intValue()) {
-//                    case 1:
-//                        return "Hour";
-//                    case 2:
-//                        return "Day";
-//                    case 3:
-//                        return "Month";
-//                    case 4:
-//                        return "Year";
-//                    case 5:
-//                        return "Time";
-//                    case 6:
-//                        return "Day of Week";
-//                    default:
-//                        return "";
-//                }
-//            }
-//
-//            @Override
-//            public Double fromString(String s) {
-//                switch (s) {
-//                    case "Hour":
-//                        return 1d;
-//                    case "Day":
-//                        return 2d;
-//                    case "Month":
-//                        return 3d;
-//                    case "Year":
-//                        return 4d;
-//                    case "Time":
-//                        return 5d;
-//                    case "Day of Week":
-//                        return 6d;
-//                    default:
-//                        return 0d;
-//                }
-//            }
-//        });
-//
-//        chartGranularitySlider.setOnMouseReleased(e -> {
-//            switch ((int) chartGranularitySlider.getValue()) {
-//                case 1:
-//                    model.setGranularity(Granularity.HOUR);
-//                    break;
-//                case 2:
-//                    model.setGranularity(Granularity.DAY);
-//                    break;
-//                case 3:
-//                    model.setGranularity(Granularity.MONTH);
-//                    break;
-//                case 4:
-//                    model.setGranularity(Granularity.YEAR);
-//                    break;
-//                case 5:
-//                    model.setGranularity(Granularity.ToD);
-//                    break;
-//                case 6:
-//                    model.setGranularity(Granularity.DoW);
-//                    break;
-//            }
-//
-//            if (chartToggleGroup.getSelectedToggle() != null) {
-//                chartProgress.progressProperty().bind(graphControllerService.progressProperty());
-//                graphControllerService.restart();
-//            }
-//        });
+//    void addFilter(String filter) {
+//        filters.add(filter);
 //    }
+
+    int getUsableID(Model model) {
+//        int[] used = filters.stream().mapToInt(e -> Integer.parseInt(e.split(":")[0])).toArray();
+//        int i = 1;
+//        do {
+//            boolean found = true;
+//            for (int j : used) {
+//                if (i == j) {
+//                    found = false;
+//                    break;
+//                }
+//            }
+//            if (found) {
+//                return i;
+//            } else {
+//                i++;
+//            }
+//        } while (true);
+        return model.getUsableID();
+    }
+
+
+
+    private void updateMetrics(Model model){
+        noImpressions.setText(Long.toString(model.getNumOfImpressions()));
+        noClicks.setText(Long.toString(model.getNumOfClicks()));
+        noUniqueClicks.setText(Long.toString(model.getNumOfUniqueClicks()));
+        noConversions.setText(Long.toString(model.getNumOfConversions()));
+        noBounces.setText(Long.toString(model.getNumOfBounces()));
+        bounceRate.setText(Double.toString(model.getBounceRate()));
+        totalCost.setText(Double.toString(model.getTotalCost()));
+        CTR.setText(Double.toString(model.getCTR()));
+        CPC.setText(Double.toString(model.getClickCost()));
+        CPM.setText(Double.toString(model.getCPM()));
+        CPA.setText(Double.toString(model.getCPA()));
+    }
+
+    private void updateFilterList(Model model){
+        filters.clear();
+
+        for(Integer i :model.getAgeFilters().keySet()){
+            filters.add(i+": "+model.getAgeFilters().get(i).getFilterName());
+        }
+        for(Integer i :model.getContextFilters().keySet()){
+            filters.add(i+": "+model.getContextFilters().get(i).getFilterName());
+        }
+        for(Integer i :model.getDateFilters().keySet()){
+            filters.add(i+": "+model.getDateFilters().get(i).getFilterName());
+        }
+        for(Integer i : model.getGenderFilters().keySet()){
+            filters.add(i+": "+model.getGenderFilters().get(i).getFilterName());
+        }
+        for(Integer i: model.getIncomeFilters().keySet()){
+            filters.add(i+": "+model.getIncomeFilters().get(i).getFilterName());
+        }
+    }
 
     private void initTimeSpinners() {
         BRPagesVisited.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 1000));
@@ -451,7 +423,7 @@ public class CampaignController extends GlobalController implements Initializabl
                 });
 
                 initTimeSpinners();
-                initBindings();
+//                initBindings();
                 break;
             case "metrics":
                 break;
@@ -464,10 +436,12 @@ public class CampaignController extends GlobalController implements Initializabl
             default:
                 break;
         }
+        updateFilterList(getSelectedModel());
+        updateMetrics(getSelectedModel());
     }
 
     class BounceTimeReset extends Task<Void> {
-        @Override
+        Model model = getSelectedModel();
         protected Void call() {
             model.resetBounceFilters();
             return null;
@@ -475,10 +449,20 @@ public class CampaignController extends GlobalController implements Initializabl
     }
 
     class BounceTimeChange extends Task<Void> {
-        @Override
+        Model model = getSelectedModel();
         protected Void call() {
             model.setBounceTime((BRTimeSpentS.getValueFactory().getValue() * 1000) + (BRTimeSpentM.getValueFactory().getValue() * 60 * 1000) + (BRTimeSpentH.getValueFactory().getValue() * 60 * 60 * 1000));
             return null;
         }
+    }
+
+    public Model getSelectedModel(){
+
+        for(Model model:models) {
+            if(model.getName().equals(campaignsList.getSelectionModel().getSelectedItems().get(0).toString())){
+                return model;
+            }
+        }
+        return null;
     }
 }

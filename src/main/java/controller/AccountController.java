@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import model.DBTasks.CheckAccount;
 import model.DBTasks.Insert;
 import model.Model;
+import model.User;
 
 import java.io.IOException;
 import java.net.URL;
@@ -89,12 +90,12 @@ public class AccountController extends GlobalController implements Initializable
             if (_STATE.equals("Login")) {
                 CheckAccount checkAccount = new CheckAccount();
                 checkAccount.setOnSucceeded(a -> {
-                    boolean res = checkAccount.getValue();
+                    User res = checkAccount.getValue();
 
-                    if (res) {
+                    if (res != null) {
                         signProgress.setVisible(false);
                         feedbackMsg.textProperty().setValue("Login successful. Taking you to Dashboard...");
-                        model.setUser(usernameField.textProperty().getValue());
+                        model.setUser(res);
 
                         try {
                             Thread.sleep(1000);

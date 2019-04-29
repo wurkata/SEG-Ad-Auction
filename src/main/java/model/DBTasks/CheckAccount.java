@@ -2,13 +2,14 @@ package model.DBTasks;
 
 import javafx.concurrent.Task;
 import model.DAO.DBPool;
+import model.User;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class CheckAccount extends Task<Boolean> {
+public class CheckAccount extends Task<User> {
 
     private String user;
     private String pwd;
@@ -23,7 +24,7 @@ public class CheckAccount extends Task<Boolean> {
     }
 
     @Override
-    protected Boolean call() throws Exception {
+    protected User call() throws Exception {
         System.out.println("Authenticating user " + user);
         con = DBPool.getConnection();
 
@@ -42,8 +43,7 @@ public class CheckAccount extends Task<Boolean> {
 
             if(result.next()) {
                 System.out.println("Successful authentication.");
-                DBPool.closeConnection(con);
-                return true;
+                return new User(result.getLong(1), result.getString("username"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,7 +51,17 @@ public class CheckAccount extends Task<Boolean> {
 
         System.out.println("Unsuccessful authentication.");
         DBPool.closeConnection(con);
-        return false;
+        return null;
+    }
+
+    @Override
+    protected void succeeded() {
+        super.succeeded();
+        try {
+            DBPool.closeConnection(con);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
 

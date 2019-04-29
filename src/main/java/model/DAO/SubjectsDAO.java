@@ -44,7 +44,7 @@ public class SubjectsDAO extends Task<Void> implements DAO {
                 s = subjects.get(key);
 
                 gender = s.getGender();
-                age = s.getAge();
+                age = s.getAgeRange();
                 income = s.getIncome();
 
                 stmt.setString(1, key);

@@ -157,22 +157,8 @@ public class Model extends Task<Void> implements Observable {
         protected List<Object> call() {
             try {
                 con = DBPool.getConnection();
-                Statement stmt1 = con.createStatement();
-
-                // Insert table title; preserve uniqueness
-                String query = "INSERT INTO campaigns (title) VALUES('"+ campaignTitle +"');";
-                System.out.println(query);
-                stmt1.executeQuery(query);
-                ResultSet res = stmt1.getGeneratedKeys();
-                res.next();
-
-                query = "INSERT INTO campaign_users (campaign_id, user_id) VALUES(" +
-                         res.getLong(1) + "," +
-                        "(SELECT id FROM users WHERE username='"+ user +"' LIMIT 1));";
-
-                System.out.println("Uploaded campaign");
-
                 PreparedStatement pstmt;
+
                 int i;
 
                 switch (type) {
@@ -197,7 +183,6 @@ public class Model extends Task<Void> implements Observable {
                             pstmt.addBatch();
 
                             i++;
-                            System.out.println(i);
 
                             if(i % BATCH_SIZE == 0) {
                                 pstmt.executeBatch();
@@ -259,9 +244,6 @@ public class Model extends Task<Void> implements Observable {
 
                             i++;
 
-
-                            System.out.println("Server: " + i);
-
                             if(i % BATCH_SIZE == 0) {
                                 pstmt.executeBatch();
                                 con.commit();
@@ -280,14 +262,14 @@ public class Model extends Task<Void> implements Observable {
         }
     }
 
-    private void addSubjects() {
-        SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
-    }
-
     public void setCampaignTitle(String title) {
         this.campaignTitle = title;
-        Insert insertTask = new Insert();
-        insertTask.setTable("campaigns");
+        String query = "INSERT INTO campaigns (title, user_id) VALUES (" +
+                "'" + campaignTitle + "'," +
+                "(SELECT id FROM users WHERE username='"+ user +"'))";
+        Insert insertTask = new Insert(query);
+
+        new Thread(insertTask).start();
     }
 
     //True sets class to calculate costs based om impression costs, whereas false uses click costs

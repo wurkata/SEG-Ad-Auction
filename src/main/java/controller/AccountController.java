@@ -26,6 +26,9 @@ public class AccountController extends GlobalController implements Initializable
     JFXPasswordField passwordField;
 
     @FXML
+    private JFXButton useOfflineBtn;
+
+    @FXML
     JFXButton signBtn;
 
     @FXML
@@ -60,6 +63,14 @@ public class AccountController extends GlobalController implements Initializable
         isValidInputPwd = false;
 
         feedbackMsg.textProperty().setValue("");
+
+        useOfflineBtn.setOnMouseReleased(e -> {
+            try {
+                goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController(model));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
 
         usernameField.textProperty().addListener(((observable, oldValue, newValue) -> {
             isValidInputUser = newValue.length() > 2;

@@ -158,7 +158,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     doub = true;
                     for (Model model : models) {
 
-                        TimeSeries cpa = new TimeSeries(model.getTitle());
+                        TimeSeries cpa = new TimeSeries(model.getName());
                         model.getCPAPair().forEach(e -> {
                             if (!e.getValue().isInfinite()) {
                                 cpa.addOrUpdate(new Hour(e.getKey()), e.getValue());
@@ -175,7 +175,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     doub = true;
                     for (Model model : models) {
 
-                        TimeSeries clickCost = new TimeSeries(model.getTitle());
+                        TimeSeries clickCost = new TimeSeries(model.getName());
                         model.getClickCostPair().forEach(e -> {
                             if (!e.getValue().isInfinite()) {
                                 clickCost.addOrUpdate(new Hour(e.getKey()), e.getValue());
@@ -192,7 +192,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     doub = true;
                     for (Model model : models) {
 
-                        TimeSeries cpm = new TimeSeries(model.getTitle());
+                        TimeSeries cpm = new TimeSeries(model.getName());
                         model.getCPMPair().forEach(e -> {
                             if (!e.getValue().isInfinite()) {
                                 cpm.addOrUpdate(new Hour(e.getKey()), e.getValue());
@@ -208,7 +208,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     doub = true;
                     for (Model model : models) {
 
-                        TimeSeries ctr = new TimeSeries(model.getTitle());
+                        TimeSeries ctr = new TimeSeries(model.getName());
                         model.getCTRPair().forEach(e -> {
                             if (!e.getValue().isInfinite()) {
                                 ctr.addOrUpdate(new Hour(e.getKey()), e.getValue());
@@ -224,7 +224,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     doub = true;
                     for (Model model : models) {
 
-                        TimeSeries totalCost = new TimeSeries(model.getTitle());
+                        TimeSeries totalCost = new TimeSeries(model.getName());
                         model.getTotalCostPair().forEach(e -> totalCost.addOrUpdate(new Hour(e.getKey()), e.getValue()));
                         dataset.addSeries(totalCost);
                     }
@@ -236,7 +236,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     doub = true;
                     for (Model model : models) {
 
-                        TimeSeries bounceRate = new TimeSeries(model.getTitle());
+                        TimeSeries bounceRate = new TimeSeries(model.getName());
                         model.getBounceRatePair().forEach(e -> {
                             if (!e.getValue().isInfinite()) {
                                 bounceRate.addOrUpdate(new Hour(e.getKey()), e.getValue());
@@ -252,7 +252,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     val = "Number of Clicks";
                     for (Model model: models) {
 
-                        TimeSeries numOfClicks = new TimeSeries(model.getTitle());
+                        TimeSeries numOfClicks = new TimeSeries(model.getName());
                         model.getNumOfClicksPair().forEach(e -> numOfClicks.addOrUpdate(new Hour(e.getKey()), e.getValue()));
                         dataset.addSeries(numOfClicks);
                     }
@@ -263,7 +263,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     val = "Bounces";
                     for (Model model: models) {
 
-                        TimeSeries bp = new TimeSeries(model.getTitle());
+                        TimeSeries bp = new TimeSeries(model.getName());
                         model.getNumOfBouncesPair().forEach(e -> bp.addOrUpdate(new Hour(e.getKey()), e.getValue()));
                         dataset.addSeries(bp);
                     }
@@ -274,7 +274,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     val = "Conversions";
                     for (Model model: models) {
 
-                        TimeSeries conversion = new TimeSeries(model.getTitle());
+                        TimeSeries conversion = new TimeSeries(model.getName());
                         model.getNumOfConversionsPair().forEach(e -> conversion.addOrUpdate(new Hour(e.getKey()), e.getValue()));
                         dataset.addSeries(conversion);
                     }
@@ -285,7 +285,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     val = "Impressions";
                     for (Model model: models) {
 
-                        TimeSeries imp = new TimeSeries(model.getTitle());
+                        TimeSeries imp = new TimeSeries(model.getName());
                         model.getNumOfImpressionsPair().forEach(e -> imp.addOrUpdate(new Hour(e.getKey()), e.getValue()));
                         dataset.addSeries(imp);
                     }
@@ -296,7 +296,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                     val = "Unique Clicks";
                     for (Model model: models) {
 
-                        TimeSeries uclick = new TimeSeries(model.getTitle());
+                        TimeSeries uclick = new TimeSeries(model.getName());
                         model.getNumOfUniqueClicksPair().forEach(e -> uclick.addOrUpdate(new Hour(e.getKey()), e.getValue()));
                         dataset.addSeries(uclick);
                     }

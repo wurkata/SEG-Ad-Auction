@@ -16,16 +16,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.DAO.DBPool;
 import model.DBTasks.getCampaignsForUser;
 import model.ImpressionLog;
-import javafx.scene.control.Accordion;
 import model.Campaign;
 import model.Model;
 import model.Parser;
@@ -120,6 +116,8 @@ public class DashboardController extends GlobalController implements Initializab
 
         loadCampaignBtn.setDisable(true);
 
+        campaignsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
         feedbackMsg.textProperty().setValue("");
 
         importImpressionLog.setDisable(true);
@@ -213,23 +211,43 @@ public class DashboardController extends GlobalController implements Initializab
         campaignsList.getSelectionModel().selectedItemProperty().addListener(e -> loadCampaignBtn.setDisable(false));
 
         loadCampaignBtn.setOnMouseReleased(e -> {
-            LoadCampaign loadCampaignTask = new LoadCampaign();
-            loadCampaignTask.setOnSucceeded(a -> {
+            if (AccountController.online) {
+                LoadCampaign loadCampaignTask = new LoadCampaign();
+                loadCampaignTask.setOnSucceeded(a -> {
+                    try {
+                        goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                });
+
+                new Thread(loadCampaignTask).start();
+
+            }else{
                 try {
                     goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-            });
+            }
+//            campaignsList.getSelectionModel().getSelectedItems().forEach(e->{
+////                for(Model model:models){
+////                    if(model.getName().equals(e.toString())){
+////                        models.add()
+////                    }
+////                }
+//            });
 
-            new Thread(loadCampaignTask).start();
         });
 
         campaignTitle.setOnKeyTyped(e -> {
             update(campaignTitle.getText());
         });
 
-        createCampaignBtn.setOnMouseReleased(this::createCampaign);
+        createCampaignBtn.setOnMouseReleased(e-> {
+            models.add(new Model(campaignTitle.getText(), dataHolder));
+            campaignsList.getItems().add(campaignTitle.getText());
+        });
     }
 
     private File importFile(FileType fileType) {

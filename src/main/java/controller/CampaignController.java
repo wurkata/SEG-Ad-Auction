@@ -2,6 +2,8 @@ package controller;
 
 import com.jfoenix.controls.*;
 import common.Filter;
+import common.Filters.AgeFilter;
+import common.Filters.AudienceFilter;
 import common.Granularity;
 import common.Metric;
 import common.Observer;
@@ -211,6 +213,7 @@ public class CampaignController extends GlobalController implements Initializabl
 
 
 
+
 //        setChartGranularitySliderLabels();
 
         customBRBtn.setDisable(false);
@@ -316,6 +319,17 @@ public class CampaignController extends GlobalController implements Initializabl
         }));
 
         initGranularityGrid();
+
+        campaignsList.setOnMouseReleased(e->{
+            String selected = campaignsList.getSelectionModel().getSelectedItem().toString();
+            for(Model model:models){
+                if(model.getName().equals(selected)){
+                    updateMetrics(model);
+                    updateFilterList(model);
+                }
+            }
+        });
+
     }
 
     private void initGranularityGrid() {
@@ -391,8 +405,22 @@ public class CampaignController extends GlobalController implements Initializabl
 
     private void updateFilterList(Model model){
         filters.clear();
-        /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        for(Integer i :model.getAgeFilters().keySet()){
+            filters.add(i+": "+model.getAgeFilters().get(i));
+        }
+        for(Integer i :model.getContextFilters().keySet()){
+            filters.add(i+": "+model.getContextFilters().get(i));
+        }
+        for(Integer i :model.getDateFilters().keySet()){
+            filters.add(i+": "+model.getDateFilters().get(i));
+        }
+        for(Integer i : model.getGenderFilters().keySet()){
+            filters.add(i+": "+model.getGenderFilters().get(i));
+        }
+        for(Integer i: model.getIncomeFilters().keySet()){
+            filters.add(i+": "+model.getIncomeFilters().get(i));
+        }
     }
 
 //    private void setChartGranularitySliderLabels() {

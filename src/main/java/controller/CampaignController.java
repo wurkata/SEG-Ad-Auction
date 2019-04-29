@@ -203,10 +203,9 @@ public class CampaignController extends GlobalController implements Initializabl
         chartProgress.progressProperty().unbind();
 
         for (Model model: models) {
-            new Thread(model).start();
             campaignsList.getItems().add(model.getName());
             model.addObserver(this);
-
+            new Thread(model).start();
         }
 
         customBRBtn.setDisable(false);

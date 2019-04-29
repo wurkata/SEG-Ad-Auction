@@ -22,14 +22,16 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TitledPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import jdk.nashorn.internal.objects.Global;
 import model.DAO.DBPool;
 import model.DBTasks.getCampaignsForUser;
 import model.ImpressionLog;
+import javafx.scene.control.Accordion;
+import javafx.scene.layout.AnchorPane;
+import model.Campaign;
 import model.Model;
 import model.Parser;
+import model.RawDataHolder;
 
-import javax.annotation.PostConstruct;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
@@ -84,10 +86,18 @@ public class DashboardController extends GlobalController implements Initializab
 
     private Model model;
 
+    private JFXButton drawCmapaigns;
+
+    @FXML
+    private Accordion accordion;
+
+    //    private Model model;
     private boolean impressionLogLoaded = false;
     private boolean clickLogLoaded = false;
     private boolean serverLogLoaded = false;
+    private boolean hasName = false;
 
+    private Parser parserService;
     private Set<String> campaignsSet;
 
     private File inputFile;
@@ -135,9 +145,15 @@ public class DashboardController extends GlobalController implements Initializab
                 importServerLog.setDisable(true);
             }
         }));
+//        model = new Model();
+//        model.addObserver(this);
+        RawDataHolder dataHolder = new RawDataHolder();
+        dataHolder.addObserver(this);
+
+        parserService = new Parser(dataHolder);
 
         importImpressionLog.setOnMouseReleased(e -> {
-            Parser parser = new Parser(model);
+            Parser parser = new Parser(dataHolder);
             inputFile = importFile(FileType.IMPRESSION_LOG);
             if (inputFile != null) {
                 parser.setFile(inputFile, FileType.IMPRESSION_LOG);
@@ -148,7 +164,7 @@ public class DashboardController extends GlobalController implements Initializab
         });
 
         importClickLog.setOnMouseReleased(e -> {
-            Parser parser = new Parser(model);
+            Parser parser = new Parser(dataHolder);
             inputFile = importFile(FileType.CLICK_LOG);
             if (inputFile != null) {
                 parser.setFile(inputFile, FileType.CLICK_LOG);
@@ -159,7 +175,7 @@ public class DashboardController extends GlobalController implements Initializab
         });
 
         importServerLog.setOnMouseReleased(e -> {
-            Parser parser = new Parser(model);
+            Parser parser = new Parser(dataHolder);
             inputFile = importFile(FileType.SERVER_LOG);
             if (inputFile != null) {
                 parser.setFile(inputFile, FileType.SERVER_LOG);
@@ -171,7 +187,6 @@ public class DashboardController extends GlobalController implements Initializab
 
         addTestCampaign.setOnMouseReleased(e -> {
             Parser parser = new Parser(
-                    model,
                     new File("input/impression_log_small.csv"),
                     new File("input/click_log_small.csv"),
                     new File("input/server_log_small.csv"
@@ -204,6 +219,17 @@ public class DashboardController extends GlobalController implements Initializab
 
             new Thread(loadCampaignTask).start();
         });
+
+        campaignTitle.setOnKeyTyped(e -> {
+            update(campaignTitle.getText());
+        });
+
+        createCampaignBtn.setOnMouseReleased(e -> {
+            AnchorPane newCampaign = new AnchorPane();
+            newCampaign.getChildren().add(new Label(campaignTitle.getText()));
+            TitledPane pane = new TitledPane(campaignTitle.getText(), newCampaign);
+            accordion.getPanes().add(pane);
+        });
     }
 
     private File importFile(FileType fileType) {
@@ -217,6 +243,13 @@ public class DashboardController extends GlobalController implements Initializab
         try {
             model.setCampaignTitle(campaignTitle.textProperty().getValue());
             model.uploadData();
+
+            Model model = new Model();
+            model.addObserver(this);
+            RawDataHolder rdh = parserService.getRawDataHolder();
+            Campaign campaign = new Campaign(campaignTitle.getText(), rdh, model);
+            model.setRawDataHolder(rdh);
+
             CampaignController controller = new CampaignController(model);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
@@ -271,87 +304,96 @@ public class DashboardController extends GlobalController implements Initializab
                 serverLogLoaded = true;
             });
         }
-        if (arg instanceof Exception) {
+
+            if (arg instanceof String) {
+                if (campaignTitle.getText().trim().isEmpty()) {
+                    hasName = false;
+                } else {
+                    hasName = true;
+                }
+            }
+
+            if (arg instanceof Exception) {
 //            Alert err = new Alert(Alert.AlertType.ERROR);
 //            err.setTitle("File Import Error");
 //            err.setHeaderText(null);
 //            err.setContentText(((Exception) arg).getMessage());
 //            err.showAndWait();
-            String m = ((Exception) arg).getMessage();
-            JOptionPane.showMessageDialog(new JFXPanel(), m, "File Import Error", JOptionPane.ERROR_MESSAGE);
-            if (m.contains("impression")) {
-                importImpressionLog.setVisible(true);
-                impProgress.setVisible(false);
-                importImpressionLog.setText("Import");
-                importImpressionLog.setStyle("-fx-background-color: #5ffab4");
-                impressionLogLoaded = false;
-            } else if (m.contains("click")) {
-                importClickLog.setVisible(true);
-                clickProgress.setVisible(false);
-                importClickLog.setText("Import");
-                importClickLog.setStyle("-fx-background-color: #5ffab4");
-                clickLogLoaded = false;
-            } else if (m.contains("server")) {
-                importServerLog.setVisible(true);
-                servProgress.setVisible(false);
-                importServerLog.setText("Import");
-                importServerLog.setStyle("-fx-background-color: #5ffab4");
-                serverLogLoaded = false;
+                String m = ((Exception) arg).getMessage();
+                JOptionPane.showMessageDialog(new JFXPanel(), m, "File Import Error", JOptionPane.ERROR_MESSAGE);
+                if (m.contains("impression")) {
+                    importImpressionLog.setVisible(true);
+                    impProgress.setVisible(false);
+                    importImpressionLog.setText("Import");
+                    importImpressionLog.setStyle("-fx-background-color: #5ffab4");
+                    impressionLogLoaded = false;
+                } else if (m.contains("click")) {
+                    importClickLog.setVisible(true);
+                    clickProgress.setVisible(false);
+                    importClickLog.setText("Import");
+                    importClickLog.setStyle("-fx-background-color: #5ffab4");
+                    clickLogLoaded = false;
+                } else if (m.contains("server")) {
+                    importServerLog.setVisible(true);
+                    servProgress.setVisible(false);
+                    importServerLog.setText("Import");
+                    importServerLog.setStyle("-fx-background-color: #5ffab4");
+                    serverLogLoaded = false;
+                }
+            }
+
+            if (canAddCampaign()) {
+                createCampaignBtn.setDisable(false);
             }
         }
 
-        if (canAddCampaign()) {
-            createCampaignBtn.setDisable(false);
+        private boolean canAddCampaign () {
+            return impressionLogLoaded && clickLogLoaded && serverLogLoaded && hasName;
         }
-    }
 
-    private boolean canAddCampaign() {
-        return impressionLogLoaded && clickLogLoaded && serverLogLoaded;
-    }
+        private void getCampaigns () {
+            getCampaignsForUser getCampaignsTask = new getCampaignsForUser(model.getUser());
+            getCampaignsTask.setOnSucceeded(e -> {
+                campaignsSet = getCampaignsTask.getValue();
+                ObservableList<String> campaigns = FXCollections.observableArrayList(campaignsSet);
 
-    private void getCampaigns() {
-        getCampaignsForUser getCampaignsTask = new getCampaignsForUser(model.getUser());
-        getCampaignsTask.setOnSucceeded(e -> {
-            campaignsSet = getCampaignsTask.getValue();
-            ObservableList<String> campaigns = FXCollections.observableArrayList(campaignsSet);
+                campaignsList.setItems(campaigns);
+            });
 
-            campaignsList.setItems(campaigns);
-        });
+            new Thread(getCampaignsTask).start();
+        }
 
-        new Thread(getCampaignsTask).start();
-    }
+        class LoadCampaign extends Task<Boolean> {
+            Connection con;
 
-    class LoadCampaign extends Task<Boolean> {
-        Connection con;
+            @Override
+            protected Boolean call() throws Exception {
+                con = DBPool.getConnection();
 
-        @Override
-        protected Boolean call() throws Exception {
-            con = DBPool.getConnection();
+                try {
+                    Statement stmt = con.createStatement();
+                    String query = "SELECT * FROM impression_log WHERE campaign_id=" +
+                            "(SELECT id FROM campaigns WHERE title='" + campaignsList.getSelectionModel().getSelectedItem() + "')";
 
-            try {
-                Statement stmt = con.createStatement();
-                String query = "SELECT * FROM impression_log WHERE campaign_id=" +
-                        "(SELECT id FROM campaigns WHERE title='" + campaignsList.getSelectionModel().getSelectedItem() + "')";
+                    ResultSet resultSet = stmt.executeQuery(query);
+                    List<ImpressionLog> impressionLog = new ArrayList<>();
 
-                ResultSet resultSet = stmt.executeQuery(query);
-                List<ImpressionLog> impressionLog = new ArrayList<>();
+                    while (resultSet.next()) {
+                        impressionLog.add(new ImpressionLog(
+                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(resultSet.getString("date")),
+                                resultSet.getString("subject_id"),
+                                resultSet.getString("context"),
+                                resultSet.getDouble("cost")
+                        ));
+                    }
 
-                while (resultSet.next()) {
-                    impressionLog.add(new ImpressionLog(
-                            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(resultSet.getString("date")),
-                            resultSet.getString("subject_id"),
-                            resultSet.getString("context"),
-                            resultSet.getDouble("cost")
-                    ));
+                    model.setImpressionLog(impressionLog);
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
-                model.setImpressionLog(impressionLog);
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
+                return false;
             }
-
-            return false;
         }
     }
-}

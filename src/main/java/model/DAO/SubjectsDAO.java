@@ -6,12 +6,14 @@ import model.Subject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class SubjectsDAO extends Task<Void> implements DAO {
-    private List<Subject> subjects;
+    private Map<String, Subject> subjects;
 
-    public SubjectsDAO(List<Subject> subjects) {
+    public SubjectsDAO(Map<String, Subject> subjects) {
         this.subjects = subjects;
     }
 
@@ -31,12 +33,19 @@ public class SubjectsDAO extends Task<Void> implements DAO {
         String age;
         String income;
 
-        for (Subject u : subjects) {
-            gender = u.getGender();
-            age = u.getAge();
-            income = u.getIncome();
+        Iterator<String> itr = subjects.keySet().iterator();
+        String key;
+        Subject s;
 
-            stmt.setString(1, u.getId());
+        while(itr.hasNext()) {
+            key = itr.next();
+            s = subjects.get(key);
+
+            gender = s.getGender();
+            age = s.getAge();
+            income = s.getIncome();
+
+            stmt.setString(1, key);
             stmt.setString(2, gender);
             stmt.setString(3, age);
             stmt.setString(4, income);

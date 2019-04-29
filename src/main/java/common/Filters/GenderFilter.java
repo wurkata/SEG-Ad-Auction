@@ -5,7 +5,7 @@ import model.ImpressionLog;
 import model.ServerLog;
 import model.Subject;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * Created by furqan on 12/03/2019.
@@ -13,7 +13,7 @@ import java.util.List;
 public class GenderFilter extends AudienceFilter{
     private String gender = "";
 
-    public GenderFilter(String gender, List<Subject> subjects){
+    public GenderFilter(String gender, Map<String, Subject> subjects){
         super(subjects);
         this.gender=gender;
     }

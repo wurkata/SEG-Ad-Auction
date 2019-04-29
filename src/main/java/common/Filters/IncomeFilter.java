@@ -6,6 +6,7 @@ import model.ServerLog;
 import model.Subject;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by furqan on 12/03/2019.
@@ -13,7 +14,7 @@ import java.util.List;
 public class IncomeFilter extends AudienceFilter {
 
     private String income="";
-    public IncomeFilter(String income, List<Subject> subjects){
+    public IncomeFilter(String income, Map<String, Subject> subjects){
         super(subjects);
         this.income=income;
     }

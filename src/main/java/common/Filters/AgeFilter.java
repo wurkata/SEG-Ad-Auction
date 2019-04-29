@@ -5,13 +5,13 @@ import model.ImpressionLog;
 import model.ServerLog;
 import model.Subject;
 
-import java.util.List;
+import java.util.Map;
 
 public class AgeFilter extends AudienceFilter {
 
     private int ageRange;
 
-    public AgeFilter(int ageRange, List<Subject> subjects) {
+    public AgeFilter(int ageRange, Map<String, Subject> subjects) {
         super(subjects);
         this.ageRange = ageRange;
     }

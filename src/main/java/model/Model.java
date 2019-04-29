@@ -41,13 +41,15 @@ public class Model extends Task<Void> implements Observable {
     private List<ImpressionLog> rawImpressionLog;
     private List<ClickLog> rawClickLog;
     private List<ServerLog> rawServerLog;
+    private RawDataHolder rawDataHolder;
+
 
     public Metrics metrics;
     private ChartData chartData;
 
     private String campaignTitle;
 
-    private List<Subject> subjects = new ArrayList<>();
+    private Map<String, Subject> subjects = new HashMap<>();
     private boolean impressionCost = true;
     private int bouncePages = 0;
     private long bounceTime = -1;
@@ -61,9 +63,12 @@ public class Model extends Task<Void> implements Observable {
     private HashMap<Integer, IncomeFilter> incomeFilters = new HashMap<>();
     private HashMap<Integer, DateFilter> dateFilters = new HashMap<>();
 
-    public Model(File fileImpressionLog, File fileClickLog, File fileServerLog) {
-        metrics = new Metrics();
-        chartData = new ChartData();
+    public void setRawDataHolder(RawDataHolder rawDataHolder) {
+        this.rawDataHolder = rawDataHolder;
+        impressionLog.addAll(rawDataHolder.getImpressionLog());
+        clickLog.addAll(rawDataHolder.getClickLog());
+        serverLog.addAll(rawDataHolder.getServerLog());
+        notifyObservers();
     }
 
     public Model() {
@@ -78,7 +83,7 @@ public class Model extends Task<Void> implements Observable {
         return null;
     }
 
-    public List<Subject> getSubjects() {
+    public Map<String, Subject> getSubjects() {
         return subjects;
     }
 
@@ -87,8 +92,8 @@ public class Model extends Task<Void> implements Observable {
         notifyObservers("files");
     }
 
-    void setSubjects(List<Subject> subjects) {
-        this.subjects.addAll(subjects);
+    void setSubjects(Map<String, Subject> subjects) {
+        this.subjects.putAll(subjects);
     }
 
     public void setImpressionLog(List<ImpressionLog> impressionLog) {
@@ -97,11 +102,17 @@ public class Model extends Task<Void> implements Observable {
         notifyObservers(IMPRESSION_LOG);
     }
 
-    public void setClickLog(List<ClickLog> clickLog) {
-        this.rawClickLog = clickLog;
-        this.clickLog.addAll(rawClickLog);
-        notifyObservers(FileType.CLICK_LOG);
+    public Model(File fileImpressionLog, File fileClickLog, File fileServerLog) {
+        metrics = new Metrics();
+        chartData = new ChartData();
     }
+
+    public Model(RawDataHolder dataHolder){
+        this.rawDataHolder=dataHolder;
+        metrics=new Metrics();
+        chartData = new ChartData();
+    }
+
 
     public void setServerLog(List<ServerLog> serverLog) {
         this.rawServerLog = serverLog;
@@ -834,17 +845,17 @@ public class Model extends Task<Void> implements Observable {
 
     private void filterData() {
         impressionLog.clear();
-        rawImpressionLog.stream()
+        rawDataHolder.getImpressionLog().stream()
                 .filter(il -> matchesFilter(il))
                 .forEach(il -> impressionLog.add(il));
 
         clickLog.clear();
-        rawClickLog.stream()
+        rawDataHolder.getClickLog().stream()
                 .filter(cl -> matchesFilter(cl))
                 .forEach(cl -> clickLog.add(cl));
 
         serverLog.clear();
-        rawServerLog.stream()
+        rawDataHolder.getServerLog().stream()
                 .filter(sl -> matchesFilter(sl))
                 .forEach(sl -> serverLog.add(sl));
 

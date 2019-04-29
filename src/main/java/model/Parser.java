@@ -4,6 +4,7 @@ import common.FileType;
 import common.Observable;
 import common.Observer;
 import javafx.concurrent.Task;
+import javafx.util.Pair;
 import model.DAO.SubjectsDAO;
 
 import java.io.BufferedReader;
@@ -21,10 +22,9 @@ public class Parser extends Task<Boolean> implements Observable {
 
     private File inputFile;
     private FileType fileType;
-    private Model model;
+    private RawDataHolder dataHolder = new RawDataHolder();
 
-    public Parser(Model model, File imp, File click, File serv) {
-        this.model = model;
+    public Parser(File imp, File click, File serv) {
         try {
             readImpressionLog(imp);
             readClickLog(click);
@@ -34,8 +34,8 @@ public class Parser extends Task<Boolean> implements Observable {
         }
     }
 
-    public Parser(Model model) {
-        this.model = model;
+    public Parser(RawDataHolder holder) {
+        this.dataHolder=holder;
     }
 
     public void setFile(File file, FileType fileType) {
@@ -43,9 +43,13 @@ public class Parser extends Task<Boolean> implements Observable {
         this.fileType = fileType;
     }
 
-    private void readClickLog(File file) throws Exception {
+    public RawDataHolder getRawDataHolder() {
+        return dataHolder;
+    }
+
+    public ArrayList<ClickLog> readClickLog(File file) throws Exception {
         ArrayList<ClickLog> clickLog = new ArrayList<>();
-        List<Subject> subjects = new ArrayList<>();
+        Map<String, Subject> subjects = new HashMap<>();
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -55,23 +59,25 @@ public class Parser extends Task<Boolean> implements Observable {
                     .map(e -> e.split(","))
                     .forEach(s -> {
                         clickLog.add(new ClickLog(parseDate(s[0]), s[1], Double.parseDouble(s[2])));
-                        subjects.add(new Subject(s[1], null, null, null));
+                        subjects.put(s[1], new Subject(null, null, null));
                     });
 
-            model.setClickLog(clickLog);
-            model.setSubjects(subjects);
             SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
             new Thread(subjectsDAO).start();
             // model.uploadData(FileType.CLICK_LOG);
+
+            dataHolder.setClickLog(clickLog);
+
+            return clickLog;
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("Error reading click log: \nPlease check the file is in the correct format and try again.");
         }
     }
 
-    private void readImpressionLog(File file) throws Exception {
+    private Pair<List<ImpressionLog>, Map<String, Subject>> readImpressionLog(File file) throws Exception {
         ArrayList<ImpressionLog> impressionLog = new ArrayList<>();
-        List<Subject> subjects = new ArrayList<>();
+        Map<String, Subject> subjects = new HashMap<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             reader.lines()
@@ -79,23 +85,26 @@ public class Parser extends Task<Boolean> implements Observable {
                     .map(e -> e.split(","))
                     .forEach(s -> {
                         impressionLog.add(new ImpressionLog(parseDate(s[0]), s[1], s[5], Double.parseDouble(s[6])));
-                        subjects.add(new Subject(s[1], s[2], (s[3]), s[4]));
+                        subjects.put(s[1], new Subject(s[2], (s[3]), s[4]));
                     });
 
-            model.setImpressionLog(impressionLog);
-            model.setSubjects(subjects);
             SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
             new Thread(subjectsDAO).start();
             // model.uploadData(FileType.IMPRESSION_LOG);
+
+            dataHolder.setImpressionLog(impressionLog);
+            dataHolder.setSubjects(subjects);
+
+            return new Pair<>(impressionLog, subjects);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("Error reading impression log: \nPlease check the file is in the correct format and try again.");
         }
     }
 
-    private void readServerLog(File file) throws Exception {
+    private List readServerLog(File file) throws Exception {
         ArrayList<ServerLog> serverLog = new ArrayList<>();
-        List<Subject> subjects = new ArrayList<>();
+        Map<String, Subject> subjects = new HashMap<>();
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -110,14 +119,16 @@ public class Parser extends Task<Boolean> implements Observable {
                             serverLog.add(new ServerLog(parseDate(s[0]), s[1], parseDate(s[2]), Integer.parseInt(s[3]), parseBool(s[4])));
                         }
 
-                        subjects.add(new Subject(s[1], null, null, null));
+                        subjects.put(s[1], new Subject(null, null, null));
                     });
 
-            model.setServerLog(serverLog);
-            model.setSubjects(subjects);
             SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
             new Thread(subjectsDAO).start();
             // model.uploadData(FileType.SERVER_LOG);
+
+            dataHolder.setServerLog(serverLog);
+
+            return serverLog;
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("Error reading server log: \nPlease check the file is in the correct format and try again.");

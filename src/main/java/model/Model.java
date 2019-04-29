@@ -131,7 +131,15 @@ public class Model extends Task<Void> implements Observable {
 
     public Model(String name, RawDataHolder dataHolder){
         this.name = name;
-        this.rawDataHolder=dataHolder;
+        try {
+            this.rawDataHolder = (RawDataHolder) dataHolder.clone();
+            impressionLog.addAll(rawDataHolder.getImpressionLog());
+            clickLog.addAll(rawDataHolder.getClickLog());
+            serverLog.addAll(rawDataHolder.getServerLog());
+            notifyObservers();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
         metrics=new Metrics();
         chartData = new ChartData();
     }

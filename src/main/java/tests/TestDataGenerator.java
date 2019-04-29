@@ -118,12 +118,14 @@ public class TestDataGenerator {
 
     private static void writeOutput(ArrayList<String> arrayList, String filename, String header){
         File out = new File("input/"+filename);
-
+        File dir = new File("input");
+        dir.mkdir();
 
         if(!out.exists()){
             try {
                 out.createNewFile();
             } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         try {

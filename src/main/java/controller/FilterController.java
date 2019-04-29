@@ -84,14 +84,14 @@ public class FilterController implements Initializable {
             });
 
         submitFilterButton.setOnMouseClicked(event -> {
-            int id = controller.getUsableID();
+            int id = controller.getUsableID(model);
             switch(filterTypeBox.getSelectionModel().getSelectedItem()){
                 case "Age":
                     System.out.println(ageBox.getSelectionModel().getSelectedItem()+" "+ageBox.getSelectionModel().getSelectedIndex());
-                    AgeFilter af = new AgeFilter(ageBox.getSelectionModel().getSelectedIndex()+1, model.getSubjects());
+                    AgeFilter af = new AgeFilter(ageBox.getSelectionModel().getSelectedItem().equals("Under 25")?"<25":ageBox.getSelectionModel().getSelectedItem(), model.getSubjects());
                     af.setFilterName("Age Filter - "+ageBox.getSelectionModel().getSelectedItem());
                     model.addFilter(af, id);
-                    controller.addFilter(id+": "+af.getFilterName());
+//                    controller.addFilter(id+": "+af.getFilterName());
 
                     break;
                 case "Gender":
@@ -99,21 +99,21 @@ public class FilterController implements Initializable {
                     GenderFilter gf = new GenderFilter(genderBox.getSelectionModel().getSelectedItem(), model.getSubjects());
                     gf.setFilterName("Gender Filter - "+genderBox.getSelectionModel().getSelectedItem());
                     model.addFilter(gf, id);
-                    controller.addFilter(id+": "+gf.getFilterName());
+//                    controller.addFilter(id+": "+gf.getFilterName());
                     break;
                 case "Context":
                     System.out.println(contextBox.getSelectionModel().getSelectedItem());
                     ContextFilter cf = new ContextFilter(contextBox.getSelectionModel().getSelectedItem());
                     cf.setFilterName("Context Filter - "+contextBox.getSelectionModel().getSelectedItem());
                     model.addFilter(cf, id);
-                    controller.addFilter(id+": "+cf.getFilterName());
+//                    controller.addFilter(id+": "+cf.getFilterName());
                     break;
                 case "Income":
                     System.out.println(incomeBox.getSelectionModel().getSelectedItem());
                     IncomeFilter iF = new IncomeFilter(incomeBox.getSelectionModel().getSelectedItem(), model.getSubjects());
                     iF.setFilterName("Income Filter - "+incomeBox.getSelectionModel().getSelectedItem());
                     model.addFilter(iF, id);
-                    controller.addFilter(id+": "+iF.getFilterName());
+//                    controller.addFilter(id+": "+iF.getFilterName());
                     break;
                 case "Date Range":
                     DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -132,17 +132,17 @@ public class FilterController implements Initializable {
                         DateFilter dateFilter = new DateFilter(aDate, new Date(Long.MAX_VALUE));
                         dateFilter.setFilterName("Date Filter - After "+aDate.toString());
                         model.addFilter(dateFilter, id);
-                        controller.addFilter(id+": "+dateFilter.getFilterName());
+//                        controller.addFilter(id+": "+dateFilter.getFilterName());
                     }else if (aDate==null){
                         DateFilter dateFilter = new DateFilter(new Date(0), bDate);
                         dateFilter.setFilterName("Date Filter - Before "+bDate.toString());
                         model.addFilter(dateFilter, id);
-                        controller.addFilter(id+": "+dateFilter.getFilterName());
+//                        controller.addFilter(id+": "+dateFilter.getFilterName());
                     }else{
                         DateFilter dateFilter = new DateFilter(aDate, bDate);
                         dateFilter.setFilterName("Date Filter - "+aDate.toString()+" to "+bDate.toString());
                         model.addFilter(dateFilter, id);
-                        controller.addFilter(id+": "+dateFilter.getFilterName());
+//                        controller.addFilter(id+": "+dateFilter.getFilterName());
                     }
                     break;
             }

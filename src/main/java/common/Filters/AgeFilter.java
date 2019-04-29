@@ -9,9 +9,9 @@ import java.util.Map;
 
 public class AgeFilter extends AudienceFilter {
 
-    private int ageRange;
+    private String ageRange;
 
-    public AgeFilter(int ageRange, Map<String, Subject> subjects) {
+    public AgeFilter(String ageRange, Map<String, Subject> subjects) {
         super(subjects);
         this.ageRange = ageRange;
     }
@@ -19,19 +19,16 @@ public class AgeFilter extends AudienceFilter {
 
     @Override
     public boolean filter(ImpressionLog i) {
-        return true;
-        // return subjects.get(i.getSubjectID()).getAgeRange() == ageRange;
+         return subjects.get(i.getSubjectID()).getAgeRange().equals(ageRange);
     }
 
     @Override
     public boolean filter(ClickLog c) {
-        return true;
-        // return subjects.get(c.getSubjectID()).getAgeRange() == ageRange;
+         return subjects.get(c.getSubjectID()).getAgeRange().equals(ageRange);
     }
 
     @Override
     public boolean filter(ServerLog s) {
-        return true;
-        // return subjects.get(s.getSubjectID()).getAgeRange() == ageRange;
+         return subjects.get(s.getSubjectID()).getAgeRange().equals(ageRange);
     }
 }

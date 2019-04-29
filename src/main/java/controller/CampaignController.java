@@ -205,7 +205,7 @@ public class CampaignController extends GlobalController implements Initializabl
         for (Model model: models) {
             new Thread(model).start();
             campaignsList.getItems().add(new String(model.getName()));
-
+            model.addObserver(this);
 
         }
 
@@ -214,10 +214,8 @@ public class CampaignController extends GlobalController implements Initializabl
 
 
 
-//        setChartGranularitySliderLabels();
 
         customBRBtn.setDisable(false);
-//        chartGranularitySlider.setDisable(false);
         appliedFiltersList.setDisable(false);
         addFilter.setDisable(false);
 
@@ -290,12 +288,9 @@ public class CampaignController extends GlobalController implements Initializabl
 
         clickCostHistogram.setOnMouseClicked(event -> {
             FXMLLoader fxmlLoader = new FXMLLoader();
-//            fxmlLoader.getClassLoader().getResource("/fxml/histogram.fxml");
             fxmlLoader.setLocation(getClass().getResource("/fxml/histogram.fxml"));
             fxmlLoader.setController(new HistogramController(getSelectedModel()));
-//            Parent root = null;
             try {
-//                root = (Parent) fxmlLoader.load();
                 Stage histogram = new Stage();
                 histogram.setTitle("Click Cost Histogram");
                 histogram.setScene(new Scene(fxmlLoader.load()));
@@ -351,43 +346,31 @@ public class CampaignController extends GlobalController implements Initializabl
         }
     }
 
-    void addFilter(String filter) {
-        filters.add(filter);
-    }
-
-    int getUsableID() {
-        int[] used = filters.stream().mapToInt(e -> Integer.parseInt(e.split(":")[0])).toArray();
-        int i = 1;
-        do {
-            boolean found = true;
-            for (int j : used) {
-                if (i == j) {
-                    found = false;
-                    break;
-                }
-            }
-            if (found) {
-                return i;
-            } else {
-                i++;
-            }
-        } while (true);
-    }
-
-//    private void initBindings() {
-//        noImpressions.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_IMPRESSIONS));
-//        noClicks.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_CLICKS));
-//        noUniqueClicks.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_UNIQUE_CLICKS));
-//        noConversions.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_CONVERSIONS));
-//        noBounces.textProperty().bind(model.metrics.MetricsProperty(Metric.NUM_OF_BOUNCES));
-//        bounceRate.textProperty().bind(model.metrics.MetricsProperty(Metric.BOUNCE_RATE));
-//        totalCost.textProperty().bind(model.metrics.MetricsProperty(Metric.TOTAL_COST));
-//        CTR.textProperty().bind(model.metrics.MetricsProperty(Metric.CTR));
-//        CPC.textProperty().bind(model.metrics.MetricsProperty(Metric.CPC));
-//        CPM.textProperty().bind(model.metrics.MetricsProperty(Metric.CPM));
-//        CPA.textProperty().bind(model.metrics.MetricsProperty(Metric.CPA));
-//
+//    void addFilter(String filter) {
+//        filters.add(filter);
 //    }
+
+    int getUsableID(Model model) {
+//        int[] used = filters.stream().mapToInt(e -> Integer.parseInt(e.split(":")[0])).toArray();
+//        int i = 1;
+//        do {
+//            boolean found = true;
+//            for (int j : used) {
+//                if (i == j) {
+//                    found = false;
+//                    break;
+//                }
+//            }
+//            if (found) {
+//                return i;
+//            } else {
+//                i++;
+//            }
+//        } while (true);
+        return model.getUsableID();
+    }
+
+
 
     private void updateMetrics(Model model){
         noImpressions.setText(Long.toString(model.getNumOfImpressions()));
@@ -407,93 +390,21 @@ public class CampaignController extends GlobalController implements Initializabl
         filters.clear();
 
         for(Integer i :model.getAgeFilters().keySet()){
-            filters.add(i+": "+model.getAgeFilters().get(i));
+            filters.add(i+": "+model.getAgeFilters().get(i).getFilterName());
         }
         for(Integer i :model.getContextFilters().keySet()){
-            filters.add(i+": "+model.getContextFilters().get(i));
+            filters.add(i+": "+model.getContextFilters().get(i).getFilterName());
         }
         for(Integer i :model.getDateFilters().keySet()){
-            filters.add(i+": "+model.getDateFilters().get(i));
+            filters.add(i+": "+model.getDateFilters().get(i).getFilterName());
         }
         for(Integer i : model.getGenderFilters().keySet()){
-            filters.add(i+": "+model.getGenderFilters().get(i));
+            filters.add(i+": "+model.getGenderFilters().get(i).getFilterName());
         }
         for(Integer i: model.getIncomeFilters().keySet()){
-            filters.add(i+": "+model.getIncomeFilters().get(i));
+            filters.add(i+": "+model.getIncomeFilters().get(i).getFilterName());
         }
     }
-
-//    private void setChartGranularitySliderLabels() {
-//        chartGranularitySlider.setLabelFormatter(new StringConverter<Double>() {
-//            @Override
-//            public String toString(Double n) {
-//                switch (n.intValue()) {
-//                    case 1:
-//                        return "Hour";
-//                    case 2:
-//                        return "Day";
-//                    case 3:
-//                        return "Month";
-//                    case 4:
-//                        return "Year";
-//                    case 5:
-//                        return "Time";
-//                    case 6:
-//                        return "Day of Week";
-//                    default:
-//                        return "";
-//                }
-//            }
-//
-//            @Override
-//            public Double fromString(String s) {
-//                switch (s) {
-//                    case "Hour":
-//                        return 1d;
-//                    case "Day":
-//                        return 2d;
-//                    case "Month":
-//                        return 3d;
-//                    case "Year":
-//                        return 4d;
-//                    case "Time":
-//                        return 5d;
-//                    case "Day of Week":
-//                        return 6d;
-//                    default:
-//                        return 0d;
-//                }
-//            }
-//        });
-//
-//        chartGranularitySlider.setOnMouseReleased(e -> {
-//            switch ((int) chartGranularitySlider.getValue()) {
-//                case 1:
-//                    model.setGranularity(Granularity.HOUR);
-//                    break;
-//                case 2:
-//                    model.setGranularity(Granularity.DAY);
-//                    break;
-//                case 3:
-//                    model.setGranularity(Granularity.MONTH);
-//                    break;
-//                case 4:
-//                    model.setGranularity(Granularity.YEAR);
-//                    break;
-//                case 5:
-//                    model.setGranularity(Granularity.ToD);
-//                    break;
-//                case 6:
-//                    model.setGranularity(Granularity.DoW);
-//                    break;
-//            }
-//
-//            if (chartToggleGroup.getSelectedToggle() != null) {
-//                chartProgress.progressProperty().bind(graphControllerService.progressProperty());
-//                graphControllerService.restart();
-//            }
-//        });
-//    }
 
     private void initTimeSpinners() {
         BRPagesVisited.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 1000));
@@ -531,6 +442,8 @@ public class CampaignController extends GlobalController implements Initializabl
             default:
                 break;
         }
+        updateFilterList(getSelectedModel());
+        updateMetrics(getSelectedModel());
     }
 
     class BounceTimeReset extends Task<Void> {

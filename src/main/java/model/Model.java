@@ -59,7 +59,7 @@ public class Model extends Task<Void> implements Observable {
     private int bouncePages = 0;
     private long bounceTime = -1;
 
-    private Granularity granularity = Granularity.DAY;
+    private static Granularity granularity = Granularity.DAY;
     private ArrayList<FilterDate> dates = new ArrayList<>();
 
     private HashMap<Integer, AgeFilter> ageFilters = new HashMap<>();
@@ -115,7 +115,7 @@ public class Model extends Task<Void> implements Observable {
     }
 
     public Map<String, Subject> getSubjects() {
-        return subjects;
+        return rawDataHolder.getSubjects();
     }
 
     @Override
@@ -856,6 +856,14 @@ public class Model extends Task<Void> implements Observable {
         filter();
     }
 
+    public int getUsableID(){
+        int i=1;
+        while(ageFilters.keySet().contains(i) || contextFilters.keySet().contains(i) || dateFilters.keySet().contains(i) || genderFilters.keySet().contains(i) || incomeFilters.keySet().contains(i)) {
+            i++;
+        }
+        return i;
+    }
+
     private void filterData() {
         impressionLog.clear();
         rawDataHolder.getImpressionLog().stream()
@@ -873,8 +881,8 @@ public class Model extends Task<Void> implements Observable {
                 .forEach(sl -> serverLog.add(sl));
 
         notifyObservers(IMPRESSION_LOG);
-        notifyObservers(FileType.CLICK_LOG);
-        notifyObservers(FileType.SERVER_LOG);
+        notifyObservers(CLICK_LOG);
+        notifyObservers(SERVER_LOG);
     }
 
     private boolean matchesFilter(Object o){

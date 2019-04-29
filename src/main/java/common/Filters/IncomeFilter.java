@@ -22,19 +22,16 @@ public class IncomeFilter extends AudienceFilter {
 
     @Override
     public boolean filter(ImpressionLog i) {
-        // return subjects.get(i.getSubjectID()).getIncome().equals(income);
-        return true;
+         return subjects.get(i.getSubjectID()).getIncome().equals(income);
     }
 
     @Override
     public boolean filter(ClickLog c) {
-        // return subjects.get(c.getSubjectID()).getIncome().equals(income);
-        return true;
+         return subjects.get(c.getSubjectID()).getIncome().equals(income);
     }
 
     @Override
     public boolean filter(ServerLog s) {
-        // return subjects.get(s.getSubjectID()).getIncome().equals(income);
-        return true;
+         return subjects.get(s.getSubjectID()).getIncome().equals(income);
     }
 }

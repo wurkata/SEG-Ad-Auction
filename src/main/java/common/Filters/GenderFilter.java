@@ -20,20 +20,17 @@ public class GenderFilter extends AudienceFilter{
 
     @Override
     public boolean filter(ImpressionLog i) {
-        // return subjects.get(i.getSubjectID()).getGender().equals(gender);
-        return true;
+         return subjects.get(i.getSubjectID()).getGender().equals(gender);
     }
 
     @Override
     public boolean filter(ClickLog c) {
-        // return subjects.get(c.getSubjectID()).getGender().equals(gender);
-        return true;
+         return subjects.get(c.getSubjectID()).getGender().equals(gender);
 
     }
 
     @Override
     public boolean filter(ServerLog s) {
-        // return subjects.get(s.getSubjectID()).getGender().equals(gender);
-        return true;
+         return subjects.get(s.getSubjectID()).getGender().equals(gender);
     }
 }

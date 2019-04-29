@@ -43,7 +43,7 @@ public class PercentileRenderer extends XYLineAndShapeRenderer {
                 Double k = sortedValues.size() * (double) percentile / 100.0;
                 int index;
                 if (k - k.intValue() != 0) {
-                    index = (int) Math.ceil(k);
+                    index = (int) Math.floor(k);
                     lowerDubBounds[i] = sortedValues.get(index);
                 } else {
                     index = k.intValue();
@@ -66,7 +66,7 @@ public class PercentileRenderer extends XYLineAndShapeRenderer {
                 Double k = sortedValues.size() * (double) percentile / 100.0;
                 int index;
                 if (k - k.intValue() != 0) {
-                    index = (int) Math.ceil(k);
+                    index = (int) Math.floor(k);
                     lowerLongBounds[i] = sortedValues.get(index);
                 } else {
                     index = k.intValue();

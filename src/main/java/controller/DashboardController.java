@@ -89,7 +89,8 @@ public class DashboardController extends GlobalController implements Initializab
     @FXML
     private JFXButton loadCampaignBtn;
 
-    private Model model;
+
+    private List<Model> models = new ArrayList<Model>();
 
     private JFXButton drawCmapaigns;
 
@@ -107,18 +108,35 @@ public class DashboardController extends GlobalController implements Initializab
 
     private File inputFile;
 
-    public DashboardController(Model model) {
-        this.model = model;
+    private boolean isOnline;
+
+    public DashboardController() {
+
     }
+
+    public DashboardController(Boolean isOnline) {
+        this.isOnline = isOnline;
+    }
+
+//    public DashboardController(Model model) {
+//        this.model = model;
+//    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         campaignsSet = new ArrayList<>();
-        model.addObserver(this);
+        for (Model model : models) {
+            model.addObserver(this);
+        }
 
-        getCampaigns();
+        RawDataHolder dataHolder = new RawDataHolder();
+        dataHolder.addObserver(this);
+
+        if (isOnline) getCampaigns();
 
         loadCampaignBtn.setDisable(true);
+
+        campaignsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         feedbackMsg.textProperty().setValue("");
 
@@ -129,6 +147,9 @@ public class DashboardController extends GlobalController implements Initializab
         createCampaignBtn.setOnMouseReleased(this::createCampaign);
         createCampaignBtn.setOnMouseReleased(e -> {
             ObservableList<Campaign> selectedItems = campaignsList.getSelectionModel().getSelectedItems();
+            models.add(new Model(campaignTitle.getText(), dataHolder));
+            campaignsList.getItems().add(new Campaign((long) campaignsList.getItems().size() - 1,
+                    campaignTitle.textProperty().getValue()));
         });
 
         campaignTitle.textProperty().addListener(((observable, oldValue, newValue) -> {
@@ -157,8 +178,6 @@ public class DashboardController extends GlobalController implements Initializab
         }));
 //        model = new Model();
 //        model.addObserver(this);
-        RawDataHolder dataHolder = new RawDataHolder();
-        dataHolder.addObserver(this);
 
         parserService = new Parser(dataHolder);
 
@@ -195,18 +214,18 @@ public class DashboardController extends GlobalController implements Initializab
             }
         });
 
-        addTestCampaign.setOnMouseReleased(e -> {
-            Parser parser = new Parser(
-                    new File("input/impression_log_small.csv"),
-                    new File("input/click_log_small.csv"),
-                    new File("input/server_log_small.csv"
-                    ));
-            parser.setOnSucceeded(a -> {
-                if (parser.getValue()) {
-                    createCampaign(a);
-                }
-            });
-        });
+//        addTestCampaign.setOnMouseReleased(e -> {
+//            Parser parser = new Parser(
+//                    new File("input/impression_log_small.csv"),
+//                    new File("input/click_log_small.csv"),
+//                    new File("input/server_log_small.csv"
+//                    ));
+//            parser.setOnSucceeded(a -> {
+//                if (parser.getValue()) {
+//                    createCampaign(a);
+//                }
+//            });
+//        });
 
         newCampaignPane.setOnMouseReleased(e -> {
             if (newCampaignPane.isExpanded())
@@ -216,33 +235,30 @@ public class DashboardController extends GlobalController implements Initializab
         });
 
         campaignsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        campaignsList.setCellFactory(CheckBoxListCell.forListView(new Callback<Campaign, ObservableValue<Boolean>>() {
-            @Override
-            public ObservableValue<Boolean> call(Campaign item) {
-                BooleanProperty observable = new SimpleBooleanProperty();
-                observable.addListener((obs, wasSelected, isNowSelected) -> {
-                    if(isNowSelected) {
-                        campaignsList.getSelectionModel().select(item);
-                    }
-                });
-                return observable;
-            }
-        }));
         campaignsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             loadCampaignBtn.setDisable(false);
         });
 
         loadCampaignBtn.setOnMouseReleased(e -> {
-            LoadCampaign loadCampaignTask = new LoadCampaign();
-            loadCampaignTask.setOnSucceeded(a -> {
+            if (AccountController.online) {
+                LoadCampaign loadCampaignTask = new LoadCampaign();
+                loadCampaignTask.setOnSucceeded(a -> {
+                    try {
+                        goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                });
+
+                new Thread(loadCampaignTask).start();
+
+            } else {
                 try {
-                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(model));
+                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-            });
-
-            new Thread(loadCampaignTask).start();
+            }
         });
     }
 
@@ -255,32 +271,54 @@ public class DashboardController extends GlobalController implements Initializab
     @FXML
     private void createCampaign(Event event) {
         try {
+            Model model = new Model();
+            models.add(model);
+            model.setUser(AccountController.user);
             model.setCampaignTitle(campaignTitle.textProperty().getValue());
-            model.uploadData();
+            if (AccountController.online) model.uploadData();
 
             model.addObserver(this);
             RawDataHolder rdh = parserService.getRawDataHolder();
             Campaign campaign = new Campaign(campaignTitle.getText(), rdh, model);
             model.setRawDataHolder(rdh);
 
-            CampaignController controller = new CampaignController(model);
+            CampaignController controller = new CampaignController(models);
+            goTo("campaign_scene", (Stage) createCampaignBtn.getScene().getWindow(), controller);
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
-            loader.setController(controller);
-            Parent root = loader.load();
-
-            Scene campaignsScene = new Scene(root);
-            campaignsScene.getStylesheets().add(getClass().getResource("/css/campaign_scene.css").toExternalForm());
-
-            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            window.setScene(campaignsScene);
-            window.setResizable(false);
-            window.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+//    @FXML
+//    private void createCampaign2(Event event) {
+//        try {
+//            model.setCampaignTitle(campaignTitle.textProperty().getValue());
+//            model.uploadData();
+//
+//            model.addObserver(this);
+//            RawDataHolder rdh = parserService.getRawDataHolder();
+//            Campaign campaign = new Campaign(campaignTitle.getText(), rdh, model);
+//            model.setRawDataHolder(rdh);
+//
+//            CampaignController controller = new CampaignController(models);
+//
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
+//            loader.setController(controller);
+//            Parent root = loader.load();
+//
+//            Scene campaignsScene = new Scene(root);
+//            campaignsScene.getStylesheets().add(getClass().getResource("/css/campaign_scene.css").toExternalForm());
+//
+//            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+//
+//            window.setScene(campaignsScene);
+//            window.setResizable(false);
+//            window.show();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     public void update() {
@@ -327,11 +365,6 @@ public class DashboardController extends GlobalController implements Initializab
         }
 
         if (arg instanceof Exception) {
-//            Alert err = new Alert(Alert.AlertType.ERROR);
-//            err.setTitle("File Import Error");
-//            err.setHeaderText(null);
-//            err.setContentText(((Exception) arg).getMessage());
-//            err.showAndWait();
             String m = ((Exception) arg).getMessage();
             JOptionPane.showMessageDialog(new JFXPanel(), m, "File Import Error", JOptionPane.ERROR_MESSAGE);
             if (m.contains("impression")) {
@@ -365,14 +398,14 @@ public class DashboardController extends GlobalController implements Initializab
     }
 
     private void getCampaigns() {
-        getCampaignsForUser getCampaignsTask = new getCampaignsForUser(model.getUser().getId());
+        getCampaignsForUser getCampaignsTask = new getCampaignsForUser(AccountController.user.getId());
         getCampaignsTask.setOnSucceeded(e -> {
             campaignsSet = getCampaignsTask.getValue();
 
             ObservableList<Campaign> observableList = FXCollections.observableList(campaignsSet);
 
             campaignsList.setItems(observableList);
-            campaignsList.setCellFactory(param -> new ListCell<Campaign>(){
+            campaignsList.setCellFactory(param -> new ListCell<Campaign>() {
                 @Override
                 protected void updateItem(Campaign item, boolean empty) {
                     super.updateItem(item, empty);
@@ -402,7 +435,7 @@ public class DashboardController extends GlobalController implements Initializab
                 PreparedStatement stmt = con.prepareStatement(query);
                 ObservableList<Campaign> selectedItems = campaignsList.getSelectionModel().getSelectedItems();
 
-                for(Campaign c : selectedItems) {
+                for (Campaign c : selectedItems) {
                     stmt.setLong(1, c.getId());
                     resultSet = stmt.executeQuery();
 
@@ -416,9 +449,8 @@ public class DashboardController extends GlobalController implements Initializab
                                 resultSet.getDouble("cost")
                         ));
                     }
-
-                    model.setImpressionLog(impressionLog);
                 }
+
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -448,7 +480,7 @@ public class DashboardController extends GlobalController implements Initializab
                 PreparedStatement stmt = con.prepareStatement(query);
 
                 stmt.setString(1, campaign);
-                stmt.setLong(2, model.getUser().getId());
+                stmt.setLong(2, AccountController.user.getId());
 
 
                 return true;
@@ -457,5 +489,13 @@ public class DashboardController extends GlobalController implements Initializab
             }
             return null;
         }
+    }
+
+    public List<Model> getModels() {
+        return models;
+    }
+
+    public void setModels(List<Model> models) {
+        this.models = models;
     }
 }

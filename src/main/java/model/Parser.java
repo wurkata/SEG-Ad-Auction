@@ -24,15 +24,15 @@ public class Parser extends Task<Boolean> implements Observable {
     private FileType fileType;
     private RawDataHolder dataHolder = new RawDataHolder();
 
-    public Parser(File imp, File click, File serv) {
-        try {
-            readImpressionLog(imp);
-            readClickLog(click);
-            readServerLog(serv);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public Parser(File imp, File click, File serv) {
+//        try {
+//            readImpressionLog(imp);
+//            readClickLog(click);
+//            readServerLog(serv);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public Parser(RawDataHolder holder) {
         this.dataHolder=holder;
@@ -71,7 +71,9 @@ public class Parser extends Task<Boolean> implements Observable {
             return clickLog;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Error reading click log: \nPlease check the file is in the correct format and try again.");
+            Exception ee = new Exception("Error reading click log: \nPlease check the file is in the correct format and try again.");
+//            notifyObservers(ee);
+            throw ee;
         }
     }
 
@@ -98,7 +100,10 @@ public class Parser extends Task<Boolean> implements Observable {
             return new Pair<>(impressionLog, subjects);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Error reading impression log: \nPlease check the file is in the correct format and try again.");
+            Exception ee =  new Exception("Error reading impression log: \nPlease check the file is in the correct format and try again.");
+//            notifyObservers(ee);
+            throw ee;
+
         }
     }
 
@@ -131,7 +136,9 @@ public class Parser extends Task<Boolean> implements Observable {
             return serverLog;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Error reading server log: \nPlease check the file is in the correct format and try again.");
+            Exception ee = new Exception("Error reading server log: \nPlease check the file is in the correct format and try again.");
+//            notifyObservers(ee);
+            throw ee;
         }
 
     }
@@ -173,9 +180,13 @@ public class Parser extends Task<Boolean> implements Observable {
 
     @Override
     protected Boolean call() throws Exception {
-        if (fileType == FileType.IMPRESSION_LOG) readImpressionLog(inputFile);
-        if (fileType == FileType.CLICK_LOG) readClickLog(inputFile);
-        if (fileType == FileType.SERVER_LOG) readServerLog(inputFile);
+        try {
+            if (fileType == FileType.IMPRESSION_LOG) readImpressionLog(inputFile);
+            if (fileType == FileType.CLICK_LOG) readClickLog(inputFile);
+            if (fileType == FileType.SERVER_LOG) readServerLog(inputFile);
+        }catch (Exception e){
+            notifyObservers(e);
+        }
 
         return true;
     }

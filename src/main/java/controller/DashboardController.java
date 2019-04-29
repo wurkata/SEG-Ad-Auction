@@ -26,7 +26,6 @@ import model.DAO.DBPool;
 import model.DBTasks.getCampaignsForUser;
 import model.ImpressionLog;
 import javafx.scene.control.Accordion;
-import javafx.scene.layout.AnchorPane;
 import model.Campaign;
 import model.Model;
 import model.Parser;
@@ -224,12 +223,7 @@ public class DashboardController extends GlobalController implements Initializab
             update(campaignTitle.getText());
         });
 
-        createCampaignBtn.setOnMouseReleased(e -> {
-            AnchorPane newCampaign = new AnchorPane();
-            newCampaign.getChildren().add(new Label(campaignTitle.getText()));
-            TitledPane pane = new TitledPane(campaignTitle.getText(), newCampaign);
-            accordion.getPanes().add(pane);
-        });
+        createCampaignBtn.setOnMouseReleased(this::createCampaign);
     }
 
     private File importFile(FileType fileType) {
@@ -244,7 +238,6 @@ public class DashboardController extends GlobalController implements Initializab
             model.setCampaignTitle(campaignTitle.textProperty().getValue());
             model.uploadData();
 
-            Model model = new Model();
             model.addObserver(this);
             RawDataHolder rdh = parserService.getRawDataHolder();
             Campaign campaign = new Campaign(campaignTitle.getText(), rdh, model);

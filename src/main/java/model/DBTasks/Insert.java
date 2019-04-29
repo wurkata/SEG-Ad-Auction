@@ -12,8 +12,14 @@ import java.util.Map;
 public class Insert extends Task<Boolean> {
     private String table;
     private Connection con;
+    private String query;
 
     private Map<String, String> params;
+
+    public Insert() {}
+    public Insert(String query) {
+        this.query = query;
+    }
 
     @Override
     protected Boolean call() throws Exception {
@@ -21,9 +27,11 @@ public class Insert extends Task<Boolean> {
 
         try {
             Statement stmt = con.createStatement();
-            String fields = getFields();
-            String values = getValues();
-            String query = "INSERT INTO " + table + "(" + fields + ") VALUES (" + values + ");";
+            if (query == null) {
+                String fields = getFields();
+                String values = getValues();
+                query = "INSERT INTO " + table + "(" + fields + ") VALUES (" + values + ");";
+            }
 
             stmt.executeUpdate(query);
 

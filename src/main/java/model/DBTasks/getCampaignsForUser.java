@@ -26,8 +26,7 @@ public class getCampaignsForUser extends Task<Set<String>> {
         ResultSet resultSet;
         Set<String> res = new HashSet<>();
 
-        resultSet = stmt.executeQuery("SELECT title FROM " +
-                "(campaign_users INNER JOIN campaigns ON campaigns.id=campaign_id) " +
+        resultSet = stmt.executeQuery("SELECT title FROM campaigns " +
                 "WHERE user_id=(SELECT id FROM users WHERE username='" + user + "' LIMIT 1)");
 
         while (resultSet.next()) {

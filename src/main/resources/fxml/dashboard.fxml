@@ -79,9 +79,6 @@
                                  </VBox.margin>
                               </Label>
                                             <JFXButton fx:id="createCampaignBtn" alignment="CENTER" disable="true" prefHeight="60.0" text="Create Campaign" textFill="#535353">
-                                                <font>
-                                                    <Font name="System Bold" size="25.0" />
-                                                </font>
                                                 <cursor>
                                                     <Cursor fx:constant="HAND" />
                                                 </cursor>

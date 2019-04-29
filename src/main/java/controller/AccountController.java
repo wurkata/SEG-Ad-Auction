@@ -10,8 +10,6 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
 import model.DBTasks.CheckAccount;
 import model.DBTasks.Insert;
-import model.Model;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -47,11 +45,7 @@ public class AccountController extends GlobalController implements Initializable
     private boolean isValidInputPwd;
     private boolean isValidInputUser;
 
-    protected static Model model;
-
-    public AccountController() {
-        model = new Model();
-    }
+    public static String user;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -66,7 +60,7 @@ public class AccountController extends GlobalController implements Initializable
 
         useOfflineBtn.setOnMouseReleased(e -> {
             try {
-                goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController(model));
+                goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController());
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -94,11 +88,11 @@ public class AccountController extends GlobalController implements Initializable
                     if (res) {
                         signProgress.setVisible(false);
                         feedbackMsg.textProperty().setValue("Login successful. Taking you to Dashboard...");
-                        model.setUser(usernameField.textProperty().getValue());
+                        user = usernameField.textProperty().getValue();
 
                         try {
                             Thread.sleep(1000);
-                            goTo("dashboard", (Stage) signBtn.getScene().getWindow(), new DashboardController(model));
+                            goTo("dashboard", (Stage) signBtn.getScene().getWindow(), new DashboardController());
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }

@@ -28,6 +28,9 @@ import static common.FileType.*;
  */
 
 public class Model extends Task<Void> implements Observable {
+
+    private String name;
+
     private DecimalFormat df = new DecimalFormat("#.####");
 
     private Connection con;
@@ -62,6 +65,8 @@ public class Model extends Task<Void> implements Observable {
     private HashMap<Integer, GenderFilter> genderFilters = new HashMap<>();
     private HashMap<Integer, IncomeFilter> incomeFilters = new HashMap<>();
     private HashMap<Integer, DateFilter> dateFilters = new HashMap<>();
+
+
 
     public void setRawDataHolder(RawDataHolder rawDataHolder) {
         this.rawDataHolder = rawDataHolder;
@@ -107,12 +112,20 @@ public class Model extends Task<Void> implements Observable {
         chartData = new ChartData();
     }
 
-    public Model(RawDataHolder dataHolder){
+    public Model(String name, RawDataHolder dataHolder){
+        this.name = name;
         this.rawDataHolder=dataHolder;
         metrics=new Metrics();
         chartData = new ChartData();
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public void setServerLog(List<ServerLog> serverLog) {
         this.rawServerLog = serverLog;

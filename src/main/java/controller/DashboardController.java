@@ -83,7 +83,8 @@ public class DashboardController extends GlobalController implements Initializab
     @FXML
     private JFXButton loadCampaignBtn;
 
-    private Model model;
+
+    private List <Model> models = new ArrayList<Model>();
 
     private JFXButton drawCmapaigns;
 
@@ -101,15 +102,20 @@ public class DashboardController extends GlobalController implements Initializab
 
     private File inputFile;
 
-    public DashboardController(Model model) {
-        this.model = model;
+    public DashboardController() {
+
     }
+
+//    public DashboardController(Model model) {
+//        this.model = model;
+//    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         campaignsSet = new HashSet<>();
-        model.addObserver(this);
-
+        for (Model model: models) {
+            model.addObserver(this);
+        }
         getCampaigns();
 
         loadCampaignBtn.setDisable(true);
@@ -210,7 +216,7 @@ public class DashboardController extends GlobalController implements Initializab
             LoadCampaign loadCampaignTask = new LoadCampaign();
             loadCampaignTask.setOnSucceeded(a -> {
                 try {
-                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(model));
+                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -235,6 +241,9 @@ public class DashboardController extends GlobalController implements Initializab
     @FXML
     private void createCampaign(Event event) {
         try {
+            Model model = new Model();
+            models.add(model);
+            model.setUser(AccountController.user);
             model.setCampaignTitle(campaignTitle.textProperty().getValue());
             model.uploadData();
 
@@ -243,24 +252,42 @@ public class DashboardController extends GlobalController implements Initializab
             Campaign campaign = new Campaign(campaignTitle.getText(), rdh, model);
             model.setRawDataHolder(rdh);
 
-            CampaignController controller = new CampaignController(model);
+            CampaignController controller = new CampaignController(models);
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
-            loader.setController(controller);
-            Parent root = loader.load();
-
-            Scene campaignsScene = new Scene(root);
-            campaignsScene.getStylesheets().add(getClass().getResource("/css/campaign_scene.css").toExternalForm());
-
-            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            window.setScene(campaignsScene);
-            window.setResizable(false);
-            window.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+//    @FXML
+//    private void createCampaign2(Event event) {
+//        try {
+//            model.setCampaignTitle(campaignTitle.textProperty().getValue());
+//            model.uploadData();
+//
+//            model.addObserver(this);
+//            RawDataHolder rdh = parserService.getRawDataHolder();
+//            Campaign campaign = new Campaign(campaignTitle.getText(), rdh, model);
+//            model.setRawDataHolder(rdh);
+//
+//            CampaignController controller = new CampaignController(models);
+//
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
+//            loader.setController(controller);
+//            Parent root = loader.load();
+//
+//            Scene campaignsScene = new Scene(root);
+//            campaignsScene.getStylesheets().add(getClass().getResource("/css/campaign_scene.css").toExternalForm());
+//
+//            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+//
+//            window.setScene(campaignsScene);
+//            window.setResizable(false);
+//            window.show();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     public void update() {
@@ -345,7 +372,7 @@ public class DashboardController extends GlobalController implements Initializab
         }
 
         private void getCampaigns () {
-            getCampaignsForUser getCampaignsTask = new getCampaignsForUser(model.getUser());
+            getCampaignsForUser getCampaignsTask = new getCampaignsForUser(AccountController.user);
             getCampaignsTask.setOnSucceeded(e -> {
                 campaignsSet = getCampaignsTask.getValue();
                 ObservableList<String> campaigns = FXCollections.observableArrayList(campaignsSet);
@@ -379,8 +406,6 @@ public class DashboardController extends GlobalController implements Initializab
                                 resultSet.getDouble("cost")
                         ));
                     }
-
-                    model.setImpressionLog(impressionLog);
                     return true;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -389,4 +414,11 @@ public class DashboardController extends GlobalController implements Initializab
                 return false;
             }
         }
+    public List<Model> getModels() {
+        return models;
+    }
+
+    public void setModels(List<Model> models) {
+        this.models = models;
+    }
     }

@@ -30,6 +30,7 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 @SuppressWarnings("unused")
@@ -145,8 +146,13 @@ public class CampaignController extends GlobalController implements Initializabl
     @FXML
     private RadioButton dowBtn;
 
+    @FXML
+    private Tab campaignNameTab;
 
-    public Model model;
+    @FXML
+    private TabPane tabPane;
+
+    public List<Model> models;
 
     private GraphController graphControllerService;
 
@@ -157,17 +163,26 @@ public class CampaignController extends GlobalController implements Initializabl
     private String theme_light;
     private String theme_dark;
 
-    CampaignController(Model model) {
-        this.model = model;
+    CampaignController(List<Model> models) {
+        this.models = models;
 
-        graphControllerService = new GraphController(this, model);
+
+        graphControllerService = new GraphController(this, models);
         graphControllerService.addObserver(this);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         theme_light = getClass().getResource("/css/campaign_scene.css").toExternalForm();
         theme_dark = getClass().getResource("/css/campaign_scene-dark.css").toExternalForm();
+        
+        for (Model model: models) {
+            Tab newTab = new Tab(model.getTitle());
+            tabPane.getTabs().add(newTab);
+            newTab.setContent(filters, bounceRate, metrics);
+        }
+
 
         chartProgress.toFront();
         chartProgress.setVisible(false);

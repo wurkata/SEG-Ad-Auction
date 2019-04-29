@@ -11,13 +11,16 @@ import java.util.Map;
 /**
  * Created by furqan on 24/04/2019.
  */
-public class RawDataHolder implements Observable {
+public class RawDataHolder implements Observable, Cloneable {
     private List<ImpressionLog> impressionLog;
     private List<ClickLog> clickLog;
     private List<ServerLog> serverLog;
     private Map<String, Subject> subjects;
 
     public RawDataHolder(){
+    }
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     public List<ImpressionLog> getImpressionLog() {

@@ -245,7 +245,7 @@ public class DashboardController extends GlobalController implements Initializab
             models.add(model);
             model.setUser(AccountController.user);
             model.setCampaignTitle(campaignTitle.textProperty().getValue());
-            model.uploadData();
+            if (AccountController.online) model.uploadData();
 
             model.addObserver(this);
             RawDataHolder rdh = parserService.getRawDataHolder();
@@ -253,6 +253,7 @@ public class DashboardController extends GlobalController implements Initializab
             model.setRawDataHolder(rdh);
 
             CampaignController controller = new CampaignController(models);
+            goTo("campaign_scene", (Stage) createCampaignBtn.getScene().getWindow(), controller);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class AccountController extends GlobalController implements Initializable {
+    public static boolean online=true;
+
     @FXML
     JFXTextField usernameField;
 
@@ -61,6 +63,7 @@ public class AccountController extends GlobalController implements Initializable
         useOfflineBtn.setOnMouseReleased(e -> {
             try {
                 goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController());
+                online=false;
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class GlobalController {
 
-    protected Model model;
+    private Model model;
 
     void goTo(String sceneName, Stage stage, GlobalController controller) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();

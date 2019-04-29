@@ -32,7 +32,7 @@ public class Model extends Task<Void> implements Observable {
 
     private Connection con;
     private int BATCH_SIZE = 1000;
-    private String user;
+    private User user;
 
     private List<ImpressionLog> impressionLog = new ArrayList<>();
     private List<ClickLog> clickLog = new ArrayList<>();
@@ -120,11 +120,11 @@ public class Model extends Task<Void> implements Observable {
         notifyObservers(FileType.SERVER_LOG);
     }
 
-    public void setUser(String user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
-    public String getUser() {
+    public User getUser() {
         return user;
     }
 

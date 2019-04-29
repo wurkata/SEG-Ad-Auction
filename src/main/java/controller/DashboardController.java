@@ -188,18 +188,18 @@ public class DashboardController extends GlobalController implements Initializab
             }
         });
 
-        addTestCampaign.setOnMouseReleased(e -> {
-            Parser parser = new Parser(
-                    new File("input/impression_log_small.csv"),
-                    new File("input/click_log_small.csv"),
-                    new File("input/server_log_small.csv"
-                    ));
-            parser.setOnSucceeded(a -> {
-                if (parser.getValue()) {
-                    createCampaign(a);
-                }
-            });
-        });
+//        addTestCampaign.setOnMouseReleased(e -> {
+//            Parser parser = new Parser(
+//                    new File("input/impression_log_small.csv"),
+//                    new File("input/click_log_small.csv"),
+//                    new File("input/server_log_small.csv"
+//                    ));
+//            parser.setOnSucceeded(a -> {
+//                if (parser.getValue()) {
+//                    createCampaign(a);
+//                }
+//            });
+//        });
 
         newCampaignPane.setOnMouseReleased(e -> {
             if (newCampaignPane.isExpanded())
@@ -230,13 +230,7 @@ public class DashboardController extends GlobalController implements Initializab
                     e1.printStackTrace();
                 }
             }
-//            campaignsList.getSelectionModel().getSelectedItems().forEach(e->{
-////                for(Model model:models){
-////                    if(model.getName().equals(e.toString())){
-////                        models.add()
-////                    }
-////                }
-//            });
+
 
         });
 
@@ -353,11 +347,6 @@ public class DashboardController extends GlobalController implements Initializab
             }
 
             if (arg instanceof Exception) {
-//            Alert err = new Alert(Alert.AlertType.ERROR);
-//            err.setTitle("File Import Error");
-//            err.setHeaderText(null);
-//            err.setContentText(((Exception) arg).getMessage());
-//            err.showAndWait();
                 String m = ((Exception) arg).getMessage();
                 JOptionPane.showMessageDialog(new JFXPanel(), m, "File Import Error", JOptionPane.ERROR_MESSAGE);
                 if (m.contains("impression")) {

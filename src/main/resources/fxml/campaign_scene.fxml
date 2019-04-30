@@ -24,6 +24,8 @@
 
 <VBox prefHeight="850.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
         <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="accessibility-holder">
+                <JFXButton fx:id="backToDashboardBtn" mnemonicParsing="false" text= "Dashboard">
+                </JFXButton>
                 <JFXButton fx:id="printBtn" mnemonicParsing="false" text="Print">
                     <HBox>
                     </HBox>

@@ -81,8 +81,8 @@ public class DashboardController extends GlobalController implements Initializab
 
 
     private List <Model> models = new ArrayList<Model>();
-
-    private JFXButton drawCmapaigns;
+    private List <Model> modelsToLoad = new ArrayList<Model>();
+    private JFXButton drawCampaigns;
 
     @FXML
     private Accordion accordion;
@@ -120,9 +120,9 @@ public class DashboardController extends GlobalController implements Initializab
 
         feedbackMsg.textProperty().setValue("");
 
-        importImpressionLog.setDisable(true);
-        importClickLog.setDisable(true);
-        importServerLog.setDisable(true);
+//        importImpressionLog.setDisable(false);
+//        importClickLog.setDisable(false);
+//        importServerLog.setDisable(false);
 
         createCampaignBtn.setOnMouseReleased(this::createCampaign);
 
@@ -130,22 +130,17 @@ public class DashboardController extends GlobalController implements Initializab
             if (newValue.length() > 2) {
                 if (!campaignsSet.contains(newValue)) {
                     feedbackMsg.textProperty().setValue("");
-                    importImpressionLog.setDisable(false);
-                    importClickLog.setDisable(false);
-                    importServerLog.setDisable(false);
                     createCampaignBtn.setDisable(false);
                 } else {
                     feedbackMsg.textProperty().setValue("Campaign with such name already exists.");
-                    importImpressionLog.setDisable(true);
-                    importClickLog.setDisable(true);
-                    importServerLog.setDisable(true);
                     createCampaignBtn.setDisable(true);
                 }
             } else {
                 feedbackMsg.textProperty().setValue("Campaign title should contain at least 3 characters.");
-                importImpressionLog.setDisable(true);
-                importClickLog.setDisable(true);
-                importServerLog.setDisable(true);
+                createCampaignBtn.setDisable(true);
+            }
+            if (!isUniqueCampaignTitle(newValue)){
+                createCampaignBtn.setDisable(true);
             }
         }));
 //        model = new Model();
@@ -211,11 +206,12 @@ public class DashboardController extends GlobalController implements Initializab
         campaignsList.getSelectionModel().selectedItemProperty().addListener(e -> loadCampaignBtn.setDisable(false));
 
         loadCampaignBtn.setOnMouseReleased(e -> {
+            modelsToLoad.addAll(getSelectedCampaigns());
             if (AccountController.online) {
                 LoadCampaign loadCampaignTask = new LoadCampaign();
                 loadCampaignTask.setOnSucceeded(a -> {
                     try {
-                        goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
+                        goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(modelsToLoad));
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
@@ -225,7 +221,7 @@ public class DashboardController extends GlobalController implements Initializab
 
             }else{
                 try {
-                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
+                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(modelsToLoad));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -239,8 +235,13 @@ public class DashboardController extends GlobalController implements Initializab
         });
 
         createCampaignBtn.setOnMouseReleased(e-> {
-            models.add(new Model(campaignTitle.getText(), dataHolder));
-            campaignsList.getItems().add(campaignTitle.getText());
+            if(isUniqueCampaignTitle(campaignTitle.getText())) {
+                models.add(new Model(campaignTitle.getText(), dataHolder));
+                campaignsList.getItems().add(campaignTitle.getText());
+            }
+            else{
+                feedbackMsg.textProperty().setValue("Campaign with such name already exists.");
+            }
         });
     }
 
@@ -264,7 +265,7 @@ public class DashboardController extends GlobalController implements Initializab
             Campaign campaign = new Campaign(campaignTitle.getText(), rdh, model);
             model.setRawDataHolder(rdh);
 
-            CampaignController controller = new CampaignController(models);
+            CampaignController controller = new CampaignController(modelsToLoad);
             goTo("campaign_scene", (Stage) createCampaignBtn.getScene().getWindow(), controller);
 
         } catch (Exception e) {
@@ -341,8 +342,11 @@ public class DashboardController extends GlobalController implements Initializab
             if (arg instanceof String) {
                 if (campaignTitle.getText().trim().isEmpty()) {
                     hasName = false;
-                } else {
+                } else if(isUniqueCampaignTitle(campaignTitle.getText())) {
                     hasName = true;
+                }
+                else {
+                    hasName = false;
                 }
             }
 
@@ -376,7 +380,7 @@ public class DashboardController extends GlobalController implements Initializab
         }
 
         private boolean canAddCampaign () {
-            return impressionLogLoaded && clickLogLoaded && serverLogLoaded && hasName;
+            return impressionLogLoaded && clickLogLoaded && serverLogLoaded && isUniqueCampaignTitle(campaignTitle.getText());
         }
 
         private void getCampaigns () {
@@ -429,4 +433,25 @@ public class DashboardController extends GlobalController implements Initializab
     public void setModels(List<Model> models) {
         this.models = models;
     }
+
+    public boolean isUniqueCampaignTitle(String title){
+        for (Model model: models) {
+            if (model.getName().equals(title)){
+                return false;
+            }
+        }
+        return true;
     }
+
+    public List<Model> getSelectedCampaigns (){
+        List<Model> modelsl = new ArrayList<Model>();
+        for (Model model: models) {
+            for (String campaignName: campaignsList.getSelectionModel().getSelectedItems()) {
+                if(campaignName.equals(model.getName())){
+                    modelsl.add(model);
+                }
+            }
+        }
+        return modelsl;
+    }
+}

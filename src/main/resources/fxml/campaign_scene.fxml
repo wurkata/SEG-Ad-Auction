@@ -228,7 +228,7 @@
                             </cursor>
                         </JFXButton>
                     </HBox>
-                    <JFXButton fx:id="duplicateCampaign" text="Duplicate Campaign to Compare Filtered Metrics" disable="false">
+                    <JFXButton fx:id="duplicateCampaign" text="Copy Campaign For Comparison" disable="false">
                             <style>
                                 <!--Style code from https://stackoverflow.com/a/30680668-->
                                 -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;

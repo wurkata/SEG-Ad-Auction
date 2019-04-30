@@ -22,11 +22,174 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.jfree.chart.fx.ChartViewer?>
 
-<VBox prefHeight="850.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
-        <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="accessibility-holder">
-                <JFXButton fx:id="backToDashboardBtn" mnemonicParsing="false" text= "Dashboard">
-                </JFXButton>
-                <JFXButton fx:id="printBtn" mnemonicParsing="false" text="Print">
+<VBox prefHeight="850.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="accessibility-holder">
+        <JFXButton fx:id="backToDashboardBtn" mnemonicParsing="false" text= "Dashboard">
+        </JFXButton>
+        <JFXButton fx:id="printBtn" mnemonicParsing="false" text="Print">
+            <HBox>
+            </HBox>
+        </JFXButton>
+        <JFXToggleButton fx:id="toggleThemeMode" text="Dark mode" toggleColor="#1ec34c" toggleLineColor="#91fa99" unToggleLineColor="#f85353" />
+    </HBox>
+    <AnchorPane id="campaign-anchor" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+        <BorderPane prefHeight="200.0" prefWidth="200.0" styleClass="campaign-border-holder" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <center>
+                <VBox alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" styleClass="campaign-border-holder" BorderPane.alignment="CENTER">
+                    <ChartViewer fx:id="campaignChartViewer" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="600.0" styleClass="campaign-border-holder" />
+                    <ProgressIndicator fx:id="chartProgress" minHeight="10.0" progress="0.0" scaleX="5.0" scaleY="5.0" translateY="-320.0" visible="false" />
+                    <GridPane fx:id="metricsGrid" alignment="CENTER_RIGHT" hgap="10.0" maxHeight="150.0" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" prefHeight="150.0" vgap="10.0" VBox.vgrow="NEVER">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+                            <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        </rowConstraints>
+                        <Label fx:id="noImpressions" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Label fx:id="noClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label fx:id="noBounces" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label fx:id="noUniqueClicks" text="n/a" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Label fx:id="noConversions" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                        <Label fx:id="totalCost" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                        <Label fx:id="CTR" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                        <Label fx:id="CPC" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                        <Label fx:id="CPM" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="0" />
+                        <Label fx:id="CPA" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                        <Label fx:id="bounceRate" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="2" />
+                        <JFXRadioButton fx:id="noImpressionsBtn" disable="true" mnemonicParsing="false" text="No. Impressions">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="chartToggleGroup" />
+                            </toggleGroup>
+                        </JFXRadioButton>
+                        <JFXRadioButton fx:id="noClicksBtn" disable="true" mnemonicParsing="false" text="No. Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="1" />
+                        <JFXRadioButton fx:id="noBouncesBtn" disable="true" mnemonicParsing="false" text="No. Bounces" toggleGroup="$chartToggleGroup" GridPane.rowIndex="2" />
+                        <JFXRadioButton fx:id="noUniqueClicksBtn" disable="true" mnemonicParsing="false" text="No. Unique Clicks" toggleGroup="$chartToggleGroup" GridPane.rowIndex="3" />
+                        <JFXRadioButton fx:id="noConversionsBtn" disable="true" mnemonicParsing="false" text="No. Conversions" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" />
+                        <JFXRadioButton fx:id="totalCostBtn" disable="true" mnemonicParsing="false" text="Total Cost" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <JFXRadioButton fx:id="CTRBtn" disable="true" mnemonicParsing="false" text="CTR" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <JFXRadioButton fx:id="CPCBtn" disable="true" mnemonicParsing="false" text="CPC" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <JFXRadioButton fx:id="CPMBtn" disable="true" mnemonicParsing="false" text="CPM" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" />
+                        <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                        <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                        <padding>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        </padding>
+                    </GridPane>
+                    <BorderPane>
+                    </BorderPane>
+                </VBox>
+            </center>
+            <left>
+                <VBox alignment="TOP_CENTER" prefHeight="738.0" prefWidth="256.0" spacing="10.0" styleClass="campaign-holder-left" BorderPane.alignment="CENTER">
+                    <Label text="Data Granularity">
+                        <opaqueInsets>
+                            <Insets />
+                        </opaqueInsets>
+                        <VBox>
+                        </VBox>
+                    </Label>
+                    <GridPane fx:id="granularityGrid" alignment="CENTER" hgap="10.0" maxHeight="150.0" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" prefHeight="150.0" vgap="20.0" VBox.vgrow="NEVER">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" minWidth="20.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="20.0" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                        </rowConstraints>
+                        <Label fx:id="hourLabel" text="Hour" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="dayLabel" text="Day" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="monthLabel" text="Month" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="yearLabel" text="Year" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label fx:id="todLabel" text="Time of Day" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                        <Label fx:id="dowLabel" text="Day of Week" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                        <JFXRadioButton fx:id="hourBtn" disable="true" mnemonicParsing="false" toggleGroup="$granularityToggleGroup" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="granularityToggleGroup" />
+                            </toggleGroup>
+                        </JFXRadioButton>
+                        <JFXRadioButton fx:id="dayBtn" disable="true" mnemonicParsing="false" selected="true" toggleGroup="$granularityToggleGroup" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <JFXRadioButton fx:id="monthBtn" disable="true" mnemonicParsing="false" toggleGroup="$granularityToggleGroup" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <JFXRadioButton fx:id="yearBtn" disable="true" mnemonicParsing="false" toggleGroup="$granularityToggleGroup" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <JFXRadioButton fx:id="todBtn" disable="true" mnemonicParsing="false" toggleGroup="$granularityToggleGroup" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <JFXRadioButton fx:id="dowBtn" disable="true" mnemonicParsing="false" toggleGroup="$granularityToggleGroup" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <padding>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        </padding>
+                    </GridPane>
+                    <GridPane fx:id="customBRGrid">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0" />
+                            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="70.0" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        </rowConstraints>
+                        <JFXCheckBox fx:id="customBRBtn" disable="true" mnemonicParsing="false" text="Custom bounce rate">
+                            <GridPane>
+                            </GridPane>
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </JFXCheckBox>
+                        <Label disable="true" maxWidth="1.7976931348623157E308" text="Pages visited" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                        <Spinner fx:id="BRPagesVisited" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Spinner>
+                        <Label disable="true" layoutX="10.0" layoutY="17.0" text="Time spent" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                            <GridPane>
+                            </GridPane>
+                        </Label>
+                        <Spinner fx:id="BRTimeSpentM" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Spinner>
+                        <Spinner fx:id="BRTimeSpentS" disable="true" editable="true" layoutX="160.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Spinner>
+                        <Spinner fx:id="BRTimeSpentH" cache="true" cacheHint="SCALE_AND_ROTATE" disable="true" editable="true" layoutX="85.0" layoutY="102.0" maxHeight="-Infinity" prefWidth="80.0" GridPane.rowIndex="4">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Spinner>
+                        <Label disable="true" text="Hours" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                        <Label disable="true" text="Minutes" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                        <Label disable="true" text="Seconds" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                        <IntegerValidator GridPane.rowIndex="4" />
+                        <VBox>
+                        </VBox>
+                    </GridPane>
+                    <Label text="Campaign Filters">
+                        <opaqueInsets>
+                            <Insets />
+                        </opaqueInsets>
+                        <VBox>
+                        </VBox>
+                    </Label>
+                    <JFXListView fx:id="appliedFiltersList" disable="true" prefHeight="200" />
+                    <JFXComboBox fx:id="filterCampaignSelectorMenu" disable="true" promptText="Select Campaign to Filter (NYI)" />
                     <HBox>
                         <JFXButton fx:id="addFilter" disable="true" text="Add Filter">
                             <style>

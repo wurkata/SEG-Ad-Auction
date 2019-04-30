@@ -197,10 +197,14 @@ public class DashboardController extends GlobalController implements Initializab
 //        });
 
         newCampaignPane.setOnMouseReleased(e -> {
-            if (newCampaignPane.isExpanded())
+            if (newCampaignPane.isExpanded()) {
                 campaignsList.translateYProperty().setValue(230);
-            else
+                loadCampaignBtn.translateYProperty().setValue(230);
+            }
+            else {
                 campaignsList.translateYProperty().setValue(15);
+                loadCampaignBtn.translateYProperty().setValue(0);
+            }
         });
 
         campaignsList.getSelectionModel().selectedItemProperty().addListener(e -> loadCampaignBtn.setDisable(false));

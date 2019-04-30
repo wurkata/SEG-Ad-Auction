@@ -22,6 +22,7 @@ public class PercentileRenderer extends XYLineAndShapeRenderer {
     private long[] lowerLongBounds;
     private boolean doub;
 
+
     //percentile = 90 means top 10th percentile will be highlighted
     public PercentileRenderer(TimeSeriesCollection d, int percentile, boolean doub) {
         this.doub = doub;

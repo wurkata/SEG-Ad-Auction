@@ -36,6 +36,11 @@ public class GraphController extends Service<JFreeChart> implements Observable {
 
     private Metric metric;
 
+    private boolean highlight = false;
+    private boolean randomColour = false;
+    private int percentileToHighlight=10;
+
+
     GraphController(CampaignController controller, List<Model> models) {
         this.controller = controller;
         this.models = models;
@@ -87,9 +92,12 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 true,
                 false
         );
-        XYLineAndShapeRenderer renderer = new PercentileRenderer(dataset, 90, doub);
 
-        chart.getXYPlot().setRenderer(renderer);
+        if(highlight) {
+            XYLineAndShapeRenderer renderer = new PercentileRenderer(dataset, 100-percentileToHighlight, doub);
+
+            chart.getXYPlot().setRenderer(renderer);
+        }
         DateAxis dateAxis = (DateAxis)chart.getXYPlot().getDomainAxis();
 
         NumberAxis numAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
@@ -304,6 +312,18 @@ public class GraphController extends Service<JFreeChart> implements Observable {
             }
 
         return getChartFor(title, "Date/Time", val, dataset, doub);
+    }
+
+    public void setHighlight(boolean highlight) {
+        this.highlight = highlight;
+    }
+
+    public void setRandomColour(boolean randomColour) {
+        this.randomColour = randomColour;
+    }
+
+    public void setPercentileToHighlight(int percentileToHighlight) {
+        this.percentileToHighlight = percentileToHighlight;
     }
 
     @Override

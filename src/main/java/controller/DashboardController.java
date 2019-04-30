@@ -211,7 +211,10 @@ public class DashboardController extends GlobalController implements Initializab
                 LoadCampaign loadCampaignTask = new LoadCampaign();
                 loadCampaignTask.setOnSucceeded(a -> {
                     try {
-                        goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(modelsToLoad));
+                        CampaignController cc = new CampaignController(modelsToLoad);
+                        cc.setDashboard(this);
+                        goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(),cc);
+
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }

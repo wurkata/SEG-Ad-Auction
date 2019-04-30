@@ -24,15 +24,6 @@
 
 <VBox prefHeight="850.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1">
         <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="accessibility-holder">
-                <JFXButton fx:id="duplicateCampaign" text="Duplicate Campaign to Compare Filtered Metrics" disable="false">
-                    <style>
-                        <!--Style code from https://stackoverflow.com/a/30680668-->
-                        -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
-                        -fx-background-insets: 0 0 -1 0, 0, 1, 2;
-                        -fx-background-radius: 3px, 3px, 2px, 1px;
-                        -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
-                    </style>
-                </JFXButton>
                 <JFXButton fx:id="printBtn" mnemonicParsing="false" text="Print">
                     <HBox>
                     </HBox>
@@ -232,6 +223,15 @@
                                         </cursor>
                                     </JFXButton>
                                 </HBox>
+                            <JFXButton fx:id="duplicateCampaign" text="Duplicate Campaign to Compare Filtered Metrics" disable="false">
+                                <style>
+                                    <!--Style code from https://stackoverflow.com/a/30680668-->
+                                    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+                                    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+                                    -fx-background-radius: 3px, 3px, 2px, 1px;
+                                    -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
+                                </style>
+                            </JFXButton>
                             <JFXButton fx:id="clickCostHistogram" text="Click Cost Histogram" disable="false">
                                 <style>
                                     <!--Style code from https://stackoverflow.com/a/30680668-->

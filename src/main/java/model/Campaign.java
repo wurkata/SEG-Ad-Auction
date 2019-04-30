@@ -6,10 +6,12 @@ public class Campaign {
     private String title;
     private RawDataHolder rdh;
     private Model model;
+    public boolean isNew = false;
 
-    public Campaign(long id, String title){
+    public Campaign(long id, String title, boolean isNew){
         this.id = id;
         this.title = title;
+        this.isNew = isNew;
     }
 
     public Campaign (String title, RawDataHolder rdh, Model model) {

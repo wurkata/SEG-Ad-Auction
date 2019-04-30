@@ -62,10 +62,6 @@ public class Parser extends Task<Boolean> implements Observable {
                         subjects.put(s[1], new Subject(null, null, null));
                     });
 
-            SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
-            new Thread(subjectsDAO).start();
-            // model.uploadData(FileType.CLICK_LOG);
-
             dataHolder.setClickLog(clickLog);
 
             return clickLog;
@@ -89,10 +85,6 @@ public class Parser extends Task<Boolean> implements Observable {
                         impressionLog.add(new ImpressionLog(parseDate(s[0]), s[1], s[5], Double.parseDouble(s[6])));
                         subjects.put(s[1], new Subject(s[2], (s[3]), s[4]));
                     });
-
-            SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
-            new Thread(subjectsDAO).start();
-            // model.uploadData(FileType.IMPRESSION_LOG);
 
             dataHolder.setImpressionLog(impressionLog);
             dataHolder.setSubjects(subjects);
@@ -126,10 +118,6 @@ public class Parser extends Task<Boolean> implements Observable {
 
                         subjects.put(s[1], new Subject(null, null, null));
                     });
-
-            SubjectsDAO subjectsDAO = new SubjectsDAO(subjects);
-            new Thread(subjectsDAO).start();
-            // model.uploadData(FileType.SERVER_LOG);
 
             dataHolder.setServerLog(serverLog);
 

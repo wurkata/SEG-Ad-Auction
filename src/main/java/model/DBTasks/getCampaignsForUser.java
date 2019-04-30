@@ -33,7 +33,7 @@ public class getCampaignsForUser extends Task<List<Campaign>> {
         List<Campaign> res = new ArrayList<>();
 
         while (resultSet.next()) {
-            res.add(new Campaign(resultSet.getLong(1), resultSet.getString("title")));
+            res.add(new Campaign(resultSet.getLong(1), resultSet.getString("title"), false));
         }
 
         return res;

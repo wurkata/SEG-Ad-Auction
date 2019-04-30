@@ -222,9 +222,9 @@ public class DashboardController extends GlobalController implements Initializab
 
         campaignsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         campaignsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null) {
+            if (newValue != null) {
                 loadCampaignBtn.setDisable(false);
-                uploadBtn.setDisable(false);
+                uploadBtn.setDisable(!isOnline);
                 deleteCampaignBtn.setDisable(false);
             }
         });
@@ -306,13 +306,27 @@ public class DashboardController extends GlobalController implements Initializab
         createCampaignBtn.setOnMouseReleased(e -> {
             boolean canAdd = true;
             if (campaignTitle.getText().length() < 3) feedbackMsg.setText("Please, enter a campaign title.");
-            else if (!isUniqueCampaignTitle(campaignTitle.getText())) feedbackMsg.setText("Campaign with such name already exists.");
-            else if(!importImpressionLog.getText().equals("Change file...")) feedbackMsg.setText("Please, upload Impression Log data.");
-            else if(!importServerLog.getText().equals("Change file...")) feedbackMsg.setText("Please, upload Server Log data.");
-            else if(!importClickLog.getText().equals("Change file...")) feedbackMsg.setText("Please, upload Click Log data.");
+            else if (!isUniqueCampaignTitle(campaignTitle.getText()))
+                feedbackMsg.setText("Campaign with such name already exists.");
+            else if (!importImpressionLog.getText().equals("Change file..."))
+                feedbackMsg.setText("Please, upload Impression Log data.");
+            else if (!importServerLog.getText().equals("Change file..."))
+                feedbackMsg.setText("Please, upload Server Log data.");
+            else if (!importClickLog.getText().equals("Change file..."))
+                feedbackMsg.setText("Please, upload Click Log data.");
             else {
                 models.add(new Model(campaignTitle.getText(), dataHolder));
                 campaignsList.getItems().add(new Campaign(0, campaignTitle.textProperty().getValue()));
+            }
+        });
+
+        deleteCampaignBtn.setOnMouseReleased(e -> {
+            ObservableList<Campaign> selectedItems = campaignsList.getSelectionModel().getSelectedItems();
+            selectedItems.forEach(c -> models.remove(c.getModel()));
+            campaignsList.getItems().removeAll(selectedItems);
+
+            if (isOnline) {
+                DeleteCampaign deleteCampaignTask = new DeleteCampaign(selectedItems);
             }
         });
     }
@@ -475,12 +489,7 @@ public class DashboardController extends GlobalController implements Initializab
     }
 
     private boolean isUniqueCampaignTitle(String title) {
-        for (Model model : models) {
-            if (model.getName().equals(title)) {
-                return false;
-            }
-        }
-        return true;
+        return campaignsList.getItems().stream().noneMatch(c -> c.getTitle().equals(title));
     }
 
     public List<Model> getSelectedCampaigns() {

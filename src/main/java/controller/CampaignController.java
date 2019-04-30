@@ -8,6 +8,8 @@ import common.Granularity;
 import common.Metric;
 import common.Observer;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
@@ -30,6 +32,7 @@ import org.jfree.chart.fx.ChartViewer;
 
 
 import javax.swing.*;
+import javax.xml.bind.annotation.XmlSchema;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
@@ -160,6 +163,22 @@ public class CampaignController extends GlobalController implements Initializabl
     @FXML
     private JFXListView campaignsList;
 
+    @FXML
+    private JFXCheckBox highlightCheckBox;
+
+    @FXML
+    private Label highlightLabel;
+
+    @FXML
+    private Label highlightLabel2;
+
+    @FXML
+    private Spinner highlightSpinner;
+
+//    @FXML
+//    private ComboBox highlightCombo;
+
+
     public List<Model> models;
 
     private GraphController graphControllerService;
@@ -180,6 +199,39 @@ public class CampaignController extends GlobalController implements Initializabl
         graphControllerService = new GraphController(this, models);
         graphControllerService.addObserver(this);
     }
+
+
+    private void initHighlighting(){
+        highlightCheckBox.setOnMouseReleased(e->{
+            if(highlightCheckBox.isSelected()){
+                highlightLabel.setDisable(false);
+                highlightSpinner.setDisable(false);
+                highlightLabel2.setDisable(false);
+//                highlightCombo.setDisable(false);
+                graphControllerService.setHighlight(true);
+                graphControllerService.restart();
+
+            }else{
+                highlightLabel.setDisable(true);
+                highlightSpinner.setDisable(true);
+                highlightLabel2.setDisable(true);
+//                highlightCombo.setDisable(true);
+                graphControllerService.setHighlight(false);
+                graphControllerService.restart();
+            }
+        });
+
+        highlightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 99, 10));
+        highlightSpinner.valueProperty().addListener(e-> {
+            graphControllerService.setPercentileToHighlight((Integer) highlightSpinner.getValue());
+            graphControllerService.restart();
+        });
+
+
+//        highlightCombo.getItems().addAll("Of Each Data Series", "Of All Data");
+
+    }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -331,6 +383,7 @@ public class CampaignController extends GlobalController implements Initializabl
             }
         });
 
+        initHighlighting();
     }
 
     private void initGranularityGrid() {
@@ -352,27 +405,7 @@ public class CampaignController extends GlobalController implements Initializabl
         }
     }
 
-//    void addFilter(String filter) {
-//        filters.add(filter);
-//    }
-
     int getUsableID(Model model) {
-//        int[] used = filters.stream().mapToInt(e -> Integer.parseInt(e.split(":")[0])).toArray();
-//        int i = 1;
-//        do {
-//            boolean found = true;
-//            for (int j : used) {
-//                if (i == j) {
-//                    found = false;
-//                    break;
-//                }
-//            }
-//            if (found) {
-//                return i;
-//            } else {
-//                i++;
-//            }
-//        } while (true);
         return model.getUsableID();
     }
 

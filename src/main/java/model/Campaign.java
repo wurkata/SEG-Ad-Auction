@@ -33,4 +33,24 @@ public class Campaign {
     public String getTitle() {
         return title;
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public RawDataHolder getRdh() {
+        return rdh;
+    }
+
+    public void setRdh(RawDataHolder rdh) {
+        this.rdh = rdh;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
 }

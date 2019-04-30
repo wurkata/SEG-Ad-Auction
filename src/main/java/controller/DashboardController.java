@@ -1,46 +1,30 @@
 package controller;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXTextField;
 import common.FileType;
 import common.Observer;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Callback;
+import model.*;
 import model.DAO.DBPool;
+import model.DBTasks.DB;
 import model.DBTasks.getCampaignsForUser;
-import model.ImpressionLog;
-import model.Campaign;
-import model.Model;
-import model.Parser;
-import model.RawDataHolder;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -89,6 +73,9 @@ public class DashboardController extends GlobalController implements Initializab
     @FXML
     private JFXButton loadCampaignBtn;
 
+    @FXML
+    private JFXButton uploadBtn;
+
 
     private List<Model> models = new ArrayList<Model>();
 
@@ -111,7 +98,6 @@ public class DashboardController extends GlobalController implements Initializab
     private boolean isOnline;
 
     public DashboardController() {
-
     }
 
     public DashboardController(Boolean isOnline) {
@@ -144,12 +130,15 @@ public class DashboardController extends GlobalController implements Initializab
         importClickLog.setDisable(true);
         importServerLog.setDisable(true);
 
-        createCampaignBtn.setOnMouseReleased(this::createCampaign);
         createCampaignBtn.setOnMouseReleased(e -> {
             ObservableList<Campaign> selectedItems = campaignsList.getSelectionModel().getSelectedItems();
-            models.add(new Model(campaignTitle.getText(), dataHolder));
-            campaignsList.getItems().add(new Campaign((long) campaignsList.getItems().size() - 1,
-                    campaignTitle.textProperty().getValue()));
+            Model m = new Model(campaignTitle.getText(), dataHolder);
+            models.add(m);
+
+            Campaign campaign = new Campaign((long) campaignsList.getItems().size() - 1,
+                    campaignTitle.textProperty().getValue());
+            campaign.setModel(m);
+            campaignsList.getItems().add(campaign);
         });
 
         campaignTitle.textProperty().addListener(((observable, oldValue, newValue) -> {
@@ -214,19 +203,6 @@ public class DashboardController extends GlobalController implements Initializab
             }
         });
 
-//        addTestCampaign.setOnMouseReleased(e -> {
-//            Parser parser = new Parser(
-//                    new File("input/impression_log_small.csv"),
-//                    new File("input/click_log_small.csv"),
-//                    new File("input/server_log_small.csv"
-//                    ));
-//            parser.setOnSucceeded(a -> {
-//                if (parser.getValue()) {
-//                    createCampaign(a);
-//                }
-//            });
-//        });
-
         newCampaignPane.setOnMouseReleased(e -> {
             if (newCampaignPane.isExpanded())
                 campaignsList.translateYProperty().setValue(230);
@@ -240,18 +216,62 @@ public class DashboardController extends GlobalController implements Initializab
         });
 
         loadCampaignBtn.setOnMouseReleased(e -> {
+            ObservableList<Campaign> selectedItems = campaignsList.getSelectionModel().getSelectedItems();
+
+            if (selectedItems.stream().anyMatch(i -> models.stream().anyMatch(m -> m.getName().equals(i.getTitle())))) {
+                try {
+                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+
             if (AccountController.online) {
-                LoadCampaign loadCampaignTask = new LoadCampaign();
-                loadCampaignTask.setOnSucceeded(a -> {
+                List<String> queryList = new ArrayList<>();
+                String q;
+
+                for (Campaign c : selectedItems) {
+                    q = "SELECT * FROM campaigns, impression_log i, server_log s, click_log c, subjects sb WHERE i.campaign_id='" + c.getId() +
+                            "' AND s.campaign_id=i.campaign_id AND c.campaign_id = s.campaign_id AND campaigns.id=i.campaign_id AND sb.id=impression_log.subject_id";
+                    queryList.add(q);
+                }
+
+                DB dbTask = new DB(queryList);
+
+                dbTask.setOnSucceeded(a -> {
+                    RawDataHolder rawDataHolder;
+
+                    List<ResultSet> resultList = dbTask.getValue();
+                    List<ImpressionLog> impressionLog = new ArrayList<>();
+
                     try {
+                        String title = "Null";
+                        for (ResultSet resultSet : resultList) {
+                            rawDataHolder = new RawDataHolder();
+                            while (resultSet.next()) {
+                                title = resultSet.getString("campaigns.title");
+                                impressionLog.add(new ImpressionLog(
+                                        new SimpleDateFormat("EEEEE MMMMM dd HH:mm:ss z yyyy").parse(resultSet.getString("i.date")),
+                                        resultSet.getString("i.subject_id"),
+                                        resultSet.getString("i.context"),
+                                        resultSet.getDouble("i.cost")
+                                ));
+                            }
+
+                            rawDataHolder.setImpressionLog(impressionLog);
+                            rawDataHolder.setClickLog(new ArrayList<>());
+                            rawDataHolder.setServerLog(new ArrayList<>());
+                            models.add(new Model(title, rawDataHolder));
+                        }
+
                         goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                 });
+                System.out.println("Starting query");
 
-                new Thread(loadCampaignTask).start();
-
+                new Thread(dbTask).start();
             } else {
                 try {
                     goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(models));
@@ -259,6 +279,12 @@ public class DashboardController extends GlobalController implements Initializab
                     e1.printStackTrace();
                 }
             }
+        });
+
+        uploadBtn.setOnMouseReleased(e -> {
+            Model m = campaignsList.getSelectionModel().getSelectedItems().get(0).getModel();
+            m.setCampaignTitle(m.getName());
+            m.uploadData();
         });
     }
 
@@ -289,36 +315,6 @@ public class DashboardController extends GlobalController implements Initializab
             e.printStackTrace();
         }
     }
-
-//    @FXML
-//    private void createCampaign2(Event event) {
-//        try {
-//            model.setCampaignTitle(campaignTitle.textProperty().getValue());
-//            model.uploadData();
-//
-//            model.addObserver(this);
-//            RawDataHolder rdh = parserService.getRawDataHolder();
-//            Campaign campaign = new Campaign(campaignTitle.getText(), rdh, model);
-//            model.setRawDataHolder(rdh);
-//
-//            CampaignController controller = new CampaignController(models);
-//
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/campaign_scene.fxml"));
-//            loader.setController(controller);
-//            Parent root = loader.load();
-//
-//            Scene campaignsScene = new Scene(root);
-//            campaignsScene.getStylesheets().add(getClass().getResource("/css/campaign_scene.css").toExternalForm());
-//
-//            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-//
-//            window.setScene(campaignsScene);
-//            window.setResizable(false);
-//            window.show();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     @Override
     public void update() {
@@ -422,80 +418,37 @@ public class DashboardController extends GlobalController implements Initializab
         new Thread(getCampaignsTask).start();
     }
 
-    class LoadCampaign extends Task<Boolean> {
-        Connection con;
+    public List<Model> getModels() { return models; }
 
-        @Override
-        protected Boolean call() throws Exception {
-            con = DBPool.getConnection();
-
-            try {
-                ResultSet resultSet;
-                String query = "SELECT * FROM impression_log WHERE campaign_id=?";
-                PreparedStatement stmt = con.prepareStatement(query);
-                ObservableList<Campaign> selectedItems = campaignsList.getSelectionModel().getSelectedItems();
-
-                for (Campaign c : selectedItems) {
-                    stmt.setLong(1, c.getId());
-                    resultSet = stmt.executeQuery();
-
-                    List<ImpressionLog> impressionLog = new ArrayList<>();
-
-                    while (resultSet.next()) {
-                        impressionLog.add(new ImpressionLog(
-                                new SimpleDateFormat("EEEEE MMMMM dd HH:mm:ss z yyyy").parse(resultSet.getString("date")),
-                                resultSet.getString("subject_id"),
-                                resultSet.getString("context"),
-                                resultSet.getDouble("cost")
-                        ));
-                    }
-                }
-
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            return false;
-        }
+    public void setModels(List<Model> models) {
+        this.models = models;
     }
 
     class DeleteCampaign extends Task<Boolean> {
 
         private Connection con;
-        private String campaign;
+        private ObservableList<Campaign> campaigns;
 
-        public DeleteCampaign(String campaign) {
-            this.campaign = campaign;
+        public DeleteCampaign(ObservableList<Campaign> campaigns) {
+            this.campaigns = campaigns;
         }
 
         @Override
         protected Boolean call() throws Exception {
-            campaignsList.getItems().remove(campaign);
-
             con = DBPool.getConnection();
+            String query = "DELETE FROM campaigns WHERE title=?";
 
-            try {
-                String query = "DELETE * FROM campaigns WHERE title=? AND user_id=?";
-                PreparedStatement stmt = con.prepareStatement(query);
+            PreparedStatement stmt = con.prepareStatement(query);
 
-                stmt.setString(1, campaign);
-                stmt.setLong(2, AccountController.user.getId());
-
-
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
+            for (Campaign c : campaigns) {
+                stmt.setString(1, c.getTitle());
+                stmt.addBatch();
             }
+
+            stmt.executeBatch();
+            DBPool.closeConnection(con);
+
             return null;
         }
-    }
-
-    public List<Model> getModels() {
-        return models;
-    }
-
-    public void setModels(List<Model> models) {
-        this.models = models;
     }
 }

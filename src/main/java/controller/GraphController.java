@@ -8,9 +8,7 @@ import javafx.concurrent.Task;
 import model.Model;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.DateAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.axis.*;
 import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
@@ -97,6 +95,8 @@ public class GraphController extends Service<JFreeChart> implements Observable {
             XYLineAndShapeRenderer renderer = new PercentileRenderer(dataset, 100-percentileToHighlight, doub);
 
             chart.getXYPlot().setRenderer(renderer);
+        }else{
+            chart.getXYPlot().setRenderer(new XYLineAndShapeRenderer(true, true));
         }
         DateAxis dateAxis = (DateAxis)chart.getXYPlot().getDomainAxis();
 
@@ -127,6 +127,7 @@ public class GraphController extends Service<JFreeChart> implements Observable {
                 break;
             case DoW:
                 dateAxis.setDateFormatOverride(new SimpleDateFormat("EEEE"));
+                dateAxis.setTickUnit(new DateTickUnit(DateTickUnitType.DAY, 1));
                 break;
         }
         }

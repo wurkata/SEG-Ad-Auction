@@ -37,6 +37,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -135,6 +136,9 @@ public class CampaignController extends GlobalController implements Initializabl
     private JFXButton printBtn;
 
     @FXML
+    private JFXButton backToDashboardBtn;
+
+    @FXML
     private ToggleGroup granularityToggleGroup;
 
     @FXML
@@ -185,6 +189,8 @@ public class CampaignController extends GlobalController implements Initializabl
 
     private String theme_light;
     private String theme_dark;
+
+    private DashboardController dashboard;
 
     CampaignController(List<Model> models) {
         this.models = models;
@@ -250,6 +256,13 @@ public class CampaignController extends GlobalController implements Initializabl
                 }
         ));
 
+        backToDashboardBtn.setOnMouseReleased(e-> {
+            try {
+                goTo("dashboard", (Stage) backToDashboardBtn.getScene().getWindow(),this.dashboard);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
         chartProgress.toFront();
         chartProgress.setVisible(false);
         chartProgress.progressProperty().unbind();
@@ -503,5 +516,13 @@ public class CampaignController extends GlobalController implements Initializabl
             }
         }
         return null;
+    }
+
+    public DashboardController getDashboard() {
+        return dashboard;
+    }
+
+    public void setDashboard(DashboardController dashboard) {
+        this.dashboard = dashboard;
     }
 }

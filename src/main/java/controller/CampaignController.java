@@ -304,6 +304,7 @@ public class CampaignController extends GlobalController implements Initializabl
         customBRBtn.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 customBRGrid.getChildren().forEach(e -> e.setDisable(false));
+                getSelectedModel().setCustomBounce(true);
             } else {
                 customBRGrid.getChildren().forEach(e -> {
                     if (!(e instanceof JFXCheckBox)) e.setDisable(true);
@@ -313,7 +314,7 @@ public class CampaignController extends GlobalController implements Initializabl
                 BRTimeSpentH.getValueFactory().setValue(0);
                 BRTimeSpentM.getValueFactory().setValue(0);
                 BRTimeSpentS.getValueFactory().setValue(0);
-
+                getSelectedModel().setCustomBounce(false);
                 Platform.runLater(new BounceTimeReset());
             }
         });
@@ -405,6 +406,16 @@ public class CampaignController extends GlobalController implements Initializabl
                     updateMetrics(model);
                     updateFilterList(model);
                     this.selectedModel=model;
+                    if(model.getCustomBounce()){
+                        customBRBtn.setSelected(true);
+                        BRPagesVisited.getValueFactory().setValue(model.getBouncePages());
+                        long millis = model.getBounceTime();
+                        BRTimeSpentH.getValueFactory().setValue(model.getBounceHours());
+                        BRTimeSpentM.getValueFactory().setValue(model.getBounceMinutes());
+                        BRTimeSpentS.getValueFactory().setValue(model.getBounceSeconds());
+                    }else{
+                        customBRBtn.setSelected(false);
+                    }
                 }
             }
         });
@@ -534,21 +545,15 @@ public class CampaignController extends GlobalController implements Initializabl
     }
 
     class BounceTimeChange extends Task<Void> {
-        Model model = getSelectedModel();
         protected Void call() {
-            model.setBounceTime((BRTimeSpentS.getValueFactory().getValue() * 1000) + (BRTimeSpentM.getValueFactory().getValue() * 60 * 1000) + (BRTimeSpentH.getValueFactory().getValue() * 60 * 60 * 1000));
+            if(getSelectedModel()!=null) {
+                getSelectedModel().setBounceTime(BRTimeSpentS.getValueFactory().getValue(), BRTimeSpentM.getValueFactory().getValue(),  BRTimeSpentH.getValueFactory().getValue());
+            }
             return null;
         }
     }
     private Model selectedModel;
     public Model getSelectedModel(){
-
-//        for(Model model:models) {
-//            if(model.getName().equals(campaignsList.getSelectionModel().getSelectedItem().toString()/*.getSelectionModel().getSelectedItems().get(0).toString()*/)){
-//                return model;
-//            }
-//        }
-//        return null;
         return selectedModel;
     }
 

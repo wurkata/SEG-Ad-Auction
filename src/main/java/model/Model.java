@@ -7,6 +7,7 @@ import common.Metric;
 import common.Observable;
 import common.Observer;
 import controller.AccountController;
+import controller.CampaignController;
 import controller.FilterController;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -38,6 +39,8 @@ public class Model extends Task<Void> implements Observable {
     private Connection con;
     private int BATCH_SIZE = 1000;
     private User user;
+
+    private CampaignController campaignController;
 
     private List<ImpressionLog> impressionLog = new ArrayList<>();
     private List<ClickLog> clickLog = new ArrayList<>();
@@ -128,6 +131,10 @@ public class Model extends Task<Void> implements Observable {
     public Model(File fileImpressionLog, File fileClickLog, File fileServerLog) {
         metrics = new Metrics();
         chartData = new ChartData();
+    }
+
+    public void setCampaignController(CampaignController campaignController) {
+        this.campaignController = campaignController;
     }
 
     public Model(String name, RawDataHolder dataHolder){
@@ -314,10 +321,6 @@ public class Model extends Task<Void> implements Observable {
     //True sets class to calculate costs based om impression costs, whereas false uses click costs
     public void setCostMode(boolean impressionCostMode) {
         this.impressionCost = impressionCostMode;
-    }
-
-    public RawDataHolder getRawDataHolder() {
-        return rawDataHolder;
     }
 
 //------------CALCULATING DATA------------------------------------------------------------------------------------------

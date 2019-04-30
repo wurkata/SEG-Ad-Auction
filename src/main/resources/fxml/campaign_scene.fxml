@@ -192,7 +192,7 @@
                         </VBox>
                     </Label>
                     <JFXListView fx:id="appliedFiltersList" disable="true" prefHeight="200" />
-                    <JFXComboBox fx:id="filterCampaignSelectorMenu" disable="true" promptText="Select Campaign to Filter (NYI)" />
+<!--                    <JFXComboBox fx:id="filterCampaignSelectorMenu" disable="true" promptText="Select Campaign to Filter (NYI)" />-->
                     <HBox>
                         <JFXButton fx:id="addFilter" disable="true" text="Add Filter">
                             <style>

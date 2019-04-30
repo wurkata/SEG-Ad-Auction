@@ -273,6 +273,7 @@ public class CampaignController extends GlobalController implements Initializabl
         chartProgress.setVisible(false);
         chartProgress.progressProperty().unbind();
         for (Model model:models) {
+            model.addObserver(this);
             new Thread(model).start();
         }
         updateList();
@@ -415,7 +416,6 @@ public class CampaignController extends GlobalController implements Initializabl
             if(!campaignsList.getItems().contains(model.getName())){
                 campaignsList.getItems().add(model.getName());
             }
-            model.addObserver(this);
 
         }
     }
@@ -492,7 +492,7 @@ public class CampaignController extends GlobalController implements Initializabl
     }
 
     @Override
-    public void update(Object arg) {
+    public synchronized void update(Object arg) {
         switch (arg.toString()) {
             case "files":
                 metricsGrid.getChildren().forEach(e -> {

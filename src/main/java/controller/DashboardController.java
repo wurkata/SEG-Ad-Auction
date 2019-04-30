@@ -303,7 +303,7 @@ public class DashboardController extends GlobalController implements Initializab
                 models.add(new Model(campaignTitle.getText(), dataHolder));
                 campaignsList.getItems().add(new Campaign(0, campaignTitle.textProperty().getValue()));
             } else {
-                feedbackMsg.textProperty().setValue("Campaign with such name already exists.");
+                feedbackMsg.textProperty().setValue("Campaign with this name already exists.");
             }
         });
     }

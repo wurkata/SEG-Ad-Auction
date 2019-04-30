@@ -10,7 +10,6 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
 import model.DBTasks.CheckAccount;
 import model.DBTasks.Insert;
-import model.Model;
 import model.User;
 
 import java.io.IOException;
@@ -98,7 +97,7 @@ public class AccountController extends GlobalController implements Initializable
 
                         try {
                             Thread.sleep(1000);
-                            goTo("dashboard", (Stage) signBtn.getScene().getWindow(), new DashboardController());
+                            goTo("dashboard", (Stage) signBtn.getScene().getWindow(), new DashboardController(true));
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }

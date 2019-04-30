@@ -1,36 +1,39 @@
 package model.DBTasks;
 
 import javafx.concurrent.Task;
+import model.Campaign;
 import model.DAO.DBPool;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-public class getCampaignsForUser extends Task<Set<String>> {
+public class getCampaignsForUser extends Task<List<Campaign>> {
 
     Connection con;
-    private String user;
+    private long userId;
 
-    public getCampaignsForUser(String user) {
-        this.user = user;
+    public getCampaignsForUser(long userId) {
+        this.userId = userId;
     }
 
     @Override
-    protected Set<String> call() throws Exception {
+    protected List<Campaign> call() throws Exception {
         con = DBPool.getConnection();
-        Statement stmt = con.createStatement();
+        String query = "SELECT * FROM campaigns WHERE user_id=?";
+        PreparedStatement stmt = con.prepareStatement(query);
+        stmt.setLong(1, userId);
 
-        ResultSet resultSet;
-        Set<String> res = new HashSet<>();
-
-        resultSet = stmt.executeQuery("SELECT title FROM campaigns " +
-                "WHERE user_id=(SELECT id FROM users WHERE username='" + user + "' LIMIT 1)");
+        ResultSet resultSet = stmt.executeQuery();
+        List<Campaign> res = new ArrayList<>();
 
         while (resultSet.next()) {
-            res.add(resultSet.getString("title"));
+            res.add(new Campaign(resultSet.getLong(1), resultSet.getString("title")));
         }
 
         return res;

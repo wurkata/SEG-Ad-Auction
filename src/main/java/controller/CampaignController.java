@@ -8,6 +8,8 @@ import common.Granularity;
 import common.Metric;
 import common.Observer;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
@@ -30,10 +32,12 @@ import org.jfree.chart.fx.ChartViewer;
 
 
 import javax.swing.*;
+import javax.xml.bind.annotation.XmlSchema;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -138,6 +142,9 @@ public class CampaignController extends GlobalController implements Initializabl
     private JFXButton printBtn;
 
     @FXML
+    private JFXButton backToDashboardBtn;
+
+    @FXML
     private ToggleGroup granularityToggleGroup;
 
     @FXML
@@ -162,6 +169,22 @@ public class CampaignController extends GlobalController implements Initializabl
     @FXML
     private JFXListView campaignsList;
 
+    @FXML
+    private JFXCheckBox highlightCheckBox;
+
+    @FXML
+    private Label highlightLabel;
+
+    @FXML
+    private Label highlightLabel2;
+
+    @FXML
+    private Spinner highlightSpinner;
+
+//    @FXML
+//    private ComboBox highlightCombo;
+
+
     public List<Model> models;
 
     private GraphController graphControllerService;
@@ -173,6 +196,8 @@ public class CampaignController extends GlobalController implements Initializabl
     private String theme_light;
     private String theme_dark;
 
+    private DashboardController dashboard;
+
     CampaignController(List<Model> models) {
         this.models = models;
 
@@ -180,6 +205,39 @@ public class CampaignController extends GlobalController implements Initializabl
         graphControllerService = new GraphController(this, models);
         graphControllerService.addObserver(this);
     }
+
+
+    private void initHighlighting(){
+        highlightCheckBox.setOnMouseReleased(e->{
+            if(highlightCheckBox.isSelected()){
+                highlightLabel.setDisable(false);
+                highlightSpinner.setDisable(false);
+                highlightLabel2.setDisable(false);
+//                highlightCombo.setDisable(false);
+                graphControllerService.setHighlight(true);
+                graphControllerService.restart();
+
+            }else{
+                highlightLabel.setDisable(true);
+                highlightSpinner.setDisable(true);
+                highlightLabel2.setDisable(true);
+//                highlightCombo.setDisable(true);
+                graphControllerService.setHighlight(false);
+                graphControllerService.restart();
+            }
+        });
+
+        highlightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 99, 10));
+        highlightSpinner.valueProperty().addListener(e-> {
+            graphControllerService.setPercentileToHighlight((Integer) highlightSpinner.getValue());
+            graphControllerService.restart();
+        });
+
+
+//        highlightCombo.getItems().addAll("Of Each Data Series", "Of All Data");
+
+    }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -204,6 +262,13 @@ public class CampaignController extends GlobalController implements Initializabl
                 }
         ));
 
+        backToDashboardBtn.setOnMouseReleased(e-> {
+            try {
+                goTo("dashboard", (Stage) backToDashboardBtn.getScene().getWindow(),this.dashboard);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
         chartProgress.toFront();
         chartProgress.setVisible(false);
         chartProgress.progressProperty().unbind();
@@ -211,6 +276,7 @@ public class CampaignController extends GlobalController implements Initializabl
             new Thread(model).start();
         }
         updateList();
+
 
         customBRBtn.setDisable(false);
         appliedFiltersList.setDisable(false);
@@ -341,6 +407,7 @@ public class CampaignController extends GlobalController implements Initializabl
             }
         });
 
+        initHighlighting();
     }
 
     public void updateList() {
@@ -372,27 +439,7 @@ public class CampaignController extends GlobalController implements Initializabl
         }
     }
 
-//    void addFilter(String filter) {
-//        filters.add(filter);
-//    }
-
     int getUsableID(Model model) {
-//        int[] used = filters.stream().mapToInt(e -> Integer.parseInt(e.split(":")[0])).toArray();
-//        int i = 1;
-//        do {
-//            boolean found = true;
-//            for (int j : used) {
-//                if (i == j) {
-//                    found = false;
-//                    break;
-//                }
-//            }
-//            if (found) {
-//                return i;
-//            } else {
-//                i++;
-//            }
-//        } while (true);
         return model.getUsableID();
     }
 
@@ -497,5 +544,13 @@ public class CampaignController extends GlobalController implements Initializabl
             }
         }
         return null;
+    }
+
+    public DashboardController getDashboard() {
+        return dashboard;
+    }
+
+    public void setDashboard(DashboardController dashboard) {
+        this.dashboard = dashboard;
     }
 }

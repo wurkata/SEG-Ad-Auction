@@ -10,6 +10,8 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
 import model.DBTasks.CheckAccount;
 import model.DBTasks.Insert;
+import model.User;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -47,7 +49,7 @@ public class AccountController extends GlobalController implements Initializable
     private boolean isValidInputPwd;
     private boolean isValidInputUser;
 
-    public static String user;
+    public static User user;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -62,8 +64,8 @@ public class AccountController extends GlobalController implements Initializable
 
         useOfflineBtn.setOnMouseReleased(e -> {
             try {
-                goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController());
                 online=false;
+                goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController(online));
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -86,16 +88,16 @@ public class AccountController extends GlobalController implements Initializable
             if (_STATE.equals("Login")) {
                 CheckAccount checkAccount = new CheckAccount();
                 checkAccount.setOnSucceeded(a -> {
-                    boolean res = checkAccount.getValue();
+                    User res = checkAccount.getValue();
 
-                    if (res) {
+                    if (res != null) {
                         signProgress.setVisible(false);
                         feedbackMsg.textProperty().setValue("Login successful. Taking you to Dashboard...");
-                        user = usernameField.textProperty().getValue();
+                        user = res;
 
                         try {
                             Thread.sleep(1000);
-                            goTo("dashboard", (Stage) signBtn.getScene().getWindow(), new DashboardController());
+                            goTo("dashboard", (Stage) signBtn.getScene().getWindow(), new DashboardController(true));
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }

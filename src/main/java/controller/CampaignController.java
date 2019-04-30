@@ -35,6 +35,7 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -123,6 +124,11 @@ public class CampaignController extends GlobalController implements Initializabl
     @FXML
     private JFXButton removeFilter;
 
+    /* Comparing Filtered Metrics */
+    private HashMap<String, Integer> campaignCopies = new HashMap<>();
+
+    @FXML
+    private JFXButton duplicateCampaign;
     /* Histogram control */
     @FXML
     private JFXButton clickCostHistogram;
@@ -202,18 +208,7 @@ public class CampaignController extends GlobalController implements Initializabl
         chartProgress.setVisible(false);
         chartProgress.progressProperty().unbind();
 
-        for (Model model: models) {
-            new Thread(model).start();
-            campaignsList.getItems().add(new String(model.getName()));
-            model.addObserver(this);
-
-        }
-
-
-
-
-
-
+        updateList();
 
         customBRBtn.setDisable(false);
         appliedFiltersList.setDisable(false);
@@ -285,6 +280,25 @@ public class CampaignController extends GlobalController implements Initializabl
             removeFilter.setDisable(true);
         });
 
+        duplicateCampaign.setOnMouseClicked(event -> {
+
+            Model m = this.getSelectedModel();
+
+            if( campaignCopies.keySet().contains(m.getName())) {
+                campaignCopies.put(m.getName(), campaignCopies.get(m.getName()+1));
+
+            }
+            else {
+                campaignCopies.put(m.getName(),1);
+
+            }
+
+            Model dupe = new Model("Copy # " + campaignCopies.get(m.getName()) + " of " + m.getName(), m.getRawDataHolder());
+            this.models.add(dupe);
+
+
+            update("filter");
+        });
 
         clickCostHistogram.setOnMouseClicked(event -> {
             FXMLLoader fxmlLoader = new FXMLLoader();
@@ -325,6 +339,16 @@ public class CampaignController extends GlobalController implements Initializabl
             }
         });
 
+    }
+
+    public void updateList() {
+        campaignsList.getItems().clear();
+        for (Model model: models) {
+            new Thread(model).start();
+            campaignsList.getItems().add(new String(model.getName()));
+            model.addObserver(this);
+
+        }
     }
 
     private void initGranularityGrid() {
@@ -444,6 +468,7 @@ public class CampaignController extends GlobalController implements Initializabl
         }
         updateFilterList(getSelectedModel());
         updateMetrics(getSelectedModel());
+        updateList();
     }
 
     class BounceTimeReset extends Task<Void> {

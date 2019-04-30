@@ -2,7 +2,6 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXCheckBox?>
-<?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXRadioButton?>
 <?import com.jfoenix.controls.JFXToggleButton?>
@@ -145,13 +144,6 @@
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         </rowConstraints>
-                        <JFXCheckBox fx:id="customBRBtn" disable="true" mnemonicParsing="false" text="Custom bounce rate">
-                            <GridPane>
-                            </GridPane>
-                            <cursor>
-                                <Cursor fx:constant="HAND" />
-                            </cursor>
-                        </JFXCheckBox>
                         <Label disable="true" maxWidth="1.7976931348623157E308" text="Pages visited" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                         <Spinner fx:id="BRPagesVisited" disable="true" editable="true" maxHeight="-Infinity" prefWidth="80.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                             <cursor>
@@ -183,6 +175,13 @@
                         <IntegerValidator GridPane.rowIndex="4" />
                         <VBox>
                         </VBox>
+                        <JFXCheckBox fx:id="customBRBtn" disable="true" mnemonicParsing="false" text="Custom bounce rate">
+                            <GridPane>
+                            </GridPane>
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </JFXCheckBox>
                     </GridPane>
                     <Label text="Campaign Filters">
                         <opaqueInsets>
@@ -228,7 +227,7 @@
                             </cursor>
                         </JFXButton>
                     </HBox>
-                    <JFXButton fx:id="duplicateCampaign" text="Copy Campaign For Comparison" disable="false">
+                    <JFXButton fx:id="duplicateCampaign" disable="false" text="Copy Campaign For Comparison">
                             <style>
                                 <!--Style code from https://stackoverflow.com/a/30680668-->
                                 -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;

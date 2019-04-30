@@ -62,6 +62,8 @@ public class Model extends Task<Void> implements Observable {
     private int bouncePages = 0;
     private long bounceTime = -1;
 
+    private boolean customBounce = false;
+
     private static Granularity granularity = Granularity.DAY;
     private ArrayList<FilterDate> dates = new ArrayList<>();
 
@@ -109,6 +111,22 @@ public class Model extends Task<Void> implements Observable {
     public Model() {
         metrics = new Metrics();
         chartData = new ChartData();
+    }
+
+    public boolean getCustomBounce() {
+        return customBounce;
+    }
+
+    public void setCustomBounce(boolean customBounce) {
+        this.customBounce = customBounce;
+    }
+
+    public int getBouncePages() {
+        return bouncePages;
+    }
+
+    public long getBounceTime() {
+        return bounceTime;
     }
 
     @Override
@@ -679,11 +697,28 @@ public class Model extends Task<Void> implements Observable {
         notifyObservers("filter");
     }
 
+    private int bounceHours, bounceMinutes, bounceSeconds =0;
+
     // Sets Bounce Time
-    public void setBounceTime(long ms) {
-        this.bounceTime = ms;
+    public void setBounceTime(int hours, int minutes, int seconds) {
+        this.bounceTime = (seconds*1000) + (minutes*60*1000) + (hours*60*60*1000);
+        bounceHours=hours;
+        bounceMinutes=minutes;
+        bounceSeconds=seconds;
         setMetrics();
         notifyObservers("filter");
+    }
+
+    public int getBounceHours() {
+        return bounceHours;
+    }
+
+    public int getBounceMinutes() {
+        return bounceMinutes;
+    }
+
+    public int getBounceSeconds() {
+        return bounceSeconds;
     }
 
     //Sets minimum number of pages for visit to not be a bounce

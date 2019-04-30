@@ -148,6 +148,7 @@ public class Model extends Task<Void> implements Observable {
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
+        getDates();
         metrics=new Metrics();
         chartData = new ChartData();
     }

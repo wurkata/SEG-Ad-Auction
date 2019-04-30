@@ -364,7 +364,7 @@ public class CampaignController extends GlobalController implements Initializabl
 
             Model dupe = new Model("Copy # " + campaignCopies.get(m.getName()) + " of " + m.getName(), m.getRawDataHolder());
             this.models.add(dupe);
-
+            dupe.addObserver(this);
 
             update("filter");
         });
@@ -404,6 +404,7 @@ public class CampaignController extends GlobalController implements Initializabl
                 if(model.getName().equals(selected)){
                     updateMetrics(model);
                     updateFilterList(model);
+                    this.selectedModel=model;
                 }
             }
         });
@@ -460,22 +461,24 @@ public class CampaignController extends GlobalController implements Initializabl
     }
 
     private void updateFilterList(Model model){
-        filters.clear();
+        if(model!=null) {
+            filters.clear();
 
-        for(Integer i :model.getAgeFilters().keySet()){
-            filters.add(i+": "+model.getAgeFilters().get(i).getFilterName());
-        }
-        for(Integer i :model.getContextFilters().keySet()){
-            filters.add(i+": "+model.getContextFilters().get(i).getFilterName());
-        }
-        for(Integer i :model.getDateFilters().keySet()){
-            filters.add(i+": "+model.getDateFilters().get(i).getFilterName());
-        }
-        for(Integer i : model.getGenderFilters().keySet()){
-            filters.add(i+": "+model.getGenderFilters().get(i).getFilterName());
-        }
-        for(Integer i: model.getIncomeFilters().keySet()){
-            filters.add(i+": "+model.getIncomeFilters().get(i).getFilterName());
+            for (Integer i : model.getAgeFilters().keySet()) {
+                filters.add(i + ": " + model.getAgeFilters().get(i).getFilterName());
+            }
+            for (Integer i : model.getContextFilters().keySet()) {
+                filters.add(i + ": " + model.getContextFilters().get(i).getFilterName());
+            }
+            for (Integer i : model.getDateFilters().keySet()) {
+                filters.add(i + ": " + model.getDateFilters().get(i).getFilterName());
+            }
+            for (Integer i : model.getGenderFilters().keySet()) {
+                filters.add(i + ": " + model.getGenderFilters().get(i).getFilterName());
+            }
+            for (Integer i : model.getIncomeFilters().keySet()) {
+                filters.add(i + ": " + model.getIncomeFilters().get(i).getFilterName());
+            }
         }
     }
 
@@ -515,8 +518,10 @@ public class CampaignController extends GlobalController implements Initializabl
             default:
                 break;
         }
-        updateFilterList(getSelectedModel());
-        updateMetrics(getSelectedModel());
+        if(getSelectedModel()!=null) {
+            updateFilterList(getSelectedModel());
+            updateMetrics(getSelectedModel());
+        }
         updateList();
     }
 
@@ -535,15 +540,16 @@ public class CampaignController extends GlobalController implements Initializabl
             return null;
         }
     }
-
+    private Model selectedModel;
     public Model getSelectedModel(){
 
-        for(Model model:models) {
-            if(model.getName().equals(campaignsList.getSelectionModel().getSelectedItems().get(0).toString())){
-                return model;
-            }
-        }
-        return null;
+//        for(Model model:models) {
+//            if(model.getName().equals(campaignsList.getSelectionModel().getSelectedItem().toString()/*.getSelectionModel().getSelectedItems().get(0).toString()*/)){
+//                return model;
+//            }
+//        }
+//        return null;
+        return selectedModel;
     }
 
     public DashboardController getDashboard() {

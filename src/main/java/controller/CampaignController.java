@@ -207,7 +207,9 @@ public class CampaignController extends GlobalController implements Initializabl
         chartProgress.toFront();
         chartProgress.setVisible(false);
         chartProgress.progressProperty().unbind();
-
+        for (Model model:models) {
+            new Thread(model).start();
+        }
         updateList();
 
         customBRBtn.setDisable(false);
@@ -285,7 +287,7 @@ public class CampaignController extends GlobalController implements Initializabl
             Model m = this.getSelectedModel();
 
             if( campaignCopies.keySet().contains(m.getName())) {
-                campaignCopies.put(m.getName(), campaignCopies.get(m.getName()+1));
+                campaignCopies.put(m.getName(), campaignCopies.get(m.getName()) + 1);
 
             }
             else {
@@ -342,10 +344,10 @@ public class CampaignController extends GlobalController implements Initializabl
     }
 
     public void updateList() {
-        campaignsList.getItems().clear();
         for (Model model: models) {
-            new Thread(model).start();
-            campaignsList.getItems().add(new String(model.getName()));
+            if(!campaignsList.getItems().contains(model.getName())){
+                campaignsList.getItems().add(model.getName());
+            }
             model.addObserver(this);
 
         }

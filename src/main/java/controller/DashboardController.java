@@ -115,6 +115,14 @@ public class DashboardController extends GlobalController implements Initializab
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         uploadProgress.setVisible(false);
+        // importImpressionLog.setDisable(true);
+        // importClickLog.setDisable(true);
+        // importServerLog.setDisable(true);
+        uploadBtn.setDisable(true);
+
+        loadCampaignBtn.setDisable(true);
+        deleteCampaignBtn.setDisable(true);
+
 
         campaignsSet = new ArrayList<>();
         for (Model model : models) {
@@ -126,26 +134,21 @@ public class DashboardController extends GlobalController implements Initializab
 
         if (isOnline) getCampaigns();
 
-        loadCampaignBtn.setDisable(true);
-
         campaignsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        campaignsList.setCellFactory(param -> new ListCell<Campaign>() {
+            @Override
+            protected void updateItem(Campaign item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null || item.getTitle() == null) {
+                    setText(null);
+                } else {
+                    setText(item.getTitle());
+                }
+            }
+        });
 
         feedbackMsg.textProperty().setValue("");
-
-//        importImpressionLog.setDisable(false);
-//        importClickLog.setDisable(false);
-//        importServerLog.setDisable(false);
-
-        createCampaignBtn.setOnMouseReleased(e -> {
-            ObservableList<Campaign> selectedItems = campaignsList.getSelectionModel().getSelectedItems();
-            Model m = new Model(campaignTitle.getText(), dataHolder);
-            models.add(m);
-
-            Campaign campaign = new Campaign((long) campaignsList.getItems().size() - 1,
-                    campaignTitle.textProperty().getValue());
-            campaign.setModel(m);
-            campaignsList.getItems().add(campaign);
-        });
 
         campaignTitle.textProperty().addListener(((observable, oldValue, newValue) -> {
             update(campaignTitle.getText());
@@ -153,17 +156,14 @@ public class DashboardController extends GlobalController implements Initializab
             if (newValue.length() > 2) {
                 if (campaignsList.getItems().stream().noneMatch(c -> c.getTitle().equals(newValue))) {
                     feedbackMsg.textProperty().setValue("");
-                    createCampaignBtn.setDisable(false);
+                    importImpressionLog.setDisable(false);
+                    importClickLog.setDisable(false);
+                    importServerLog.setDisable(false);
                 } else {
                     feedbackMsg.textProperty().setValue("Campaign with such name already exists.");
-                    createCampaignBtn.setDisable(true);
                 }
             } else {
                 feedbackMsg.textProperty().setValue("Campaign title should contain at least 3 characters.");
-                createCampaignBtn.setDisable(true);
-            }
-            if (!isUniqueCampaignTitle(newValue)) {
-                createCampaignBtn.setDisable(true);
             }
         }));
 //        model = new Model();
@@ -222,7 +222,11 @@ public class DashboardController extends GlobalController implements Initializab
 
         campaignsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         campaignsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            loadCampaignBtn.setDisable(false);
+            if(newValue != null) {
+                loadCampaignBtn.setDisable(false);
+                uploadBtn.setDisable(false);
+                deleteCampaignBtn.setDisable(false);
+            }
         });
 
         loadCampaignBtn.setOnMouseReleased(e -> {
@@ -298,12 +302,17 @@ public class DashboardController extends GlobalController implements Initializab
             m.setCampaignTitle(m.getName());
             m.uploadData();
         });
+
         createCampaignBtn.setOnMouseReleased(e -> {
-            if (isUniqueCampaignTitle(campaignTitle.getText())) {
+            boolean canAdd = true;
+            if (campaignTitle.getText().length() < 3) feedbackMsg.setText("Please, enter a campaign title.");
+            else if (!isUniqueCampaignTitle(campaignTitle.getText())) feedbackMsg.setText("Campaign with such name already exists.");
+            else if(!importImpressionLog.getText().equals("Change file...")) feedbackMsg.setText("Please, upload Impression Log data.");
+            else if(!importServerLog.getText().equals("Change file...")) feedbackMsg.setText("Please, upload Server Log data.");
+            else if(!importClickLog.getText().equals("Change file...")) feedbackMsg.setText("Please, upload Click Log data.");
+            else {
                 models.add(new Model(campaignTitle.getText(), dataHolder));
                 campaignsList.getItems().add(new Campaign(0, campaignTitle.textProperty().getValue()));
-            } else {
-                feedbackMsg.textProperty().setValue("Campaign with this name already exists.");
             }
         });
     }
@@ -423,18 +432,6 @@ public class DashboardController extends GlobalController implements Initializab
             ObservableList<Campaign> observableList = FXCollections.observableList(campaignsSet);
 
             campaignsList.setItems(observableList);
-            campaignsList.setCellFactory(param -> new ListCell<Campaign>() {
-                @Override
-                protected void updateItem(Campaign item, boolean empty) {
-                    super.updateItem(item, empty);
-
-                    if (empty || item == null || item.getTitle() == null) {
-                        setText(null);
-                    } else {
-                        setText(item.getTitle());
-                    }
-                }
-            });
         });
 
         new Thread(getCampaignsTask).start();
@@ -477,7 +474,7 @@ public class DashboardController extends GlobalController implements Initializab
         }
     }
 
-    public boolean isUniqueCampaignTitle(String title) {
+    private boolean isUniqueCampaignTitle(String title) {
         for (Model model : models) {
             if (model.getName().equals(title)) {
                 return false;

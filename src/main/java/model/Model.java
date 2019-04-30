@@ -37,7 +37,7 @@ public class Model extends Task<Void> implements Observable {
 
     private Connection con;
     private int BATCH_SIZE = 1000;
-    private String user;
+    private User user;
 
     private List<ImpressionLog> impressionLog = new ArrayList<>();
     private List<ClickLog> clickLog = new ArrayList<>();
@@ -99,6 +99,7 @@ public class Model extends Task<Void> implements Observable {
         impressionLog.addAll(rawDataHolder.getImpressionLog());
         clickLog.addAll(rawDataHolder.getClickLog());
         serverLog.addAll(rawDataHolder.getServerLog());
+        setMetrics();
         notifyObservers();
     }
 
@@ -152,9 +153,12 @@ public class Model extends Task<Void> implements Observable {
         this.name = name;
     }
 
-
-    public void setUser(String user) {
+    public void setUser(User user) {
         this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     Object entry;
@@ -306,6 +310,10 @@ public class Model extends Task<Void> implements Observable {
     //True sets class to calculate costs based om impression costs, whereas false uses click costs
     public void setCostMode(boolean impressionCostMode) {
         this.impressionCost = impressionCostMode;
+    }
+
+    public RawDataHolder getRawDataHolder() {
+        return rawDataHolder;
     }
 
 //------------CALCULATING DATA------------------------------------------------------------------------------------------

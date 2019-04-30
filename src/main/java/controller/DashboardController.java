@@ -301,7 +301,7 @@ public class DashboardController extends GlobalController implements Initializab
 
         createCampaignBtn.setOnMouseReleased(e -> {
             boolean canAdd = true;
-            if (campaignTitle.getText().length() < 3) feedbackMsg.setText("Please, enter a campaign name.");
+            if (campaignTitle.getText().length() < 3) feedbackMsg.setText("Please, enter a campaign title.");
             else if (!isUniqueCampaignTitle(campaignTitle.getText())) feedbackMsg.setText("Campaign with such name already exists.");
             else if(!impProgress.isVisible()) feedbackMsg.setText("Please, upload Impression Log data.");
             else if(!servProgress.isVisible()) feedbackMsg.setText("Please, upload Server Log data.");

@@ -39,6 +39,7 @@ import java.awt.print.PrinterJob;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -127,6 +128,11 @@ public class CampaignController extends GlobalController implements Initializabl
     @FXML
     private JFXButton removeFilter;
 
+    /* Comparing Filtered Metrics */
+    private HashMap<String, Integer> campaignCopies = new HashMap<>();
+
+    @FXML
+    private JFXButton duplicateCampaign;
     /* Histogram control */
     @FXML
     private JFXButton clickCostHistogram;
@@ -266,12 +272,11 @@ public class CampaignController extends GlobalController implements Initializabl
         chartProgress.toFront();
         chartProgress.setVisible(false);
         chartProgress.progressProperty().unbind();
-
-        for (Model model: models) {
-            campaignsList.getItems().add(model.getName());
-            model.addObserver(this);
+        for (Model model:models) {
             new Thread(model).start();
         }
+        updateList();
+
 
         customBRBtn.setDisable(false);
         appliedFiltersList.setDisable(false);
@@ -343,6 +348,25 @@ public class CampaignController extends GlobalController implements Initializabl
             removeFilter.setDisable(true);
         });
 
+        duplicateCampaign.setOnMouseClicked(event -> {
+
+            Model m = this.getSelectedModel();
+
+            if( campaignCopies.keySet().contains(m.getName())) {
+                campaignCopies.put(m.getName(), campaignCopies.get(m.getName()) + 1);
+
+            }
+            else {
+                campaignCopies.put(m.getName(),1);
+
+            }
+
+            Model dupe = new Model("Copy # " + campaignCopies.get(m.getName()) + " of " + m.getName(), m.getRawDataHolder());
+            this.models.add(dupe);
+
+
+            update("filter");
+        });
 
         clickCostHistogram.setOnMouseClicked(event -> {
             FXMLLoader fxmlLoader = new FXMLLoader();
@@ -384,6 +408,16 @@ public class CampaignController extends GlobalController implements Initializabl
         });
 
         initHighlighting();
+    }
+
+    public void updateList() {
+        for (Model model: models) {
+            if(!campaignsList.getItems().contains(model.getName())){
+                campaignsList.getItems().add(model.getName());
+            }
+            model.addObserver(this);
+
+        }
     }
 
     private void initGranularityGrid() {
@@ -483,6 +517,7 @@ public class CampaignController extends GlobalController implements Initializabl
         }
         updateFilterList(getSelectedModel());
         updateMetrics(getSelectedModel());
+        updateList();
     }
 
     class BounceTimeReset extends Task<Void> {

@@ -149,10 +149,6 @@ public class Model extends Task<Void> implements Observable {
         return name;
     }
 
-    public RawDataHolder getRawDataHolder() {
-        return rawDataHolder;
-    }
-
     public void setName(String name) {
         this.name = name;
     }

@@ -602,13 +602,14 @@ public class CampaignController extends GlobalController implements Initializabl
         costTypeCombo.getSelectionModel().selectedItemProperty().addListener(
                 ((observable, oldValue, newValue) ->{
                     switch (newValue){
-                        case "ImpressionCost":
+                        case "Impression Cost":
                             selectedModel.setCostMode(true);
                             break;
                         case "Click Cost":
                             selectedModel.setCostMode(false);
                             break;
                     }
+                    update("filter");
                 })
         );
     }

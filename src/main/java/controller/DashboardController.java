@@ -58,9 +58,6 @@ public class DashboardController extends GlobalController implements Initializab
     private JFXButton importServerLog;
 
     @FXML
-    private JFXButton addTestCampaign;
-
-    @FXML
     private TitledPane newCampaignPane;
 
     @FXML

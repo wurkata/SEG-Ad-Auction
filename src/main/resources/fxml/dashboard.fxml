@@ -132,6 +132,5 @@
          <!--</VBox.margin>-->
       <!--</JFXButton>-->
       <!--<JFXButton disable="true" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" prefHeight="60.0" text="Instagram Campaign" />-->
-            <JFXButton fx:id="addTestCampaign" disable="false" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Directly Add Campaign (Testing)" />
     </children>
 </VBox>

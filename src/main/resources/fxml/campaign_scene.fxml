@@ -19,6 +19,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import org.jfree.chart.fx.ChartViewer?>
 
 <VBox prefHeight="850.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
@@ -98,6 +99,9 @@
                   <VBox.margin>
                      <Insets top="-5.0" />
                   </VBox.margin>
+                  <font>
+                     <Font name="System Bold" size="12.0" />
+                  </font>
                     </Label>
                     <GridPane fx:id="granularityGrid" alignment="CENTER" hgap="10.0" maxHeight="150.0" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" prefHeight="150.0" vgap="20.0" VBox.vgrow="NEVER">
                         <columnConstraints>
@@ -185,6 +189,9 @@
                         </JFXCheckBox>
                     </GridPane>
                     <Label text="Campaign Filters">
+                        <font>
+                            <Font name="System Bold" size="12.0" />
+                        </font>
                         <opaqueInsets>
                             <Insets />
                         </opaqueInsets>
@@ -262,7 +269,14 @@
                         <Label text="Select Primary Campaign" textAlignment="CENTER">
                      <padding>
                         <Insets bottom="5.0" top="5.0" />
-                     </padding></Label>
+                     </padding>
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font></Label>
+                        <Label fx:id="selectedCampaignLabel" text="Currently Selected Campaign: None">
+                            <padding>
+                                <Insets bottom="5.0" top="5.0" />
+                            </padding></Label>
                         <JFXListView fx:id="campaignsList" prefHeight="606.0" prefWidth="250.0">
                             <padding>
                                 <Insets bottom="10.0" />

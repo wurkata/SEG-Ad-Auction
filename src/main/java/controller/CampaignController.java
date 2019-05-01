@@ -185,8 +185,8 @@ public class CampaignController extends GlobalController implements Initializabl
     @FXML
     private Spinner highlightSpinner;
 
-//    @FXML
-//    private ComboBox highlightCombo;
+    @FXML
+    private Label selectedCampaignLabel;
 
 
     public List<Model> models;
@@ -279,7 +279,7 @@ public class CampaignController extends GlobalController implements Initializabl
                 JOptionPane.showMessageDialog(new JFXPanel(), "Please select a campaign to remove.", "No Campaign Selected", JOptionPane.ERROR_MESSAGE);
             }else{
                 if(models.size()<=1) {
-                    JOptionPane.showMessageDialog(new JFXPanel(), "Must have at least one campaign loaded.\nUse the \"DashBoard\" button to go back to the dashboard to start again.", "Must Have At Least One Campaign Loaded", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(new JFXPanel(), "Cannot remove campaign when only one is loaded.\nUse the \"DashBoard\" button to go back to the dashboard to start again.", "Must Have At Least One Campaign Loaded", JOptionPane.ERROR_MESSAGE);
                 }else{
                     campaignsList.getItems().remove(campaignsList.getSelectionModel().getSelectedItem());
                     models.remove(selectedModel);
@@ -287,6 +287,7 @@ public class CampaignController extends GlobalController implements Initializabl
                     for(Model m:models){
                         if(m.getName().equals(campaignsList.getSelectionModel().getSelectedItem().toString())){
                             selectedModel=m;
+                            selectedCampaignLabel.setText("Currently Selected Campaign: \n"+m.getName());
                             resetBounceButton(m);
                             break;
                         }
@@ -437,6 +438,7 @@ public class CampaignController extends GlobalController implements Initializabl
                     updateMetrics(model);
                     updateFilterList(model);
                     this.selectedModel=model;
+                    selectedCampaignLabel.setText("Currently Selected Campaign: \n"+model.getName());
                     resetBounceButton(model);
                 }
             }

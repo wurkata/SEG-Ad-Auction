@@ -106,6 +106,8 @@ public class DashboardController extends GlobalController implements Initializab
     private User user;
 
     public DashboardController() {
+        campaignsList = new ListView<>();
+        this.user = new User(-1, "Guest");
     }
 
     public DashboardController(User user) {
@@ -156,7 +158,7 @@ public class DashboardController extends GlobalController implements Initializab
         campaignsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 loadCampaignBtn.setDisable(false);
-                uploadBtn.setDisable((user == null || !newValue.isNew));
+                uploadBtn.setDisable((user == null || !newValue.isNew)|| !AccountController.online);
                 deleteCampaignBtn.setDisable(false);
 
                 if(!newValue.isNew) {

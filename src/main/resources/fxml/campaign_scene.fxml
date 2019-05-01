@@ -359,7 +359,7 @@
                 </VBox>
             </left>
             <right>
-                <VBox>
+                <VBox maxWidth="250.0">
                     <VBox alignment="TOP_CENTER">
                         <Label text="Select Primary Campaign" textAlignment="CENTER">
                      <padding>

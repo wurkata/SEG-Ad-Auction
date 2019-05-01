@@ -309,7 +309,7 @@ public class CampaignController extends GlobalController implements Initializabl
                     for(Model m:models){
                         if(m.getName().equals(campaignsList.getSelectionModel().getSelectedItem().toString())){
                             selectedModel=m;
-                            selectedCampaignLabel.setText("Currently Selected Campaign: "+m.getName());
+                            selectedCampaignLabel.setText("Currently Selected Campaign: \n"+m.getName());
                             resetBounceButton(m);
                             break;
                         }
@@ -460,7 +460,7 @@ public class CampaignController extends GlobalController implements Initializabl
                     updateMetrics(model);
                     updateFilterList(model);
                     this.selectedModel=model;
-                    selectedCampaignLabel.setText("Currently Selected Campaign: "+model.getName());
+                    selectedCampaignLabel.setText("Currently Selected Campaign: \n"+model.getName());
                     if(addFilter.isDisabled()){
                         addFilter.setDisable(false);
                     }
@@ -474,6 +474,7 @@ public class CampaignController extends GlobalController implements Initializabl
 
         initHighlighting();
         initCostTypeCombo();
+        update("files");
     }
 
     private void resetBounceButton(Model model){

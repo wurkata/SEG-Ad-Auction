@@ -8,8 +8,11 @@ import common.Granularity;
 import common.Metric;
 import common.Observer;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
@@ -26,7 +29,9 @@ import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import model.Campaign;
 import model.Model;
+import model.User;
 import org.jfree.chart.ChartPanel;
 
 import org.jfree.chart.fx.ChartViewer;
@@ -40,10 +45,7 @@ import java.awt.print.PrinterJob;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class CampaignController extends GlobalController implements Initializable, Observer {
@@ -189,6 +191,9 @@ public class CampaignController extends GlobalController implements Initializabl
     private Label selectedCampaignLabel;
 
 
+    @FXML
+    private JFXComboBox<String> costTypeCombo;
+
     public List<Model> models;
 
     private GraphController graphControllerService;
@@ -201,8 +206,18 @@ public class CampaignController extends GlobalController implements Initializabl
     private String theme_dark;
 
     private DashboardController dashboard;
+    private User user;
 
     CampaignController(List<Model> models) {
+        this.models = models;
+
+
+        graphControllerService = new GraphController(this, models);
+        graphControllerService.addObserver(this);
+    }
+
+    CampaignController(List<Model> models, User user) {
+        this.user = user;
         this.models = models;
 
 
@@ -268,7 +283,14 @@ public class CampaignController extends GlobalController implements Initializabl
 
         backToDashboardBtn.setOnMouseReleased(e-> {
             try {
-                goTo("dashboard", (Stage) backToDashboardBtn.getScene().getWindow(),this.dashboard);
+                user.setModels(models);
+                DashboardController dashBC = new DashboardController(user);
+                List<Campaign> campaigns = new ArrayList<Campaign>();
+                for (Model model : models) {
+                    campaigns.add(new Campaign(model.getName(), model.getRawDataHolder(), model));
+                }
+                dashBC.getCampaignsList().getItems().addAll(campaigns);
+                goTo("dashboard", (Stage) backToDashboardBtn.getScene().getWindow(),dashBC);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -287,7 +309,7 @@ public class CampaignController extends GlobalController implements Initializabl
                     for(Model m:models){
                         if(m.getName().equals(campaignsList.getSelectionModel().getSelectedItem().toString())){
                             selectedModel=m;
-                            selectedCampaignLabel.setText("Currently Selected Campaign: "+m.getName());
+                            selectedCampaignLabel.setText("Currently Selected Campaign: \n"+m.getName());
                             resetBounceButton(m);
                             break;
                         }
@@ -313,7 +335,7 @@ public class CampaignController extends GlobalController implements Initializabl
 
         customBRBtn.setDisable(false);
         appliedFiltersList.setDisable(false);
-        addFilter.setDisable(false);
+//        addFilter.setDisable(false);
 
 
         chartToggleGroup.selectedToggleProperty().addListener(e -> {
@@ -385,34 +407,40 @@ public class CampaignController extends GlobalController implements Initializabl
         duplicateCampaign.setOnMouseClicked(event -> {
 
             Model m = this.getSelectedModel();
+            if(selectedModel==null){
+                JOptionPane.showMessageDialog(new JFXPanel(), "Please select a campaign to duplicate.", "No Campaign Selected", JOptionPane.ERROR_MESSAGE);
+            }else {
+                if (campaignCopies.keySet().contains(m.getName())) {
+                    campaignCopies.put(m.getName(), campaignCopies.get(m.getName()) + 1);
 
-            if( campaignCopies.keySet().contains(m.getName())) {
-                campaignCopies.put(m.getName(), campaignCopies.get(m.getName()) + 1);
+                } else {
+                    campaignCopies.put(m.getName(), 1);
 
+                }
+
+                Model dupe = new Model("Copy # " + campaignCopies.get(m.getName()) + " of " + m.getName(), m.getRawDataHolder());
+                this.models.add(dupe);
+                dupe.addObserver(this);
+
+                update("filter");
             }
-            else {
-                campaignCopies.put(m.getName(),1);
-
-            }
-
-            Model dupe = new Model("Copy # " + campaignCopies.get(m.getName()) + " of " + m.getName(), m.getRawDataHolder());
-            this.models.add(dupe);
-            dupe.addObserver(this);
-
-            update("filter");
         });
 
         clickCostHistogram.setOnMouseClicked(event -> {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("/fxml/histogram.fxml"));
-            fxmlLoader.setController(new HistogramController(getSelectedModel()));
-            try {
-                Stage histogram = new Stage();
-                histogram.setTitle("Click Cost Histogram");
-                histogram.setScene(new Scene(fxmlLoader.load()));
-                histogram.show();
-            } catch (Exception e) {
-                e.printStackTrace();
+            if(selectedModel==null){
+                JOptionPane.showMessageDialog(new JFXPanel(), "Please select a campaign to generate a click-cost histogram for.", "No Campaign Selected", JOptionPane.ERROR_MESSAGE);
+            }else {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(getClass().getResource("/fxml/histogram.fxml"));
+                fxmlLoader.setController(new HistogramController(getSelectedModel()));
+                try {
+                    Stage histogram = new Stage();
+                    histogram.setTitle("Click Cost Histogram");
+                    histogram.setScene(new Scene(fxmlLoader.load()));
+                    histogram.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -438,13 +466,30 @@ public class CampaignController extends GlobalController implements Initializabl
                     updateMetrics(model);
                     updateFilterList(model);
                     this.selectedModel=model;
-                    selectedCampaignLabel.setText("Currently Selected Campaign: "+model.getName());
+                    selectedCampaignLabel.setText("Currently Selected Campaign: \n"+model.getName());
+                    if(addFilter.isDisabled()){
+                        addFilter.setDisable(false);
+                    }
+                    if(costTypeCombo.isDisabled()){
+                        costTypeCombo.setDisable(false);
+                    }
+                    if(clickCostHistogram.isDisabled()){
+                        clickCostHistogram.setDisable(false);
+                    }
+                    if(duplicateCampaign.isDisabled()){
+                        duplicateCampaign.setDisable(false);
+                    }
+                    if(removeCampaignBtn.isDisabled()){
+                        removeCampaignBtn.setDisable(false);
+                    }
                     resetBounceButton(model);
                 }
             }
         });
 
         initHighlighting();
+        initCostTypeCombo();
+        update("files");
     }
 
     private void resetBounceButton(Model model){
@@ -457,6 +502,12 @@ public class CampaignController extends GlobalController implements Initializabl
             BRTimeSpentS.getValueFactory().setValue(model.getBounceSeconds());
         }else{
             customBRBtn.setSelected(false);
+        }
+
+        if(model.getCostMode()){
+            costTypeCombo.getSelectionModel().select(0);
+        }else{
+            costTypeCombo.getSelectionModel().select(1);
         }
     }
 
@@ -500,12 +551,26 @@ public class CampaignController extends GlobalController implements Initializabl
         noUniqueClicks.setText(Long.toString(model.getNumOfUniqueClicks()));
         noConversions.setText(Long.toString(model.getNumOfConversions()));
         noBounces.setText(Long.toString(model.getNumOfBounces()));
-        bounceRate.setText(Double.toString(model.getBounceRate()));
-        totalCost.setText(Double.toString(model.getTotalCost()));
-        CTR.setText(Double.toString(model.getCTR()));
-        CPC.setText(Double.toString(model.getClickCost()));
-        CPM.setText(Double.toString(model.getCPM()));
-        CPA.setText(Double.toString(model.getCPA()));
+
+        String doubleString;
+
+        doubleString = Double.toString(model.getBounceRate());
+        bounceRate.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getTotalCost());
+        totalCost.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getCTR());
+        CTR.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getClickCost());
+        CPC.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getCPM());
+        CPM.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getCPA());
+        CPA.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
     }
 
     private void updateFilterList(Model model){
@@ -528,6 +593,25 @@ public class CampaignController extends GlobalController implements Initializabl
                 filters.add(i + ": " + model.getIncomeFilters().get(i).getFilterName());
             }
         }
+    }
+
+    private void initCostTypeCombo(){
+        ObservableList<String> options = FXCollections.observableArrayList("Impression Cost", "Click Cost");
+        costTypeCombo.setItems(options);
+        costTypeCombo.getSelectionModel().select(0);
+        costTypeCombo.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) ->{
+                    switch (newValue){
+                        case "Impression Cost":
+                            selectedModel.setCostMode(true);
+                            break;
+                        case "Click Cost":
+                            selectedModel.setCostMode(false);
+                            break;
+                    }
+                    graphControllerService.restart();
+                })
+        );
     }
 
     private void initTimeSpinners() {
@@ -556,6 +640,7 @@ public class CampaignController extends GlobalController implements Initializabl
 //                initBindings();
                 break;
             case "metrics":
+                if (selectedModel!=null) updateMetrics(selectedModel);
                 break;
             case "filter":
                 if (campaignChartViewer.getChart() != null) {

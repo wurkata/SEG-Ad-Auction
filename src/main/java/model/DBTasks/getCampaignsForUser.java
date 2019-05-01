@@ -1,5 +1,6 @@
 package model.DBTasks;
 
+import controller.AccountController;
 import javafx.concurrent.Task;
 import model.Campaign;
 import model.DAO.DBPool;
@@ -24,18 +25,20 @@ public class getCampaignsForUser extends Task<List<Campaign>> {
 
     @Override
     protected List<Campaign> call() throws Exception {
-        con = DBPool.getConnection();
-        String query = "SELECT * FROM campaigns WHERE user_id=?";
-        PreparedStatement stmt = con.prepareStatement(query);
-        stmt.setLong(1, userId);
+        if(AccountController.online) {
+            con = DBPool.getConnection();
+            String query = "SELECT * FROM campaigns WHERE user_id=?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setLong(1, userId);
 
-        ResultSet resultSet = stmt.executeQuery();
-        List<Campaign> res = new ArrayList<>();
+            ResultSet resultSet = stmt.executeQuery();
+            List<Campaign> res = new ArrayList<>();
 
-        while (resultSet.next()) {
-            res.add(new Campaign(resultSet.getLong(1), resultSet.getString("title"), false));
-        }
+            while (resultSet.next()) {
+                res.add(new Campaign(resultSet.getLong(1), resultSet.getString("title"), false));
+            }
 
-        return res;
+            return res;
+        }else return new ArrayList<Campaign>();
     }
 }

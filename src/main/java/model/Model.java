@@ -205,8 +205,13 @@ public class Model extends Task<Void> implements Observable {
     //True sets class to calculate costs based om impression costs, whereas false uses click costs
     public void setCostMode(boolean impressionCostMode) {
         this.impressionCost = impressionCostMode;
+        notifyObservers("metrics");
+
     }
 
+    public boolean getCostMode() {
+        return impressionCost;
+    }
 //------------CALCULATING DATA------------------------------------------------------------------------------------------
 
     //calculates cost based on either impression cost or click cost depending on value of impressionCost field

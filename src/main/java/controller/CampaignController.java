@@ -287,7 +287,7 @@ public class CampaignController extends GlobalController implements Initializabl
                     for(Model m:models){
                         if(m.getName().equals(campaignsList.getSelectionModel().getSelectedItem().toString())){
                             selectedModel=m;
-                            selectedCampaignLabel.setText("Currently Selected Campaign: \n"+m.getName());
+                            selectedCampaignLabel.setText("Currently Selected Campaign: "+m.getName());
                             resetBounceButton(m);
                             break;
                         }
@@ -438,7 +438,7 @@ public class CampaignController extends GlobalController implements Initializabl
                     updateMetrics(model);
                     updateFilterList(model);
                     this.selectedModel=model;
-                    selectedCampaignLabel.setText("Currently Selected Campaign: \n"+model.getName());
+                    selectedCampaignLabel.setText("Currently Selected Campaign: "+model.getName());
                     resetBounceButton(model);
                 }
             }

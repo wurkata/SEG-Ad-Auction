@@ -360,7 +360,7 @@ public class CampaignController extends GlobalController implements Initializabl
 
                 Scene scene = new Scene(fxmlLoader.load());
                 Stage stage = new Stage();
-                stage.setTitle("Add Filter");
+                stage.setTitle("Add Filter To "+selectedModel.getName());
                 stage.setScene(scene);
                 stage.show();
             } catch (Exception er) {

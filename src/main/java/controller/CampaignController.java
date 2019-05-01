@@ -8,9 +8,11 @@ import common.Granularity;
 import common.Metric;
 import common.Observer;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
@@ -27,7 +29,9 @@ import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import model.Campaign;
 import model.Model;
+import model.User;
 import org.jfree.chart.ChartPanel;
 
 import org.jfree.chart.fx.ChartViewer;
@@ -41,10 +45,7 @@ import java.awt.print.PrinterJob;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class CampaignController extends GlobalController implements Initializable, Observer {
@@ -205,8 +206,18 @@ public class CampaignController extends GlobalController implements Initializabl
     private String theme_dark;
 
     private DashboardController dashboard;
+    private User user;
 
     CampaignController(List<Model> models) {
+        this.models = models;
+
+
+        graphControllerService = new GraphController(this, models);
+        graphControllerService.addObserver(this);
+    }
+
+    CampaignController(List<Model> models, User user) {
+        this.user = user;
         this.models = models;
 
 
@@ -272,7 +283,14 @@ public class CampaignController extends GlobalController implements Initializabl
 
         backToDashboardBtn.setOnMouseReleased(e-> {
             try {
-                goTo("dashboard", (Stage) backToDashboardBtn.getScene().getWindow(),this.dashboard);
+                user.setModels(models);
+                DashboardController dashBC = new DashboardController(user);
+                List<Campaign> campaigns = new ArrayList<Campaign>();
+                for (Model model : models) {
+                    campaigns.add(new Campaign(model.getName(), model.getRawDataHolder(), model));
+                }
+                dashBC.getCampaignsList().getItems().addAll(campaigns);
+                goTo("dashboard", (Stage) backToDashboardBtn.getScene().getWindow(),dashBC);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

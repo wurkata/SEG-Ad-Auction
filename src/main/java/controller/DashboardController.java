@@ -109,6 +109,7 @@ public class DashboardController extends GlobalController implements Initializab
     }
 
     public DashboardController(User user) {
+        campaignsList = new ListView<>();
         this.user = user;
     }
 
@@ -242,10 +243,11 @@ public class DashboardController extends GlobalController implements Initializab
 
         loadCampaignBtn.setOnMouseReleased(e -> {
             modelsToLoad.addAll(getSelectedCampaigns());
+            user.setModels(models);
 
             if (modelsToLoad != null) {
                 try {
-                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(modelsToLoad));
+                    goTo("campaign_scene", (Stage) loadCampaignBtn.getScene().getWindow(), new CampaignController(modelsToLoad, user));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -495,7 +497,11 @@ public class DashboardController extends GlobalController implements Initializab
 
             ObservableList<Campaign> observableList = FXCollections.observableList(campaignsSet);
 
-            campaignsList.setItems(observableList);
+            for (Model model: user.getModels()) {
+                observableList.add(new Campaign(model.getName(), model.getRawDataHolder(), model));
+            }
+            campaignsList.getItems().addAll(observableList);
+            models.addAll(user.getModels());
         });
 
         new Thread(getCampaignsTask).start();
@@ -692,5 +698,21 @@ public class DashboardController extends GlobalController implements Initializab
             super.succeeded();
             uploadProgress.setVisible(false);
         }
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public ListView<Campaign> getCampaignsList() {
+        return campaignsList;
+    }
+
+    public void setCampaignsList(ListView<Campaign> campaignsList) {
+        this.campaignsList = campaignsList;
     }
 }

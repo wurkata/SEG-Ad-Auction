@@ -609,7 +609,7 @@ public class CampaignController extends GlobalController implements Initializabl
                             selectedModel.setCostMode(false);
                             break;
                     }
-                    update("filter");
+                    graphControllerService.restart();
                 })
         );
     }
@@ -640,7 +640,7 @@ public class CampaignController extends GlobalController implements Initializabl
 //                initBindings();
                 break;
             case "metrics":
-                updateMetrics(selectedModel);
+                if (selectedModel!=null) updateMetrics(selectedModel);
                 break;
             case "filter":
                 if (campaignChartViewer.getChart() != null) {

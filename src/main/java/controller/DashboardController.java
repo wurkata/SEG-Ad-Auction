@@ -17,7 +17,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
 import model.DAO.DBPool;
+import model.DAO.SubjectsDAO;
 import model.DBTasks.DB;
+import model.DBTasks.Insert;
 import model.DBTasks.getCampaignsForUser;
 
 import javax.swing.*;
@@ -28,6 +30,8 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static model.DAO.DAO.BATCH_SIZE;
 
 @SuppressWarnings("unused")
 public class DashboardController extends GlobalController implements Initializable, Observer {
@@ -78,11 +82,14 @@ public class DashboardController extends GlobalController implements Initializab
     private JFXButton uploadBtn;
 
     @FXML
+    private Label uploadProgressMsg;
+
+    @FXML
     private ProgressIndicator uploadProgress;
 
 
     private List<Model> models = new ArrayList<Model>();
-    private List<Model> modelsToLoad = new ArrayList<Model>();
+    private List<Model> modelsToLoad = new ArrayList<>();
     private JFXButton drawCampaigns;
 
     @FXML
@@ -99,13 +106,13 @@ public class DashboardController extends GlobalController implements Initializab
 
     private File inputFile;
 
-    private boolean isOnline;
+    private User user;
 
     public DashboardController() {
     }
 
-    public DashboardController(Boolean isOnline) {
-        this.isOnline = isOnline;
+    public DashboardController(User user) {
+        this.user = user;
     }
 
 //    public DashboardController(Model model) {
@@ -132,7 +139,7 @@ public class DashboardController extends GlobalController implements Initializab
         RawDataHolder dataHolder = new RawDataHolder();
         dataHolder.addObserver(this);
 
-        if (isOnline) getCampaigns();
+        if (user != null) getCampaigns();
 
         campaignsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         campaignsList.setCellFactory(param -> new ListCell<Campaign>() {
@@ -144,6 +151,20 @@ public class DashboardController extends GlobalController implements Initializab
                     setText(null);
                 } else {
                     setText(item.getTitle());
+                }
+            }
+        });
+
+        campaignsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                loadCampaignBtn.setDisable(false);
+                uploadBtn.setDisable((user == null || !newValue.isNew));
+                deleteCampaignBtn.setDisable(false);
+
+                if(!newValue.isNew) {
+                    uploadProgressMsg.setText("Selected campaign is already uploaded in the database.");
+                } else {
+                    uploadProgressMsg.setText("");
                 }
             }
         });
@@ -210,22 +231,15 @@ public class DashboardController extends GlobalController implements Initializab
                 loadCampaignBtn.translateYProperty().setValue(230);
                 uploadProgress.translateYProperty().setValue(230);
                 uploadBtn.translateYProperty().setValue(230);
+                uploadProgressMsg.translateYProperty().setValue(230);
                 deleteCampaignBtn.translateYProperty().setValue(230);
             } else {
                 campaignsList.translateYProperty().setValue(15);
                 loadCampaignBtn.translateYProperty().setValue(0);
                 uploadProgress.translateYProperty().setValue(0);
                 uploadBtn.translateYProperty().setValue(0);
+                uploadProgressMsg.translateYProperty().setValue(0);
                 deleteCampaignBtn.translateYProperty().setValue(0);
-            }
-        });
-
-        campaignsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        campaignsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                loadCampaignBtn.setDisable(false);
-                uploadBtn.setDisable(!isOnline);
-                deleteCampaignBtn.setDisable(false);
             }
         });
 
@@ -298,9 +312,42 @@ public class DashboardController extends GlobalController implements Initializab
 
         uploadBtn.setOnMouseReleased(e -> {
             uploadProgress.setVisible(true);
-            Model m = campaignsList.getSelectionModel().getSelectedItems().get(0).getModel();
-            m.setCampaignTitle(m.getName());
-            m.uploadData();
+            Campaign c = campaignsList.getSelectionModel().getSelectedItems().get(0);
+
+            String query = "INSERT INTO campaigns (title, user_id) VALUES (" +
+                    "'" + c.getTitle() + "'," +
+                    "(SELECT id FROM users WHERE username='" + user.getName() + "'))";
+            Insert insertTask = new Insert(query);
+
+            new Thread(insertTask).start();
+
+            SubjectsDAO subjectsDAO = new SubjectsDAO(c.getModel().getSubjects());
+            UploadData uploadImp = new UploadData(c, FileType.IMPRESSION_LOG);
+            UploadData uploadCli = new UploadData(c, FileType.CLICK_LOG);
+            UploadData uploadSer = new UploadData(c, FileType.SERVER_LOG);
+
+            subjectsDAO.setOnSucceeded(a -> {
+                uploadProgressMsg.setText("Uploading IMPRESSION LOG...");
+                uploadProgress.progressProperty().bind(uploadImp.progressProperty());
+                new Thread(uploadImp).start();
+            });
+            uploadImp.setOnSucceeded(a -> {
+                uploadProgressMsg.setText("Uploading CLICK LOG...");
+                uploadProgress.progressProperty().bind(uploadCli.progressProperty());
+                new Thread(uploadCli).start();
+            });
+            uploadCli.setOnSucceeded(a -> {
+                uploadProgressMsg.setText("Uploading SERVER LOG...");
+                uploadProgress.progressProperty().bind(uploadSer.progressProperty());
+                new Thread(uploadSer).start();
+            });
+            uploadSer.setOnSucceeded(a -> {
+                uploadProgressMsg.setText("Data was successfully uploaded.");
+            });
+
+            uploadProgressMsg.setText("Uploading Users Data...");
+            uploadProgress.progressProperty().bind(subjectsDAO.progressProperty());
+            new Thread(subjectsDAO).start();
         });
 
         createCampaignBtn.setOnMouseReleased(e -> {
@@ -310,13 +357,18 @@ public class DashboardController extends GlobalController implements Initializab
                 feedbackMsg.setText("Campaign with such name already exists.");
             else if (!importImpressionLog.getText().equals("Change file..."))
                 feedbackMsg.setText("Please, upload Impression Log data.");
-            else if (!importServerLog.getText().equals("Change file..."))
-                feedbackMsg.setText("Please, upload Server Log data.");
             else if (!importClickLog.getText().equals("Change file..."))
                 feedbackMsg.setText("Please, upload Click Log data.");
+            else if (!importServerLog.getText().equals("Change file..."))
+                feedbackMsg.setText("Please, upload Server Log data.");
             else {
-                models.add(new Model(campaignTitle.getText(), dataHolder));
-                campaignsList.getItems().add(new Campaign(0, campaignTitle.textProperty().getValue()));
+                Model m = new Model(campaignTitle.getText(), dataHolder);
+                models.add(m);
+
+                Campaign c = new Campaign(0, campaignTitle.textProperty().getValue(), true);
+                c.setModel(m);
+                c.setRdh(dataHolder);
+                campaignsList.getItems().add(c);
             }
         });
 
@@ -325,7 +377,7 @@ public class DashboardController extends GlobalController implements Initializab
             selectedItems.forEach(c -> models.remove(c.getModel()));
             campaignsList.getItems().removeAll(selectedItems);
 
-            if (isOnline) {
+            if (user != null) {
                 DeleteCampaign deleteCampaignTask = new DeleteCampaign(selectedItems);
             }
         });
@@ -344,7 +396,6 @@ public class DashboardController extends GlobalController implements Initializab
             models.add(model);
             model.setUser(AccountController.user);
             model.setCampaignTitle(campaignTitle.textProperty().getValue());
-            if (AccountController.online) model.uploadData();
 
             model.addObserver(this);
             RawDataHolder rdh = parserService.getRawDataHolder();
@@ -501,5 +552,146 @@ public class DashboardController extends GlobalController implements Initializab
         }
 
         return modelsToAdd;
+    }
+
+    private class UploadData extends Task<List<Object>> {
+
+        private FileType type;
+        private Campaign c;
+        private RawDataHolder dataHolder;
+        private Connection con;
+        private Object entry;
+
+        public UploadData(Campaign c, FileType type) {
+            this.c = c;
+            this.type = type;
+            dataHolder = c.getRdh();
+        }
+
+        @Override
+        protected List<Object> call() {
+            if(AccountController.online) {
+                try {
+                    con = DBPool.getConnection();
+                    PreparedStatement pstmt;
+
+                    int i;
+
+                    switch (type) {
+                        case IMPRESSION_LOG:
+                            pstmt = con.prepareStatement("INSERT INTO impression_log (campaign_id, subject_id, date, context, cost) " +
+                                    "VALUES (" +
+                                    "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
+                                    "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
+                                    "?, ?, ?" +
+                                    ")"
+                            );
+
+                            i = 0;
+
+                            List<ImpressionLog> impressionLog = dataHolder.getImpressionLog();
+                            for (ImpressionLog log : impressionLog) {
+                                pstmt.setString(1, c.getTitle());
+                                pstmt.setString(2, log.getSubjectID());
+                                pstmt.setString(3, log.getImpressionDate().toString());
+                                pstmt.setString(4, log.getContext());
+                                pstmt.setDouble(5, log.getImpressionCost());
+
+                                pstmt.addBatch();
+
+                                i++;
+
+                                if (i % BATCH_SIZE == 0) {
+                                    pstmt.executeBatch();
+                                    con.commit();
+                                }
+                            }
+                            pstmt.executeBatch();
+                            DBPool.closeConnection(con);
+                            break;
+                        case CLICK_LOG:
+                            pstmt = con.prepareStatement("INSERT INTO click_log(campaign_id, subject_id, date, click_cost) " +
+                                    "VALUES (" +
+                                    "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
+                                    "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
+                                    "?, ?" +
+                                    ")"
+                            );
+
+                            i = 0;
+
+                            List<ClickLog> clickLog = dataHolder.getClickLog();
+                            for (ClickLog log : clickLog) {
+                                pstmt.setString(1, c.getTitle());
+                                pstmt.setString(2, log.getSubjectID());
+                                pstmt.setString(3, log.getClickDate().toString());
+                                pstmt.setDouble(4, log.getClickCost());
+
+                                pstmt.addBatch();
+
+                                i++;
+
+                                if (i % BATCH_SIZE == 0) {
+                                    pstmt.executeBatch();
+                                    con.commit();
+                                }
+                            }
+                            pstmt.executeBatch();
+                            con.commit();
+                            break;
+                        case SERVER_LOG:
+                            pstmt = con.prepareStatement("INSERT INTO server_log (campaign_id, subject_id, entry_date, exit_date, pages_viewed, conversion) " +
+                                    "VALUES (" +
+                                    "(SELECT id FROM campaigns WHERE title=? LIMIT 1), " +
+                                    "(SELECT id FROM subjects WHERE subject_id=? LIMIT 1), " +
+                                    "?, ?, ?, ?" +
+                                    ")"
+                            );
+
+                            i = 0;
+
+                            List<ServerLog> serverLog= dataHolder.getServerLog();
+                            for (ServerLog log : serverLog) {
+                                pstmt.setString(1, c.getTitle());
+                                pstmt.setString(2, log.getSubjectID());
+                                pstmt.setString(3, (entry = log.getEntryDate()) == null ? "null" : entry.toString());
+                                pstmt.setString(4, (entry = log.getExitDate()) == null ? "null" : entry.toString());
+                                pstmt.setInt(5, (int) (entry = log.getPagesViewed()) < 0 ? -1 : (int) entry);
+                                pstmt.setBoolean(6, log.getConversion() > 0);
+
+                                pstmt.addBatch();
+
+                                i++;
+
+                                if (i % BATCH_SIZE == 0) {
+                                    pstmt.executeBatch();
+                                    con.commit();
+                                }
+                            }
+                            pstmt.executeBatch();
+                            con.commit();
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void failed() {
+            super.failed();
+            uploadProgressMsg.setText("Uploading data failed...");
+            uploadProgress.setVisible(false);
+        }
+
+        @Override
+        protected void succeeded() {
+            super.succeeded();
+            uploadProgress.setVisible(false);
+        }
     }
 }

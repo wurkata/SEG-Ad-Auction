@@ -68,7 +68,8 @@ public class AccountController extends GlobalController implements Initializable
             useOfflineBtn.setOnMouseReleased(e -> {
                 try {
                     online = false;
-                    goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController(null));
+                    user=new User(-1, "Guest");
+                    goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController(user));
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

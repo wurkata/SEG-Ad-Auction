@@ -105,14 +105,18 @@ public class DashboardController extends GlobalController implements Initializab
 
     private User user;
 
-    public DashboardController() {
-        campaignsList = new ListView<>();
-        this.user = new User(-1, "Guest");
-    }
+//    public DashboardController() {
+//        campaignsList = new ListView<>();
+//        this.user = new User(-1, "Guest");
+//    }
 
     public DashboardController(User user) {
         campaignsList = new ListView<>();
-        this.user = user;
+        if(user!=null){
+            this.user = user;
+        }else{
+            this.user=new User(-1, "Guest");
+        }
     }
 
 //    public DashboardController(Model model) {
@@ -139,7 +143,7 @@ public class DashboardController extends GlobalController implements Initializab
         RawDataHolder dataHolder = new RawDataHolder();
         dataHolder.addObserver(this);
 
-        if (user != null) getCampaigns();
+        if (user!=null) getCampaigns();
 
         campaignsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         campaignsList.setCellFactory(param -> new ListCell<Campaign>() {

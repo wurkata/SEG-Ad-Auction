@@ -308,43 +308,45 @@ public class DashboardController extends GlobalController implements Initializab
         });
 
         uploadBtn.setOnMouseReleased(e -> {
-            uploadProgress.setVisible(true);
-            Campaign c = campaignsList.getSelectionModel().getSelectedItems().get(0);
+            if(JOptionPane.showConfirmDialog(new JFXPanel(), "In order to upload data, you must first consent to the data processing regulations of the SEG13.\n Do you wish to consent and proceed?", "Data Processing Consent Required", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)==JOptionPane.YES_OPTION) {
+                uploadProgress.setVisible(true);
+                Campaign c = campaignsList.getSelectionModel().getSelectedItems().get(0);
 
-            String query = "INSERT INTO campaigns (title, user_id) VALUES (" +
-                    "'" + c.getTitle() + "'," +
-                    "(SELECT id FROM users WHERE username='" + user.getName() + "'))";
-            Insert insertTask = new Insert(query);
+                String query = "INSERT INTO campaigns (title, user_id) VALUES (" +
+                        "'" + c.getTitle() + "'," +
+                        "(SELECT id FROM users WHERE username='" + user.getName() + "'))";
+                Insert insertTask = new Insert(query);
 
-            new Thread(insertTask).start();
+                new Thread(insertTask).start();
 
-            SubjectsDAO subjectsDAO = new SubjectsDAO(c.getModel().getSubjects());
-            UploadData uploadImp = new UploadData(c, FileType.IMPRESSION_LOG);
-            UploadData uploadCli = new UploadData(c, FileType.CLICK_LOG);
-            UploadData uploadSer = new UploadData(c, FileType.SERVER_LOG);
+                SubjectsDAO subjectsDAO = new SubjectsDAO(c.getModel().getSubjects());
+                UploadData uploadImp = new UploadData(c, FileType.IMPRESSION_LOG);
+                UploadData uploadCli = new UploadData(c, FileType.CLICK_LOG);
+                UploadData uploadSer = new UploadData(c, FileType.SERVER_LOG);
 
-            subjectsDAO.setOnSucceeded(a -> {
-                uploadProgressMsg.setText("Uploading IMPRESSION LOG...");
-                uploadProgress.progressProperty().bind(uploadImp.progressProperty());
-                new Thread(uploadImp).start();
-            });
-            uploadImp.setOnSucceeded(a -> {
-                uploadProgressMsg.setText("Uploading CLICK LOG...");
-                uploadProgress.progressProperty().bind(uploadCli.progressProperty());
-                new Thread(uploadCli).start();
-            });
-            uploadCli.setOnSucceeded(a -> {
-                uploadProgressMsg.setText("Uploading SERVER LOG...");
-                uploadProgress.progressProperty().bind(uploadSer.progressProperty());
-                new Thread(uploadSer).start();
-            });
-            uploadSer.setOnSucceeded(a -> {
-                uploadProgressMsg.setText("Data was successfully uploaded.");
-            });
+                subjectsDAO.setOnSucceeded(a -> {
+                    uploadProgressMsg.setText("Uploading IMPRESSION LOG...");
+                    uploadProgress.progressProperty().bind(uploadImp.progressProperty());
+                    new Thread(uploadImp).start();
+                });
+                uploadImp.setOnSucceeded(a -> {
+                    uploadProgressMsg.setText("Uploading CLICK LOG...");
+                    uploadProgress.progressProperty().bind(uploadCli.progressProperty());
+                    new Thread(uploadCli).start();
+                });
+                uploadCli.setOnSucceeded(a -> {
+                    uploadProgressMsg.setText("Uploading SERVER LOG...");
+                    uploadProgress.progressProperty().bind(uploadSer.progressProperty());
+                    new Thread(uploadSer).start();
+                });
+                uploadSer.setOnSucceeded(a -> {
+                    uploadProgressMsg.setText("Data was successfully uploaded.");
+                });
 
-            uploadProgressMsg.setText("Uploading Users Data...");
-            uploadProgress.progressProperty().bind(subjectsDAO.progressProperty());
-            new Thread(subjectsDAO).start();
+                uploadProgressMsg.setText("Uploading Users Data...");
+                uploadProgress.progressProperty().bind(subjectsDAO.progressProperty());
+                new Thread(subjectsDAO).start();
+            }
         });
 
         createCampaignBtn.setOnMouseReleased(e -> {

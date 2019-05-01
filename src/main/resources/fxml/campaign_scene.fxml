@@ -23,6 +23,7 @@
 <?import org.jfree.chart.fx.ChartViewer?>
 
 <?import javafx.scene.control.Tooltip?>
+<?import com.jfoenix.controls.JFXComboBox?>
 <VBox prefHeight="850.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
     <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefHeight="40.0" style="-fx-background-color: #89cff0;" styleClass="accessibility-holder">
         <JFXButton fx:id="backToDashboardBtn" mnemonicParsing="false" text="Dashboard">
@@ -82,7 +83,7 @@
                         </Label>
                         <Label fx:id="totalCost" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="1">
                             <tooltip>
-                                <Tooltip text="Total Cost"/>
+                                <Tooltip text="Total Cost /pence"/>
                             </tooltip>
                         </Label>
                         <Label fx:id="CTR" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="2">
@@ -92,17 +93,17 @@
                         </Label>
                         <Label fx:id="CPC" text="n/a" GridPane.columnIndex="3" GridPane.rowIndex="3">
                             <tooltip>
-                                <Tooltip text="Cost-per-Click"/>
+                                <Tooltip text="Cost-per-Click /pence"/>
                             </tooltip>
                         </Label>
                         <Label fx:id="CPM" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="0">
                             <tooltip>
-                                <Tooltip text="Cost-per-Thousand Impressions"/>
+                                <Tooltip text="Cost-per-Thousand Impressions /pence"/>
                             </tooltip>
                         </Label>
                         <Label fx:id="CPA" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="1" >
                             <tooltip>
-                                <Tooltip text="Cost-per-Acquisition"/>
+                                <Tooltip text="Cost-per-Acquisition /pence"/>
                             </tooltip>
                         </Label>
                         <Label fx:id="bounceRate" text="n/a" GridPane.columnIndex="5" GridPane.rowIndex="2" >
@@ -140,7 +141,7 @@
                         </JFXRadioButton>
                         <JFXRadioButton fx:id="totalCostBtn" disable="true" mnemonicParsing="false" text="Total Cost" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="1">
                             <tooltip>
-                                <Tooltip text="Total Cost"/>
+                                <Tooltip text="Total Cost /pence"/>
                             </tooltip>
                         </JFXRadioButton>
                         <JFXRadioButton fx:id="CTRBtn" disable="true" mnemonicParsing="false" text="CTR" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="2">
@@ -150,17 +151,17 @@
                         </JFXRadioButton>
                         <JFXRadioButton fx:id="CPCBtn" disable="true" mnemonicParsing="false" text="CPC" toggleGroup="$chartToggleGroup" GridPane.columnIndex="2" GridPane.rowIndex="3">
                             <tooltip>
-                                <Tooltip text="Cost-per-Click"/>
+                                <Tooltip text="Cost-per-Click /pence"/>
                             </tooltip>
                         </JFXRadioButton>
                         <JFXRadioButton fx:id="CPMBtn" disable="true" mnemonicParsing="false" text="CPM" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4">
                             <tooltip>
-                                <Tooltip text="Cost-per-Thousand Impressions"/>
+                                <Tooltip text="Cost-per-Thousand Impressions /pence"/>
                             </tooltip>
                         </JFXRadioButton>
                         <JFXRadioButton fx:id="CPABtn" disable="true" mnemonicParsing="false" text="CPA" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="1">
                             <tooltip>
-                                <Tooltip text="Cost-per-Acquisition"/>
+                                <Tooltip text="Cost-per-Acquisition /pence"/>
                             </tooltip>
                         </JFXRadioButton>
                         <JFXRadioButton fx:id="bounceRateBtn" disable="true" mnemonicParsing="false" text="Bounce Rate" toggleGroup="$chartToggleGroup" GridPane.columnIndex="4" GridPane.rowIndex="2">
@@ -224,6 +225,12 @@
                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                         </padding>
                     </GridPane>
+
+                    <VBox>
+                        <Label text="Metric For Cost Calculations"/>
+                        <JFXComboBox fx:id="costTypeCombo" disable="true"/>
+                    </VBox>
+
                     <GridPane fx:id="customBRGrid">
                         <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="70.0" />

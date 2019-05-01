@@ -10,6 +10,7 @@ import common.Observer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
@@ -188,6 +189,9 @@ public class CampaignController extends GlobalController implements Initializabl
     @FXML
     private Label selectedCampaignLabel;
 
+
+    @FXML
+    private JFXComboBox<String> costTypeCombo;
 
     public List<Model> models;
 
@@ -442,12 +446,16 @@ public class CampaignController extends GlobalController implements Initializabl
                     if(addFilter.isDisabled()){
                         addFilter.setDisable(false);
                     }
+                    if(costTypeCombo.isDisabled()){
+                        costTypeCombo.setDisable(false);
+                    }
                     resetBounceButton(model);
                 }
             }
         });
 
         initHighlighting();
+        initCostTypeCombo();
     }
 
     private void resetBounceButton(Model model){
@@ -460,6 +468,12 @@ public class CampaignController extends GlobalController implements Initializabl
             BRTimeSpentS.getValueFactory().setValue(model.getBounceSeconds());
         }else{
             customBRBtn.setSelected(false);
+        }
+
+        if(model.getCostMode()){
+            costTypeCombo.getSelectionModel().select(0);
+        }else{
+            costTypeCombo.getSelectionModel().select(1);
         }
     }
 
@@ -503,12 +517,26 @@ public class CampaignController extends GlobalController implements Initializabl
         noUniqueClicks.setText(Long.toString(model.getNumOfUniqueClicks()));
         noConversions.setText(Long.toString(model.getNumOfConversions()));
         noBounces.setText(Long.toString(model.getNumOfBounces()));
-        bounceRate.setText(Double.toString(model.getBounceRate()));
-        totalCost.setText(Double.toString(model.getTotalCost()));
-        CTR.setText(Double.toString(model.getCTR()));
-        CPC.setText(Double.toString(model.getClickCost()));
-        CPM.setText(Double.toString(model.getCPM()));
-        CPA.setText(Double.toString(model.getCPA()));
+
+        String doubleString;
+
+        doubleString = Double.toString(model.getBounceRate());
+        bounceRate.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getTotalCost());
+        totalCost.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getCTR());
+        CTR.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getClickCost());
+        CPC.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getCPM());
+        CPM.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
+
+        doubleString = Double.toString(model.getCPA());
+        CPA.setText(doubleString.substring(0, doubleString.indexOf('.')+4));
     }
 
     private void updateFilterList(Model model){
@@ -531,6 +559,24 @@ public class CampaignController extends GlobalController implements Initializabl
                 filters.add(i + ": " + model.getIncomeFilters().get(i).getFilterName());
             }
         }
+    }
+
+    private void initCostTypeCombo(){
+        ObservableList<String> options = FXCollections.observableArrayList("Impression Cost", "Click Cost");
+        costTypeCombo.setItems(options);
+        costTypeCombo.getSelectionModel().select(0);
+        costTypeCombo.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) ->{
+                    switch (newValue){
+                        case "ImpressionCost":
+                            selectedModel.setCostMode(true);
+                            break;
+                        case "Click Cost":
+                            selectedModel.setCostMode(false);
+                            break;
+                    }
+                })
+        );
     }
 
     private void initTimeSpinners() {
@@ -559,6 +605,7 @@ public class CampaignController extends GlobalController implements Initializabl
 //                initBindings();
                 break;
             case "metrics":
+                updateMetrics(selectedModel);
                 break;
             case "filter":
                 if (campaignChartViewer.getChart() != null) {

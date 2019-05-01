@@ -407,34 +407,40 @@ public class CampaignController extends GlobalController implements Initializabl
         duplicateCampaign.setOnMouseClicked(event -> {
 
             Model m = this.getSelectedModel();
+            if(selectedModel==null){
+                JOptionPane.showMessageDialog(new JFXPanel(), "Please select a campaign to duplicate.", "No Campaign Selected", JOptionPane.ERROR_MESSAGE);
+            }else {
+                if (campaignCopies.keySet().contains(m.getName())) {
+                    campaignCopies.put(m.getName(), campaignCopies.get(m.getName()) + 1);
 
-            if( campaignCopies.keySet().contains(m.getName())) {
-                campaignCopies.put(m.getName(), campaignCopies.get(m.getName()) + 1);
+                } else {
+                    campaignCopies.put(m.getName(), 1);
 
+                }
+
+                Model dupe = new Model("Copy # " + campaignCopies.get(m.getName()) + " of " + m.getName(), m.getRawDataHolder());
+                this.models.add(dupe);
+                dupe.addObserver(this);
+
+                update("filter");
             }
-            else {
-                campaignCopies.put(m.getName(),1);
-
-            }
-
-            Model dupe = new Model("Copy # " + campaignCopies.get(m.getName()) + " of " + m.getName(), m.getRawDataHolder());
-            this.models.add(dupe);
-            dupe.addObserver(this);
-
-            update("filter");
         });
 
         clickCostHistogram.setOnMouseClicked(event -> {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("/fxml/histogram.fxml"));
-            fxmlLoader.setController(new HistogramController(getSelectedModel()));
-            try {
-                Stage histogram = new Stage();
-                histogram.setTitle("Click Cost Histogram");
-                histogram.setScene(new Scene(fxmlLoader.load()));
-                histogram.show();
-            } catch (Exception e) {
-                e.printStackTrace();
+            if(selectedModel==null){
+                JOptionPane.showMessageDialog(new JFXPanel(), "Please select a campaign to generate a click-cost histogram for.", "No Campaign Selected", JOptionPane.ERROR_MESSAGE);
+            }else {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(getClass().getResource("/fxml/histogram.fxml"));
+                fxmlLoader.setController(new HistogramController(getSelectedModel()));
+                try {
+                    Stage histogram = new Stage();
+                    histogram.setTitle("Click Cost Histogram");
+                    histogram.setScene(new Scene(fxmlLoader.load()));
+                    histogram.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -466,6 +472,15 @@ public class CampaignController extends GlobalController implements Initializabl
                     }
                     if(costTypeCombo.isDisabled()){
                         costTypeCombo.setDisable(false);
+                    }
+                    if(clickCostHistogram.isDisabled()){
+                        clickCostHistogram.setDisable(false);
+                    }
+                    if(duplicateCampaign.isDisabled()){
+                        duplicateCampaign.setDisable(false);
+                    }
+                    if(removeCampaignBtn.isDisabled()){
+                        removeCampaignBtn.setDisable(false);
                     }
                     resetBounceButton(model);
                 }

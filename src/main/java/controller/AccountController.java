@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class AccountController extends GlobalController implements Initializable {
-    public static boolean online=true;
+    public static boolean online = true;
 
     @FXML
     JFXTextField usernameField;
@@ -64,15 +64,15 @@ public class AccountController extends GlobalController implements Initializable
 
         feedbackMsg.textProperty().setValue("");
 
-        useOfflineBtn.setOnMouseReleased(e -> {
-            try {
-                online=false;
-                user=new User(-1, "Guest");
-                goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController());
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-        });
+        if (_STATE.equals("Login"))
+            useOfflineBtn.setOnMouseReleased(e -> {
+                try {
+                    online = false;
+                    goTo("dashboard", (Stage) useOfflineBtn.getScene().getWindow(), new DashboardController(null));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            });
 
         usernameField.textProperty().addListener(((observable, oldValue, newValue) -> {
             isValidInputUser = newValue.length() > 2;

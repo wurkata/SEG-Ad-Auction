@@ -313,7 +313,7 @@ public class CampaignController extends GlobalController implements Initializabl
 
         customBRBtn.setDisable(false);
         appliedFiltersList.setDisable(false);
-        addFilter.setDisable(false);
+//        addFilter.setDisable(false);
 
 
         chartToggleGroup.selectedToggleProperty().addListener(e -> {
@@ -439,6 +439,9 @@ public class CampaignController extends GlobalController implements Initializabl
                     updateFilterList(model);
                     this.selectedModel=model;
                     selectedCampaignLabel.setText("Currently Selected Campaign: "+model.getName());
+                    if(addFilter.isDisabled()){
+                        addFilter.setDisable(false);
+                    }
                     resetBounceButton(model);
                 }
             }

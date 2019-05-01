@@ -26,6 +26,7 @@
         <JFXButton fx:id="backToDashboardBtn" mnemonicParsing="false" text="Dashboard">
         </JFXButton>
         <JFXButton fx:id="printBtn" mnemonicParsing="false" text="Print">
+
             <HBox>
             </HBox>
         </JFXButton>
@@ -262,10 +263,20 @@
                      <padding>
                         <Insets bottom="5.0" top="5.0" />
                      </padding></Label>
-                        <JFXListView fx:id="campaignsList" prefHeight="621.0" prefWidth="250.0">
+                        <JFXListView fx:id="campaignsList" prefHeight="606.0" prefWidth="250.0">
                             <padding>
                                 <Insets bottom="10.0" />
-                            </padding></JFXListView>
+                            </padding>
+                        </JFXListView>
+                        <JFXButton fx:id="removeCampaignBtn" text="Remove Campaign">
+                            <style>
+                                <!--Style code from https://stackoverflow.com/a/30680668-->
+                                -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+                                -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+                                -fx-background-radius: 3px, 3px, 2px, 1px;
+                                -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; /* 4 8 4 8 */
+                            </style>
+                        </JFXButton>
                     </VBox>
                     <VBox>
                         <HBox>

@@ -13,6 +13,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
+import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -104,6 +105,9 @@ public class CampaignController extends GlobalController implements Initializabl
     JFXRadioButton CPMBtn;
     @FXML
     JFXRadioButton CPABtn;
+
+    @FXML
+    JFXButton removeCampaignBtn;
 
     /* Bounce Rate control */
     @FXML
@@ -269,6 +273,33 @@ public class CampaignController extends GlobalController implements Initializabl
                 e1.printStackTrace();
             }
         });
+
+        removeCampaignBtn.setOnMouseReleased(e->{
+            if(selectedModel==null){
+                JOptionPane.showMessageDialog(new JFXPanel(), "Please select a campaign to remove.", "No Campaign Selected", JOptionPane.ERROR_MESSAGE);
+            }else{
+                if(models.size()<=1) {
+                    JOptionPane.showMessageDialog(new JFXPanel(), "Must have at least one campaign loaded.\nUse the \"DashBoard\" button to go back to the dashboard to start again.", "Must Have At Least One Campaign Loaded", JOptionPane.ERROR_MESSAGE);
+                }else{
+                    campaignsList.getItems().remove(campaignsList.getSelectionModel().getSelectedItem());
+                    models.remove(selectedModel);
+                    campaignsList.getSelectionModel().select(0);
+                    for(Model m:models){
+                        if(m.getName().equals(campaignsList.getSelectionModel().getSelectedItem().toString())){
+                            selectedModel=m;
+                            resetBounceButton(m);
+                            break;
+                        }
+
+                    }
+                    update("filter");
+                }
+
+
+            }
+        });
+
+
         chartProgress.toFront();
         chartProgress.setVisible(false);
         chartProgress.progressProperty().unbind();
@@ -406,21 +437,25 @@ public class CampaignController extends GlobalController implements Initializabl
                     updateMetrics(model);
                     updateFilterList(model);
                     this.selectedModel=model;
-                    if(model.getCustomBounce()){
-                        customBRBtn.setSelected(true);
-                        BRPagesVisited.getValueFactory().setValue(model.getBouncePages());
-                        long millis = model.getBounceTime();
-                        BRTimeSpentH.getValueFactory().setValue(model.getBounceHours());
-                        BRTimeSpentM.getValueFactory().setValue(model.getBounceMinutes());
-                        BRTimeSpentS.getValueFactory().setValue(model.getBounceSeconds());
-                    }else{
-                        customBRBtn.setSelected(false);
-                    }
+                    resetBounceButton(model);
                 }
             }
         });
 
         initHighlighting();
+    }
+
+    private void resetBounceButton(Model model){
+        if(model.getCustomBounce()){
+            customBRBtn.setSelected(true);
+            BRPagesVisited.getValueFactory().setValue(model.getBouncePages());
+            long millis = model.getBounceTime();
+            BRTimeSpentH.getValueFactory().setValue(model.getBounceHours());
+            BRTimeSpentM.getValueFactory().setValue(model.getBounceMinutes());
+            BRTimeSpentS.getValueFactory().setValue(model.getBounceSeconds());
+        }else{
+            customBRBtn.setSelected(false);
+        }
     }
 
     public void updateList() {
